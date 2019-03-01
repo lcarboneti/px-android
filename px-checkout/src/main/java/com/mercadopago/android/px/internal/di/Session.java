@@ -179,11 +179,6 @@ public final class Session extends ApplicationModule
     }
 
     @NonNull
-    private Device getDevice() {
-        return new Device(getContext());
-    }
-
-    @NonNull
     public MercadoPagoServicesAdapter getMercadoPagoServiceAdapter() {
         final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
         return new MercadoPagoServicesAdapter(getContext(), paymentSettings.getPublicKey(),
@@ -278,7 +273,7 @@ public final class Session extends ApplicationModule
     }
 
     @NonNull
-    private TokenRepository getTokenRepository() {
+    public TokenRepository getTokenRepository() {
         return new TokenizeService(getRetrofitClient().create(GatewayService.class),
             getConfigurationModule().getPaymentSettings(),
             getMercadoPagoESC(), getDevice());

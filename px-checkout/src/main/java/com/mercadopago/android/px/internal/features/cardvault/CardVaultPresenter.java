@@ -2,16 +2,15 @@ package com.mercadopago.android.px.internal.features.cardvault;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import com.mercadopago.android.px.internal.base.MvpPresenter;
+import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
-import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
 import com.mercadopago.android.px.internal.controllers.PaymentMethodGuessingController;
 import com.mercadopago.android.px.internal.datasource.MercadoPagoESC;
 import com.mercadopago.android.px.internal.features.installments.PayerCostListener;
 import com.mercadopago.android.px.internal.features.installments.PayerCostSolver;
-import com.mercadopago.android.px.internal.features.providers.CardVaultProvider;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
+import com.mercadopago.android.px.internal.repository.TokenRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.internal.util.EscUtil;
@@ -21,18 +20,19 @@ import com.mercadopago.android.px.model.CardInfo;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentRecovery;
-import com.mercadopago.android.px.model.SavedESCCardToken;
 import com.mercadopago.android.px.model.Token;
+import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
-import com.mercadopago.android.px.tracking.internal.MPTracker;
+import com.mercadopago.android.px.services.Callback;
 import java.util.List;
 
-public class CardVaultPresenter extends MvpPresenter<CardVaultView, CardVaultProvider> implements PayerCostListener {
+public class CardVaultPresenter extends BasePresenter<CardVaultView> implements PayerCostListener {
 
     @NonNull /* default */ final MercadoPagoESC mercadoPagoESC;
     @NonNull /* default */ final AmountConfigurationRepository amountConfigurationRepository;
     @NonNull /* default */ final UserSelectionRepository userSelectionRepository;
     @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
+    @NonNull /* default */ final TokenRepository tokenRepository;
 
     private FailureRecovery failureRecovery;
     @NonNull private final PayerCostSolver payerCostSolver;
@@ -59,12 +59,14 @@ public class CardVaultPresenter extends MvpPresenter<CardVaultView, CardVaultPro
         @NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final MercadoPagoESC mercadoPagoESC,
         @NonNull final AmountConfigurationRepository amountConfigurationRepository,
-        @NonNull final PayerCostSolver payerCostSolver) {
+        @NonNull final PayerCostSolver payerCostSolver,
+        @NonNull final TokenRepository tokenRepository) {
         this.userSelectionRepository = userSelectionRepository;
         this.paymentSettingRepository = paymentSettingRepository;
         this.mercadoPagoESC = mercadoPagoESC;
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.payerCostSolver = payerCostSolver;
+        this.tokenRepository = tokenRepository;
     }
 
     public void initialize() {
@@ -196,10 +198,6 @@ public class CardVaultPresenter extends MvpPresenter<CardVaultView, CardVaultPro
     public void resolveSecurityCodeRequest() {
         setToken(paymentSettingRepository.getToken());
         getView().finishWithResult();
-        // esto esta raro
-        //if (tokenRecoveryAvailable()) {
-        //    getView().askForInstallments();
-        //}
     }
 
     public void resolveNewCardRequest() {
@@ -264,51 +262,32 @@ public class CardVaultPresenter extends MvpPresenter<CardVaultView, CardVaultPro
     /* default */ void createESCToken() {
         getView().showProgressLayout();
 
-        final SavedESCCardToken escCardToken = SavedESCCardToken.createWithEsc(card.getId(), esc);
-        getResourcesProvider()
-            .createESCTokenAsync(escCardToken, new TaggedCallback<Token>(ApiUtil.RequestOrigin.CREATE_TOKEN) {
-                @Override
-                public void onSuccess(final Token token) {
-                    CardVaultPresenter.this.token = token;
-                    CardVaultPresenter.this.token.setLastFourDigits(card.getLastFourDigits());
-                    paymentSettingRepository.configure(CardVaultPresenter.this.token);
-                    MPTracker.getInstance().trackTokenId(CardVaultPresenter.this.token.getId(),
-                        paymentSettingRepository.getPublicKey(),
-                        paymentSettingRepository.getCheckoutPreference().getSite());
-                    mercadoPagoESC.saveESC(token.getCardId(), token.getEsc());
+        tokenRepository.createToken(card).enqueue(new Callback<Token>() {
+            @Override
+            public void success(final Token token) {
+                if (isViewAttached()) {
+                    getView().finishWithResult();
+                }
+            }
+
+            @Override
+            public void failure(final ApiException apiException) {
+                if (EscUtil.isInvalidEscForApiException(apiException)) {
+                    //Start CVV screen if fail
+                    esc = null;
                     if (isViewAttached()) {
-                        getView().finishWithResult();
+                        getView().startSecurityCodeActivity();
+                    }
+                } else {
+                    //Retry with error screen
+                    if (isViewAttached()) {
+                        getView().showError(new MercadoPagoError(apiException, ApiUtil.RequestOrigin.CREATE_TOKEN),
+                            ApiUtil.RequestOrigin.CREATE_TOKEN);
+                        setFailureRecovery(() -> createESCToken());
                     }
                 }
-
-                @Override
-                public void onFailure(final MercadoPagoError error) {
-                    if (error.isApiException() &&
-                        EscUtil.isInvalidEscForApiException(error.getApiException())) {
-                        mercadoPagoESC.deleteESC(escCardToken.getCardId());
-                        esc = null;
-                        //Start CVV screen if fail
-                        if (isViewAttached()) {
-                            getView().startSecurityCodeActivity();
-                        }
-                    } else {
-                        //Retry with error screen
-                        recoverCreateESCToken(error);
-                    }
-                }
-            });
-    }
-
-    /* default */ void recoverCreateESCToken(final MercadoPagoError error) {
-        if (isViewAttached()) {
-            getView().showError(error, ApiUtil.RequestOrigin.CREATE_TOKEN);
-            setFailureRecovery(new FailureRecovery() {
-                @Override
-                public void recover() {
-                    createESCToken();
-                }
-            });
-        }
+            }
+        });
     }
 
     @Override

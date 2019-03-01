@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.mercadopago.android.px.internal.datasource.cache.FileManager;
 import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.internal.util.RetrofitUtil;
+import com.mercadopago.android.px.model.Device;
 import java.io.File;
 import retrofit2.Retrofit;
 
@@ -21,6 +22,11 @@ class ApplicationModule implements PreferenceComponent {
     @NonNull
     public Context getContext() {
         return context;
+    }
+
+    @NonNull
+    protected Device getDevice() {
+        return new Device(getContext());
     }
 
     @Override

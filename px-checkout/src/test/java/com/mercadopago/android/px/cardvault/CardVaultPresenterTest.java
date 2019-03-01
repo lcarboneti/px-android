@@ -5,18 +5,19 @@ import com.mercadopago.android.px.internal.datasource.MercadoPagoESC;
 import com.mercadopago.android.px.internal.features.cardvault.CardVaultPresenter;
 import com.mercadopago.android.px.internal.features.cardvault.CardVaultView;
 import com.mercadopago.android.px.internal.features.installments.PayerCostSolver;
-import com.mercadopago.android.px.internal.features.providers.CardVaultProvider;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
+import com.mercadopago.android.px.internal.repository.TokenRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
+import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Issuer;
 import com.mercadopago.android.px.model.PayerCost;
-import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.preferences.PaymentPreference;
+import com.mercadopago.android.px.utils.StubSuccessMpCall;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -35,12 +36,12 @@ public class CardVaultPresenterTest {
 
     private CardVaultPresenter presenter;
 
-    @Mock private CardVaultProvider cardVaultProvider;
     @Mock private PaymentSettingRepository paymentSettingRepository;
     @Mock private UserSelectionRepository userSelectionRepository;
     @Mock private AmountConfigurationRepository amountConfigurationRepository;
     @Mock private MercadoPagoESC mercadoPagoESC;
     @Mock private PayerCostSolver payerCostSolver;
+    @Mock private TokenRepository tokenRepository;
 
     @Mock private CardVaultView view;
 
@@ -49,11 +50,12 @@ public class CardVaultPresenterTest {
         configurePaymentPreferenceMock(null);
 
         presenter = new CardVaultPresenter(userSelectionRepository, paymentSettingRepository, mercadoPagoESC,
-            amountConfigurationRepository, payerCostSolver);
+            amountConfigurationRepository, payerCostSolver,
+            tokenRepository
+        );
 
         presenter.setPaymentRecovery(null);
         presenter.attachView(view);
-        presenter.attachResourcesProvider(cardVaultProvider);
     }
 
     private void configurePaymentPreferenceMock(@Nullable final Integer defaultInstallments) {
@@ -178,7 +180,8 @@ public class CardVaultPresenterTest {
     public void verifyResolvesOnSelectedPayerCostPayerCostListWithESC() {
         configureMockedCardWith();
         when(mercadoPagoESC.getESC(userSelectionRepository.getCard().getId())).thenReturn("1");
-
+        when(tokenRepository.createToken(userSelectionRepository.getCard()))
+            .thenReturn(new StubSuccessMpCall<>(mock(Token.class)));
         presenter.onSelectedPayerCost();
 
         verify(view).showProgressLayout();

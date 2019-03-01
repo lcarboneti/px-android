@@ -11,7 +11,6 @@ public class CardToken {
 
     private static final int MIN_LENGTH_NUMBER = 10;
     private static final int MAX_LENGTH_NUMBER = 19;
-    @SuppressWarnings("UseOfObsoleteDateTimeApi") private static final Calendar NOW = Calendar.getInstance();
 
     private Cardholder cardholder;
     private String cardNumber;
@@ -30,9 +29,12 @@ public class CardToken {
     }
 
     @Deprecated
-    public CardToken(final String cardNumber, @Nullable final Integer expirationMonth,
+    public CardToken(final String cardNumber,
+        @Nullable final Integer expirationMonth,
         @Nullable final Integer expirationYear,
-        final String securityCode, final String cardholderName, final String identificationType,
+        final String securityCode,
+        final String cardholderName,
+        final String identificationType,
         final String identificationNumber) {
         this.cardNumber = normalizeCardNumber(cardNumber);
         this.expirationMonth = expirationMonth;
@@ -104,18 +106,20 @@ public class CardToken {
 
     private static boolean hasYearPassed(final int year) {
         final int normalized = normalizeYear(year);
-        return normalized < NOW.get(Calendar.YEAR);
+        return normalized < Calendar.getInstance().get(Calendar.YEAR);
     }
 
     private static boolean hasMonthPassed(final int month, final int year) {
+        final Calendar now = Calendar.getInstance();
         return hasYearPassed(year) ||
-            normalizeYear(year) == NOW.get(Calendar.YEAR) && month < (NOW.get(Calendar.MONTH) + 1);
+            normalizeYear(year) == now.get(Calendar.YEAR) && month < (now.get(Calendar.MONTH) + 1);
     }
 
     private static Integer normalizeYear(final Integer year) {
+        final Calendar now = Calendar.getInstance();
         Integer normalizedYear = year;
         if ((year != null) && (year < 100 && year >= 0)) {
-            final String currentYear = String.valueOf(NOW.get(Calendar.YEAR));
+            final String currentYear = String.valueOf(now.get(Calendar.YEAR));
             final String prefix = currentYear.substring(0, currentYear.length() - 2);
             normalizedYear = Integer.parseInt(String.format(Locale.US, "%s%02d", prefix, year));
         }

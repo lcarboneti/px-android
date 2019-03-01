@@ -11,7 +11,7 @@ public class SavedCardToken {
     private String securityCode;
     private Device device;
 
-    public SavedCardToken(String cardId, String securityCode) {
+    public SavedCardToken(final String cardId, final String securityCode) {
         this.cardId = cardId;
         this.securityCode = securityCode;
     }
@@ -32,7 +32,7 @@ public class SavedCardToken {
         return cardId;
     }
 
-    public void setCardId(String cardNumber) {
+    public void setCardId(final String cardNumber) {
         cardId = cardNumber;
     }
 
@@ -40,7 +40,7 @@ public class SavedCardToken {
         return securityCode;
     }
 
-    public void setSecurityCode(String securityCode) {
+    public void setSecurityCode(final String securityCode) {
         this.securityCode = securityCode;
     }
 
@@ -56,7 +56,7 @@ public class SavedCardToken {
         return CardToken.validateSecurityCode(securityCode);
     }
 
-    public void validateSecurityCode(Card card) throws CardTokenException {
+    public void validateSecurityCode(final Card card) throws CardTokenException {
 
         // Validate security code length
         if (securityCode != null) {

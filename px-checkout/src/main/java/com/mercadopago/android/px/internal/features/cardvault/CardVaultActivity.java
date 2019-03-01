@@ -10,8 +10,6 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.Constants;
 import com.mercadopago.android.px.internal.features.guessing_card.GuessingCardActivity;
-import com.mercadopago.android.px.internal.features.providers.CardVaultProviderImpl;
-import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
@@ -39,15 +37,15 @@ public class CardVaultActivity extends AppCompatActivity implements CardVaultVie
 
     private CardVaultPresenter presenter;
 
-    private PaymentSettingRepository paymentSettingRepository;
 
     private void configure() {
         final Session session = Session.getSession(this);
-        paymentSettingRepository = session.getConfigurationModule().getPaymentSettings();
         presenter = new CardVaultPresenter(session.getConfigurationModule().getUserSelectionRepository(),
-            paymentSettingRepository,
-            session.getMercadoPagoESC(), session.getAmountConfigurationRepository(), session.providePayerCostSolver());
-        presenter.attachResourcesProvider(new CardVaultProviderImpl(getApplicationContext()));
+            session.getConfigurationModule().getPaymentSettings(),
+            session.getMercadoPagoESC(),
+            session.getAmountConfigurationRepository(),
+            session.providePayerCostSolver(),
+            session.getTokenRepository());
         presenter.attachView(this);
         final Card card = session.getConfigurationModule().getUserSelectionRepository().getCard();
         presenter.setCard(card);
@@ -79,7 +77,6 @@ public class CardVaultActivity extends AppCompatActivity implements CardVaultVie
     @Override
     protected void onDestroy() {
         presenter.detachView();
-        presenter.detachResourceProvider();
         super.onDestroy();
     }
 
