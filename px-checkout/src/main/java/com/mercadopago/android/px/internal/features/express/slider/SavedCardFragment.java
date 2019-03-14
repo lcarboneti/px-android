@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.internal.features.express.slider;
 
-import android.graphics.Color;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,11 +8,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import com.meli.android.carddrawer.model.CardDrawerView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.util.ResourceUtil;
-import com.mercadopago.android.px.internal.view.DynamicTextViewRowView;
 import com.mercadopago.android.px.internal.viewmodel.drawables.SavedCardDrawableFragmentItem;
 import com.mercadopago.android.px.model.PaymentTypes;
 
@@ -42,51 +40,34 @@ public class SavedCardFragment extends PaymentMethodFragment {
         if (arguments != null && arguments.containsKey(ARG_MODEL)) {
             final SavedCardDrawableFragmentItem drawableCard =
                 (SavedCardDrawableFragmentItem) arguments.getSerializable(ARG_MODEL);
-            tintBackground(view.findViewById(R.id.background), drawableCard.card.color);
-            setCardInformation(view, drawableCard);
-            setPaymentMethodIcon(view, drawableCard);
-            setIssuerIcon(view, drawableCard);
+            final CardDrawerView cardView = view.findViewById(R.id.card);
+            setIssuerIcon(view.getContext(), drawableCard);
+            setPaymentMethodIcon(view.getContext(), drawableCard);
+
+            cardView.getCard().setName(drawableCard.card.getName());
+            cardView.getCard().setExpiration(drawableCard.card.getDate());
+            cardView.getCard().setNumber(drawableCard.card.getNumber());
+            cardView.show(drawableCard.card);
         } else {
             throw new IllegalStateException("SavedCardFragment does not contain card information");
         }
     }
 
-    protected void setIssuerIcon(@NonNull final View view, @NonNull final SavedCardDrawableFragmentItem drawableCard) {
-        final ImageView issuerIcon = view.findViewById(R.id.card_issuer_logo);
-        final int issuerResource = ResourceUtil.getCardIssuerImage(view.getContext(), drawableCard.card.issuerImage);
+    protected void setIssuerIcon(@NonNull final Context context,
+        @NonNull final SavedCardDrawableFragmentItem drawableCard) {
+        final int issuerResource = ResourceUtil.getCardIssuerImage(context, drawableCard.card.getIssuerImageName());
 
         if (issuerResource > 0) {
-            issuerIcon.setImageResource(issuerResource);
+            drawableCard.card.setIssuerRes(issuerResource);
         }
     }
 
-    private void setPaymentMethodIcon(@NonNull final View view,
+    private void setPaymentMethodIcon(@NonNull final Context context,
         @NonNull final SavedCardDrawableFragmentItem drawableCard) {
-        final ImageView paymentMethodIcon = view.findViewById(R.id.card_payment_type_logo);
-        // set card brand image
-        final int paymentMethodResource = ResourceUtil.getCardImage(view.getContext(), drawableCard.paymentMethodId);
+        final int paymentMethodResource = ResourceUtil.getCardImage(context, drawableCard.paymentMethodId);
 
         if (paymentMethodResource > 0) {
-            paymentMethodIcon.setImageResource(paymentMethodResource);
+            drawableCard.card.setLogoRes(paymentMethodResource);
         }
-    }
-
-    private void setCardInformation(@NonNull final View view,
-        @NonNull final SavedCardDrawableFragmentItem drawableCard) {
-        final TextView cardHolderName = view.findViewById(R.id.card_holder_name);
-        final TextView expDate = view.findViewById(R.id.exp_date);
-        final int fontColor = Color.parseColor(drawableCard.card.fontColor);
-        cardHolderName.setTextColor(fontColor);
-        expDate.setTextColor(fontColor);
-        cardHolderName.setText(drawableCard.card.cardholderName);
-        expDate.setText(drawableCard.card.expiration);
-        setCardNumber(view, drawableCard, fontColor);
-    }
-
-    protected void setCardNumber(@NonNull final View view,
-        @NonNull final SavedCardDrawableFragmentItem drawableCard, final int fontColor) {
-        final DynamicTextViewRowView cardNumber = view.findViewById(R.id.card_number_view);
-        cardNumber.setColor(fontColor);
-        cardNumber.setText(drawableCard.card.getCardPattern(), DynamicTextViewRowView.SPACE);
     }
 }

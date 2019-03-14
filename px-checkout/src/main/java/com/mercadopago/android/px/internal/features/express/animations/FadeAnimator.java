@@ -60,13 +60,13 @@ public class FadeAnimator {
             viewToAnimate.clearAnimation();
             viewToAnimate.setVisibility(View.VISIBLE);
             final AlphaAnimation fade = createFade(1, 0);
-            fade.setAnimationListener(new HideViewOnAnimationListener(viewToAnimate));
+            fade.setAnimationListener(new FadeAnimationListener(viewToAnimate, View.INVISIBLE));
             fade.setDuration(normalDuration);
             viewToAnimate.startAnimation(fade);
         } else {
             cancelAnimation(viewToAnimate);
             viewToAnimate.clearAnimation();
-            viewToAnimate.setVisibility(View.GONE);
+            viewToAnimate.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -74,13 +74,13 @@ public class FadeAnimator {
         if (shouldGoneAnim(viewToAnimate)) {
             viewToAnimate.setVisibility(View.VISIBLE);
             final AlphaAnimation fade = createFade(1, 0);
-            fade.setAnimationListener(new HideViewOnAnimationListener(viewToAnimate));
+            fade.setAnimationListener(new FadeAnimationListener(viewToAnimate, View.INVISIBLE));
             fade.setDuration(fastDuration);
             viewToAnimate.startAnimation(fade);
         } else {
             cancelAnimation(viewToAnimate);
             viewToAnimate.clearAnimation();
-            viewToAnimate.setVisibility(View.GONE);
+            viewToAnimate.setVisibility(View.INVISIBLE);
         }
     }
 }

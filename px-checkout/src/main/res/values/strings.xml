@@ -279,4 +279,8 @@
     <!-- Disable payment method title pager -->
     <string name="px_payment_method_disable_card_title">Card unavailable for this payment</string>
     <string name="px_payment_method_disable_account_money_title">Method unavailable for this payment</string>
+
+    <!-- Card Drawer -->
+    <string name="px_card_aspect_ratio" translatable="false">H,256:158</string>
+    <string name="px_card_aspect_ratio_lowres" translatable="false">H,256:94</string>
 </resources>

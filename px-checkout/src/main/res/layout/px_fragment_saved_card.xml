@@ -4,19 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:ignore="NestedWeights"
-    tools:layout_height="200dp">
+    android:layout_height="wrap_content">
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/px_badge_offset">
 
         <android.support.v7.widget.CardView
             android:id="@+id/payment_method"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/px_s_margin"
             android:layout_marginLeft="@dimen/px_m_margin"
             android:layout_marginRight="@dimen/px_m_margin"
@@ -24,131 +22,12 @@
             app:cardElevation="2dp"
             app:cardPreventCornerOverlap="false">
 
-            <ImageView
-                android:id="@+id/background"
+            <com.meli.android.carddrawer.model.CardDrawerView
+                android:id="@+id/card"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"/>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/px_card_shape_layer"/>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center">
-
-
-                <!-- card content -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:weightSum="1">
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_marginTop="@dimen/px_xs_margin"
-                        android:layout_weight="0.30"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:id="@+id/card_payment_type_logo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="start|center_vertical"
-                            android:layout_marginLeft="@dimen/px_m_margin"
-                            android:layout_marginStart="@dimen/px_m_margin"
-                            android:gravity="start|left"
-                            tools:src="@drawable/px_ico_card_visa"/>
-
-                        <ImageView
-                            android:id="@+id/card_issuer_logo"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="end|center_vertical"
-                            android:layout_marginEnd="@dimen/px_m_margin"
-                            android:layout_marginRight="@dimen/px_m_margin"
-                            android:gravity="end|right"
-                            android:scaleType="fitCenter"
-                            tools:src="@drawable/px_issuer_1"/>
-                    </FrameLayout>
-
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="0.70"
-                        android:orientation="vertical"
-                        android:weightSum="100">
-
-                        <com.mercadopago.android.px.internal.view.DynamicTextViewRowView
-                            android:id="@+id/card_number_view"
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_marginLeft="@dimen/px_m_margin"
-                            android:layout_marginRight="@dimen/px_m_margin"
-                            android:layout_weight="75"
-                            android:gravity="center"/>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_gravity="center"
-                            android:layout_marginBottom="@dimen/px_s_margin"
-                            android:layout_weight="25"
-                            android:orientation="horizontal"
-                            android:paddingLeft="@dimen/px_m_margin"
-                            android:paddingRight="@dimen/px_m_margin"
-                            android:weightSum="1">
-
-                            <com.mercadopago.android.px.internal.view.MPTextView
-                                android:id="@+id/card_holder_name"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="0.6"
-                                android:gravity="start|left"
-                                android:maxLines="1"
-                                android:shadowColor="@color/px_base_text"
-                                android:shadowDy="2"
-                                android:shadowRadius="2"
-                                android:textColor="@color/black"
-                                android:textSize="@dimen/px_xs_text"
-                                app:autoSizeMaxTextSize="24dp"
-                                app:autoSizeMinTextSize="10dp"
-                                app:autoSizeStepGranularity="1dp"
-                                app:autoSizeTextType="uniform"
-                                app:font_style="mono_regular"
-                                tools:text="@string/px_cardholder_name_short"/>
-
-                            <com.mercadopago.android.px.internal.view.MPTextView
-                                android:id="@+id/exp_date"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="0.4"
-                                android:gravity="end|right"
-                                android:shadowColor="@color/px_base_text"
-                                android:shadowDy="2"
-                                android:shadowRadius="2"
-                                android:textColor="@color/black"
-                                app:autoSizeMaxTextSize="24dp"
-                                app:autoSizeMinTextSize="10dp"
-                                app:autoSizeStepGranularity="1dp"
-                                app:autoSizeTextType="uniform"
-                                app:font_style="mono_regular"
-                                tools:text="MM/YY"/>
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </FrameLayout>
+                android:layout_height="wrap_content"
+                app:card_header_behaviour="responsive"
+                app:card_header_internal_padding="0dp"/>
 
         </android.support.v7.widget.CardView>
 
@@ -158,8 +37,10 @@
         android:id="@+id/px_disabled_badge"
         android:layout_width="@dimen/px_bigger_badge_size"
         android:layout_height="@dimen/px_bigger_badge_size"
-        android:layout_gravity="top|right"
+        android:layout_gravity="top|end"
         android:layout_marginRight="@dimen/px_l_alternative_margin"
+        android:layout_marginEnd="@dimen/px_l_alternative_margin"
         android:src="@drawable/px_badge_warning_shadow"
         android:visibility="gone"/>
+
 </FrameLayout>

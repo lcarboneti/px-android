@@ -20,6 +20,7 @@ import com.mercadopago.android.px.internal.viewmodel.PayButtonViewModel;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.model.AmountConfiguration;
+import com.mercadopago.android.px.model.CardDisplayInfo;
 import com.mercadopago.android.px.model.CardMetadata;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
@@ -119,6 +120,7 @@ public class ExpressPaymentPresenterTest {
         when(expressMetadata.getCard()).thenReturn(cardMetadata);
         when(expressMetadata.isCard()).thenReturn(true);
         when(cardMetadata.getId()).thenReturn("123");
+        when(cardMetadata.getDisplayInfo()).thenReturn(mock(CardDisplayInfo.class));
         when(discountRepository.getConfigurationFor("123")).thenReturn(discountConfigurationModel);
         when(discountRepository.getConfigurationFor(TextUtil.EMPTY)).thenReturn(discountConfigurationModel);
         when(amountConfigurationRepository.getConfigurationFor("123")).thenReturn(amountConfiguration);

@@ -6,6 +6,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import com.mercadopago.android.px.R;
 
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.mercadopago.android.px.internal.util.ViewUtils.cancelAnimation;
 import static com.mercadopago.android.px.internal.util.ViewUtils.shouldGoneAnim;
@@ -21,7 +22,7 @@ public class ExpandAndCollapseAnimation {
         targetView = view;
         expandAnimation = AnimationUtils.loadAnimation(view.getContext(), R.anim.px_anim_expand);
         collapseAnimation = AnimationUtils.loadAnimation(view.getContext(), R.anim.px_anim_collapse);
-        collapseAnimation.setAnimationListener(new HideViewOnAnimationListener(view));
+        collapseAnimation.setAnimationListener(new FadeAnimationListener(view, INVISIBLE));
     }
 
     /**

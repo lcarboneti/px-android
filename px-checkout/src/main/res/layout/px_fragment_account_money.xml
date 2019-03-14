@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:layout_height="200dp">
+    android:layout_height="wrap_content">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -15,66 +14,83 @@
         <android.support.v7.widget.CardView
             android:id="@+id/payment_method"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/px_s_margin"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/px_m_margin"
             android:layout_marginRight="@dimen/px_m_margin"
+            android:layout_marginBottom="@dimen/px_s_margin"
             app:cardCornerRadius="@dimen/px_xs_margin"
-            app:cardElevation="2dp"
-            app:cardPreventCornerOverlap="false">
+            app:cardPreventCornerOverlap="false"
+            app:cardElevation="2dp">
 
-            <ImageView
+            <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:src="@drawable/px_gradient_account_money"/>
+                android:layout_height="wrap_content">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|end|right"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/px_account_money_sign"/>
+                <FrameLayout
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="@string/px_card_aspect_ratio">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="top|end|right"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:src="@drawable/px_patern_account_money"/>
+                    <ImageView
+                        android:adjustViewBounds="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/px_gradient_account_money"/>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start|left|top"
-                android:layout_margin="@dimen/px_s_margin"
-                android:src="@drawable/px_account_money_logo"/>
+                    <ImageView
+                        android:adjustViewBounds="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:scaleType="fitXY"
+                        android:layout_gravity="top|end"
+                        android:src="@drawable/px_account_money_sign"/>
+
+                    <ImageView
+                        android:adjustViewBounds="true"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="top|end"
+                        android:scaleType="fitXY"
+                        android:src="@drawable/px_patern_account_money"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start|top"
+                        android:layout_margin="@dimen/px_s_margin"
+                        android:src="@drawable/px_account_money_logo"/>
 
 
-            <com.mercadopago.android.px.internal.view.MPTextView
-                android:id="@+id/label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:layout_margin="@dimen/px_s_margin"
-                android:background="@drawable/px_account_money_rounded_shape"
-                android:padding="@dimen/px_xs_margin"
-                android:textAppearance="@style/MLFont.Regular"
-                android:textColor="@color/white"
-                android:textSize="@dimen/px_xxs_text"
-                tools:text="Some label lalala"/>
+                    <com.mercadopago.android.px.internal.view.MPTextView
+                        android:id="@+id/label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:layout_margin="@dimen/px_s_margin"
+                        android:background="@drawable/px_account_money_rounded_shape"
+                        android:padding="@dimen/px_xs_margin"
+                        android:textAppearance="@style/MLFont.Regular"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/px_xxs_text"
+                        tools:text="Some label lalala"/>
+
+                </FrameLayout>
+
+            </android.support.constraint.ConstraintLayout>
 
         </android.support.v7.widget.CardView>
+
     </FrameLayout>
 
     <ImageView
         android:id="@+id/px_disabled_badge"
         android:layout_width="@dimen/px_bigger_badge_size"
         android:layout_height="@dimen/px_bigger_badge_size"
-        android:layout_gravity="top|right"
+        android:layout_gravity="top|end"
         android:layout_marginRight="@dimen/px_l_alternative_margin"
+        android:layout_marginEnd="@dimen/px_l_alternative_margin"
         android:src="@drawable/px_badge_warning_shadow"
         android:visibility="gone"/>
+
 </FrameLayout>

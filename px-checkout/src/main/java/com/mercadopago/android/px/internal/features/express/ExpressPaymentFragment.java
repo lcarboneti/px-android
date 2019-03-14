@@ -10,7 +10,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.util.Pair;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +20,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import com.mercadolibre.android.ui.widgets.MeliButton;
@@ -36,8 +34,8 @@ import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator;
 import com.mercadopago.android.px.internal.features.explode.ExplodeParams;
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment;
 import com.mercadopago.android.px.internal.features.express.animations.ExpandAndCollapseAnimation;
+import com.mercadopago.android.px.internal.features.express.animations.FadeAnimationListener;
 import com.mercadopago.android.px.internal.features.express.animations.FadeAnimator;
-import com.mercadopago.android.px.internal.features.express.animations.SlideAnim;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentsAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.ConfirmButtonAdapter;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
@@ -54,8 +52,8 @@ import com.mercadopago.android.px.internal.util.StatusBarDecorator;
 import com.mercadopago.android.px.internal.util.VibrationUtils;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.DiscountDetailDialog;
+import com.mercadopago.android.px.internal.view.DynamicHeightViewPager;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;
-import com.mercadopago.android.px.internal.view.FixedAspectRatioFrameLayout;
 import com.mercadopago.android.px.internal.view.LabeledSwitch;
 import com.mercadopago.android.px.internal.view.PaymentMethodHeaderView;
 import com.mercadopago.android.px.internal.view.ScrollingPagerIndicator;
@@ -96,11 +94,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private static final int REQ_CODE_PAYMENT_PROCESSOR = 0x123;
     private static final float PAGER_NEGATIVE_MARGIN_MULTIPLIER = -1.5f;
 
-    // Width / Height
-    @NonNull private static final Pair<Integer, Integer> ASPECT_RATIO_HIGH_RES = new Pair<>(850, 460);
-    // Width / Height
-    @NonNull private static final Pair<Integer, Integer> ASPECT_RATIO_LOW_RES = new Pair<>(288, 98);
-
     @Nullable private CallBack callback;
 
     /* default */ ExpressPaymentPresenter presenter;
@@ -110,14 +103,14 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private SummaryView summaryView;
     private MeliButton confirmButton;
     private RecyclerView installmentsRecyclerView;
-    /* default */ ViewPager paymentMethodPager;
+    /* default */ DynamicHeightViewPager paymentMethodPager;
     /* default */ View pagerAndConfirmButtonContainer;
     private ScrollingPagerIndicator indicator;
     private ExpandAndCollapseAnimation expandAndCollapseAnimation;
     private FadeAnimator fadeAnimation;
-    private SlideAnim paymentMethodSlideAnim;
+    private Animation slideUpAndFadeAnimation;
+    private Animation slideDownAndFadeAnimation;
     private InstallmentsAdapter installmentsAdapter;
-    private FixedAspectRatioFrameLayout aspectRatioContainer;
     private Animation toolbarAppearAnimation;
     private Animation toolbarDisappearAnimation;
     private TitlePager titlePager;
@@ -139,6 +132,13 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     public interface CallBack {
         void onOneTapCanceled();
+    }
+
+    @Override
+    public void onCreate(@Nullable final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        slideDownAndFadeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.px_slide_down_and_fade);
+        slideUpAndFadeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.px_slide_up_and_fade);
     }
 
     @Nullable
@@ -201,16 +201,12 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         toolbarElementDescriptor = view.findViewById(R.id.element_descriptor_toolbar);
 
         pagerAndConfirmButtonContainer = view.findViewById(R.id.container);
-        aspectRatioContainer = view.findViewById(R.id.aspect_ratio_container);
         paymentMethodPager = view.findViewById(R.id.payment_method_pager);
         indicator = view.findViewById(R.id.indicator);
         installmentsRecyclerView = view.findViewById(R.id.installments_recycler_view);
         confirmButton = view.findViewById(R.id.confirm_button);
         expandAndCollapseAnimation = new ExpandAndCollapseAnimation(installmentsRecyclerView);
         fadeAnimation = new FadeAnimator(view.getContext());
-
-        paymentMethodSlideAnim = new SlideAnim(aspectRatioContainer);
-        configureCardAspectRatio(ASPECT_RATIO_HIGH_RES);
 
         final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         installmentsRecyclerView.setLayoutManager(linearLayoutManager);
@@ -220,20 +216,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         paymentMethodPager.setPageMargin(
             ((int) (getResources().getDimensionPixelSize(R.dimen.px_m_margin) * PAGER_NEGATIVE_MARGIN_MULTIPLIER)));
         paymentMethodPager.setOffscreenPageLimit(2);
-
-        pagerAndConfirmButtonContainer.getViewTreeObserver()
-            .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    if (pagerAndConfirmButtonContainer.getHeight() > 0) {
-                        final ViewGroup.LayoutParams params = installmentsRecyclerView.getLayoutParams();
-                        params.height = pagerAndConfirmButtonContainer.getHeight() - (int)
-                            getContext().getResources().getDimension(R.dimen.px_badge_offset);
-                        installmentsRecyclerView.setLayoutParams(params);
-                        pagerAndConfirmButtonContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                }
-            });
+        slideDownAndFadeAnimation.setAnimationListener(new FadeAnimationListener(paymentMethodPager, INVISIBLE));
+        slideUpAndFadeAnimation.setAnimationListener(new FadeAnimationListener(paymentMethodPager, VISIBLE));
 
         paymentMethodHeaderView = view.findViewById(R.id.installments_header);
         paymentMethodHeaderView.setListener(new PaymentMethodHeaderView.Listener() {
@@ -249,10 +233,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         });
 
         configureToolbar(view);
-    }
-
-    private void configureCardAspectRatio(@NonNull final Pair<Integer, Integer> aspect) {
-        aspectRatioContainer.setAspectRatio(aspect.first, aspect.second);
     }
 
     private ExpressPaymentPresenter createPresenter() {
@@ -324,11 +304,13 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
                 summaryView.setMeasureListener((itemsClipped) -> {
                     summaryView.setMeasureListener(null);
                     renderMode = itemsClipped ? RenderMode.LOW_RES : RenderMode.HIGH_RES;
-                    setPagerAdapter();
+                    onRenderModeDecided();
                 });
             } else {
-                setPagerAdapter();
+                onRenderModeDecided();
             }
+            paymentMethodPager.setAdapter(paymentMethodFragmentAdapter);
+            indicator.attachToPager(paymentMethodPager);
         }
 
         installmentsAdapter = new InstallmentsAdapter(site, new ArrayList<>(), PayerCost.NO_SELECTED, this);
@@ -371,8 +353,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     private void animateViewPagerDown() {
-        paymentMethodSlideAnim.slideDown(0, pagerAndConfirmButtonContainer.getHeight());
-        fadeAnimation.fadeOut(aspectRatioContainer);
+        paymentMethodPager.startAnimation(slideDownAndFadeAnimation);
         fadeAnimation.fadeOutFast(confirmButton);
         fadeAnimation.fadeOutFast(indicator);
     }
@@ -385,8 +366,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void collapseInstallmentsSelection() {
-        paymentMethodSlideAnim.slideUp(pagerAndConfirmButtonContainer.getHeight(), 0);
-        fadeAnimation.fadeInFastest(aspectRatioContainer);
+        paymentMethodPager.startAnimation(slideUpAndFadeAnimation);
         fadeAnimation.fadeIn(confirmButton);
         fadeAnimation.fadeIn(indicator);
         expandAndCollapseAnimation.collapse();
@@ -614,15 +594,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         }
     }
 
-    private void setPagerAdapter() {
-        if (renderMode.equals(RenderMode.LOW_RES)) {
-            configureCardAspectRatio(ASPECT_RATIO_LOW_RES);
-        }
-        //Workaround to weird bug when setting the pager adapter not right away
-        paymentMethodPager.post(() -> {
-            paymentMethodFragmentAdapter.setRenderMode(renderMode);
-            paymentMethodPager.setAdapter(paymentMethodFragmentAdapter);
-            indicator.attachToPager(paymentMethodPager);
-        });
+    private void onRenderModeDecided() {
+        //Workaround to pager not updating the fragments
+        paymentMethodPager.post(() -> paymentMethodFragmentAdapter.setRenderMode(renderMode));
     }
 }

@@ -44,7 +44,7 @@
             android:textSize="@dimen/px_s_text"/>
     </com.mercadopago.android.px.internal.view.TitlePager>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/installments_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -67,8 +67,9 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/px_xxxs_height"
+            android:layout_gravity="bottom"
             android:background="@color/px_expressCheckoutSeparatorLine"/>
-    </LinearLayout>
+    </FrameLayout>
 
     <ImageView
         android:id="@+id/arrow"

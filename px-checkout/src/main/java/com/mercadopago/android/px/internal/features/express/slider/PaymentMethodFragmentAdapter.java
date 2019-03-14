@@ -27,6 +27,11 @@ public class PaymentMethodFragmentAdapter extends FragmentStatePagerAdapter {
     }
 
     @Override
+    public int getItemPosition(@NonNull final Object object) {
+        return POSITION_NONE;
+    }
+
+    @Override
     public int getCount() {
         return items.size();
     }
@@ -34,6 +39,7 @@ public class PaymentMethodFragmentAdapter extends FragmentStatePagerAdapter {
     public void setRenderMode(@NonNull @RenderMode final String renderMode) {
         if (renderMode.equals(RenderMode.LOW_RES)) {
             drawer = new PaymentMethodLowResDrawer();
+            notifyDataSetChanged();
         }
     }
 }

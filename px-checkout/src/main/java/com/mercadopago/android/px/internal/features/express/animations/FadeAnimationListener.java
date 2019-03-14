@@ -4,12 +4,14 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.animation.Animation;
 
-public class HideViewOnAnimationListener implements Animation.AnimationListener {
+public class FadeAnimationListener implements Animation.AnimationListener {
 
-    private final View targetView;
+    @NonNull private final View targetView;
+    private final int visibilityFlag;
 
-    public HideViewOnAnimationListener(@NonNull final View targetView) {
+    public FadeAnimationListener(@NonNull final View targetView, final int visibilityFlag) {
         this.targetView = targetView;
+        this.visibilityFlag = visibilityFlag;
     }
 
     @Override
@@ -19,7 +21,7 @@ public class HideViewOnAnimationListener implements Animation.AnimationListener 
 
     @Override
     public void onAnimationEnd(final Animation animation) {
-        targetView.setVisibility(View.GONE);
+        targetView.setVisibility(visibilityFlag);
         targetView.clearAnimation();
     }
 
