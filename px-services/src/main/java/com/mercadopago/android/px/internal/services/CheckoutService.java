@@ -16,23 +16,14 @@ import retrofit2.http.Query;
 
 public interface CheckoutService {
 
-    String GROUPS_VERSION = "1.9";
+    String GROUPS_VERSION = "3.0";
 
     @POST("/{version}/px_mobile_api/payment_methods?api_version=" + GROUPS_VERSION)
     MPCall<PaymentMethodSearch> getPaymentMethodSearch(
-        @Path(value = "version", encoded = true) String version,
         @Header("Accept-Language") String locale,
         @Query("public_key") String publicKey,
-        @Query("amount") BigDecimal amount,
-        @Query("excluded_payment_types") String excludedPaymentTypes,
-        @Query("excluded_payment_methods") String excludedPaymentMethods,
-        @Query("site_id") String siteId,
-        @Query("processing_mode") String processingMode,
-        @Query("cards_esc") String cardsWithEsc,
-        @Nullable @Query("differential_pricing_id") Integer differentialPricingId,
-        @Nullable @Query("default_installments") final Integer defaultInstallments,
-        @Query("express_enabled") final boolean expressEnabled,
-        @Query("split_payment_enabled") final boolean hasSplitPaymentProcessor,
+        @Query("access_token") String privateKey,
+        @Path(value = "version", encoded = true) String version,
         @Body Map<String, Object> body);
 
     /**

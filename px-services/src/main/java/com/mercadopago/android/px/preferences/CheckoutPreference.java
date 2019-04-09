@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.Size;
 import com.google.gson.annotations.SerializedName;
+import com.mercadopago.android.px.internal.constants.ProcessingModes;
 import com.mercadopago.android.px.model.DifferentialPricing;
 import com.mercadopago.android.px.model.Item;
 import com.mercadopago.android.px.model.OpenPayer;
@@ -15,6 +16,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -64,8 +66,10 @@ public class CheckoutPreference implements Serializable {
     @Nullable private final BigDecimal conceptAmount;
 
     @Nullable private final String conceptId;
-
+    
     @Nullable private final String additionalInfo;
+
+    @NonNull private final List<String> processingMode;
 
     @SerializedName("binary_mode")
     private boolean isBinaryMode = false;
@@ -87,6 +91,7 @@ public class CheckoutPreference implements Serializable {
         isBinaryMode = builder.isBinaryMode;
         additionalInfo = builder.additionalInfo;
 
+        processingMode = Collections.singletonList(ProcessingModes.AGGREGATOR);
         paymentPreference = new PaymentPreference();
         paymentPreference.setExcludedPaymentTypeIds(builder.excludedPaymentTypes);
         paymentPreference.setExcludedPaymentMethodIds(builder.excludedPaymentMethods);

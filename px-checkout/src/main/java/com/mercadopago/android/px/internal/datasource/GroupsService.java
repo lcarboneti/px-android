@@ -3,31 +3,22 @@ package com.mercadopago.android.px.internal.datasource;
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
-import com.mercadopago.android.px.internal.constants.ProcessingModes;
 import com.mercadopago.android.px.internal.datasource.cache.GroupsCache;
 import com.mercadopago.android.px.internal.repository.GroupsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.services.CheckoutService;
 import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
-import com.mercadopago.android.px.model.internal.PaymentMethodSearchBody;
-import com.mercadopago.android.px.model.PaymentTypes;
-import com.mercadopago.android.px.model.Site;
-import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.model.exceptions.ApiException;
+import com.mercadopago.android.px.model.internal.CheckoutParams;
+import com.mercadopago.android.px.model.internal.PaymentMethodRequest;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT;
 
 public class GroupsService implements GroupsRepository {
-
-    private static final String SEPARATOR = ",";
 
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
     @NonNull private final MercadoPagoESC mercadoPagoESC;
@@ -88,75 +79,30 @@ public class GroupsService implements GroupsRepository {
     }
 
     @NonNull /* default */ MPCall<PaymentMethodSearch> newRequest() {
-        //TODO add preference service.
 
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
-        final boolean expressPaymentEnabled =
-            paymentSettingRepository.getAdvancedConfiguration().isExpressPaymentEnabled();
-
-        final boolean hasSplitPaymentProcessor =
-            paymentSettingRepository.getPaymentConfiguration().getPaymentProcessor()
-                .supportsSplitPayment(checkoutPreference);
-
-        final Integer defaultInstallments = checkoutPreference.getPaymentPreference().getDefaultInstallments();
-
-        final Collection<String> excludedPaymentTypesSet = new HashSet<>(checkoutPreference.getExcludedPaymentTypes());
-        excludedPaymentTypesSet.addAll(getUnsupportedPaymentTypes(checkoutPreference.getSite()));
-
-        final String excludedPaymentTypesAppended =
-            getListAsString(new ArrayList<>(excludedPaymentTypesSet));
-
-        final String excludedPaymentMethodsAppended =
-            getListAsString(checkoutPreference.getExcludedPaymentMethods());
-        final String cardsWithEscAppended = getListAsString(new ArrayList<>(mercadoPagoESC.getESCCardIds()));
-
-        final Integer differentialPricingId =
-            checkoutPreference.getDifferentialPricing() != null ? checkoutPreference.getDifferentialPricing()
-                .getId() : null;
 
         final DiscountParamsConfiguration discountParamsConfiguration =
             paymentSettingRepository.getAdvancedConfiguration().getDiscountParamsConfiguration();
 
-        final PaymentMethodSearchBody paymentMethodSearchBody = new PaymentMethodSearchBody.Builder()
-            .setPrivateKey(paymentSettingRepository.getPrivateKey())
-            .setPayerEmail(paymentSettingRepository.getCheckoutPreference().getPayer().getEmail())
-            .setMarketplace(checkoutPreference.getMarketplace())
-            .setProductId(discountParamsConfiguration.getProductId())
-            .setLabels(discountParamsConfiguration.getLabels())
+        final CheckoutParams checkoutParams = new CheckoutParams.Builder()
+            .setDiscountConfiguration(discountParamsConfiguration)
+            .setCardWithEsc(new ArrayList<>(mercadoPagoESC.getESCCardIds()))
             .setCharges(paymentSettingRepository.getPaymentConfiguration().getCharges())
+            .setHasSplit(paymentSettingRepository.getPaymentConfiguration().getPaymentProcessor()
+                .supportsSplitPayment(checkoutPreference))
+            .setHasExpressPayment(paymentSettingRepository.getAdvancedConfiguration().isExpressPaymentEnabled())
             .build();
 
-        final Map<String, Object> body = JsonUtil.getInstance().getMapFromObject(paymentMethodSearchBody);
+        final PaymentMethodRequest paymentMethodRequest = new PaymentMethodRequest.Builder()
+            .setCheckoutPreference(checkoutPreference)
+            .setCheckoutParams(checkoutParams)
+            .build();
 
         return checkoutService
             .getPaymentMethodSearch(API_ENVIRONMENT,
                 language, paymentSettingRepository.getPublicKey(),
-                checkoutPreference.getTotalAmount(), excludedPaymentTypesAppended, excludedPaymentMethodsAppended,
-                checkoutPreference.getSite().getId(), ProcessingModes.AGGREGATOR, cardsWithEscAppended,
-                differentialPricingId, defaultInstallments, expressPaymentEnabled, hasSplitPaymentProcessor, body);
-    }
-
-    private Collection<String> getUnsupportedPaymentTypes(@NonNull final Site site) {
-        final Collection<String> unsupportedTypesForSite = new ArrayList<>();
-        if (Sites.CHILE.getId().equals(site.getId())
-            || Sites.VENEZUELA.getId().equals(site.getId())
-            || Sites.COLOMBIA.getId().equals(site.getId())) {
-
-            unsupportedTypesForSite.add(PaymentTypes.TICKET);
-            unsupportedTypesForSite.add(PaymentTypes.ATM);
-            unsupportedTypesForSite.add(PaymentTypes.BANK_TRANSFER);
-        }
-        return unsupportedTypesForSite;
-    }
-
-    private String getListAsString(@NonNull final List<String> list) {
-        final StringBuilder stringBuilder = new StringBuilder();
-        for (final String typeId : list) {
-            stringBuilder.append(typeId);
-            if (!typeId.equals(list.get(list.size() - 1))) {
-                stringBuilder.append(SEPARATOR);
-            }
-        }
-        return stringBuilder.toString();
+                paymentSettingRepository.getPrivateKey(),
+                JsonUtil.getInstance().getMapFromObject(paymentMethodRequest));
     }
 }
