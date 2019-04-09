@@ -11,7 +11,7 @@ import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.internal.CheckoutParams;
-import com.mercadopago.android.px.model.internal.PaymentMethodRequest;
+import com.mercadopago.android.px.model.internal.InitRequest;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
 import java.util.ArrayList;
@@ -78,7 +78,9 @@ public class GroupsService implements GroupsRepository {
         };
     }
 
-    @NonNull /* default */ MPCall<PaymentMethodSearch> newRequest() {
+    /* default */
+    @NonNull
+    MPCall<PaymentMethodSearch> newRequest() {
 
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
 
@@ -94,15 +96,13 @@ public class GroupsService implements GroupsRepository {
             .setHasExpressPayment(paymentSettingRepository.getAdvancedConfiguration().isExpressPaymentEnabled())
             .build();
 
-        final PaymentMethodRequest paymentMethodRequest = new PaymentMethodRequest.Builder()
+        final InitRequest initRequest = new InitRequest.Builder()
             .setCheckoutPreference(checkoutPreference)
             .setCheckoutParams(checkoutParams)
             .build();
 
         return checkoutService
-            .getPaymentMethodSearch(API_ENVIRONMENT,
-                language, paymentSettingRepository.getPublicKey(),
-                paymentSettingRepository.getPrivateKey(),
-                JsonUtil.getInstance().getMapFromObject(paymentMethodRequest));
+            .getPaymentMethodSearch(API_ENVIRONMENT, language, paymentSettingRepository.getPublicKey(),
+                paymentSettingRepository.getPrivateKey(), JsonUtil.getInstance().getMapFromObject(initRequest));
     }
 }
