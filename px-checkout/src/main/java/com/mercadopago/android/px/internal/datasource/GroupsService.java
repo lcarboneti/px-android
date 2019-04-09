@@ -2,6 +2,7 @@ package com.mercadopago.android.px.internal.datasource;
 
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
+import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.internal.datasource.cache.GroupsCache;
 import com.mercadopago.android.px.internal.repository.GroupsRepository;
@@ -83,20 +84,23 @@ public class GroupsService implements GroupsRepository {
     MPCall<PaymentMethodSearch> newRequest() {
 
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
+        final PaymentConfiguration paymentConfiguration = paymentSettingRepository.getPaymentConfiguration();
 
         final DiscountParamsConfiguration discountParamsConfiguration =
-            paymentSettingRepository.getAdvancedConfiguration().getDiscountParamsConfiguration();
+            paymentSettingRepository.getAdvancedConfiguration()
+                .getDiscountParamsConfiguration();
 
         final CheckoutParams checkoutParams = new CheckoutParams.Builder()
             .setDiscountConfiguration(discountParamsConfiguration)
             .setCardWithEsc(new ArrayList<>(mercadoPagoESC.getESCCardIds()))
-            .setCharges(paymentSettingRepository.getPaymentConfiguration().getCharges())
-            .setHasSplit(paymentSettingRepository.getPaymentConfiguration().getPaymentProcessor()
+            .setCharges(paymentConfiguration.getCharges())
+            .setHasSplit(paymentConfiguration.getPaymentProcessor()
                 .supportsSplitPayment(checkoutPreference))
             .setHasExpressPayment(paymentSettingRepository.getAdvancedConfiguration().isExpressPaymentEnabled())
             .build();
 
         final InitRequest initRequest = new InitRequest.Builder()
+            .setCheckoutPreferenceId(paymentSettingRepository.getCheckoutPreferenceId())
             .setCheckoutPreference(checkoutPreference)
             .setCheckoutParams(checkoutParams)
             .build();

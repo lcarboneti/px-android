@@ -20,10 +20,10 @@ public interface CheckoutService {
 
     @POST("/{version}/px_mobile_api/payment_methods?api_version=" + GROUPS_VERSION)
     MPCall<PaymentMethodSearch> getPaymentMethodSearch(
+        @Path(value = "version", encoded = true) String version,
         @Header("Accept-Language") String locale,
         @Query("public_key") String publicKey,
         @Query("access_token") String privateKey,
-        @Path(value = "version", encoded = true) String version,
         @Body Map<String, Object> body);
 
     /**

@@ -16,7 +16,7 @@ public final class InitRequest {
 
     @NonNull private final CheckoutParams checkoutParams;
 
-    private InitRequest(final Builder builder) {
+    /* default */ InitRequest(final Builder builder) {
         preference = builder.preference;
         preferenceId = builder.preferenceId;
         checkoutParams = builder.checkoutParams;
@@ -27,12 +27,12 @@ public final class InitRequest {
         /* default */ @Nullable String preferenceId;
         /* default */ CheckoutParams checkoutParams = new CheckoutParams.Builder().build();
 
-        public Builder setCheckoutPreference(@NonNull final CheckoutPreference preference) {
+        public Builder setCheckoutPreference(@Nullable final CheckoutPreference preference) {
             this.preference = preference;
             return this;
         }
 
-        public Builder setCheckoutPreferenceId(@NonNull final String preferenceId) {
+        public Builder setCheckoutPreferenceId(@Nullable final String preferenceId) {
             this.preferenceId = preferenceId;
             return this;
         }

@@ -16,7 +16,7 @@ public final class CheckoutParams {
     private final boolean hasSplitPaymentProcessor;
     private final boolean expressPaymentEnabled;
 
-    private CheckoutParams(@NonNull final Builder builder) {
+    /* default */ CheckoutParams(@NonNull final Builder builder) {
         cardsWithEsc = builder.cardsWithEsc;
         charges = builder.charges;
         discountParamsConfiguration = builder.discountParamsConfiguration;
