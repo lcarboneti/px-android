@@ -10,10 +10,8 @@ import com.mercadopago.android.px.preferences.CheckoutPreference;
 @SuppressWarnings("unused")
 public final class InitRequest {
 
-    @Nullable private final CheckoutPreference preference;
-
     @Nullable private final String preferenceId;
-
+    @Nullable private final CheckoutPreference preference;
     @NonNull private final CheckoutParams checkoutParams;
 
     /* default */ InitRequest(final Builder builder) {

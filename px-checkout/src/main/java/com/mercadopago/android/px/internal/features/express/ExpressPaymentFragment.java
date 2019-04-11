@@ -49,7 +49,7 @@ import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActi
 import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
 import com.mercadopago.android.px.internal.util.ScaleUtil;
-import com.mercadopago.android.px.internal.util.StatusBarDecorator;
+import com.mercadopago.android.px.internal.viewmodel.StatusBarDecorator;
 import com.mercadopago.android.px.internal.util.VibrationUtils;
 import com.mercadopago.android.px.internal.view.DiscountDetailDialog;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;

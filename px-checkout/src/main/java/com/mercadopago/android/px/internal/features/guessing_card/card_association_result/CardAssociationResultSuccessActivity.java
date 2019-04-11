@@ -8,7 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import com.mercadolibre.android.ui.widgets.MeliButton;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.util.StatusBarDecorator;
+import com.mercadopago.android.px.internal.viewmodel.StatusBarDecorator;
 import com.mercadopago.android.px.tracking.internal.views.CardAssociationResultViewTrack;
 
 public class CardAssociationResultSuccessActivity extends AppCompatActivity {

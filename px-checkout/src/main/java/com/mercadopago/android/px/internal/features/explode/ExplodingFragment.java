@@ -30,7 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.mercadopago.android.px.R;
-import com.mercadopago.android.px.internal.util.StatusBarDecorator;
+import com.mercadopago.android.px.internal.viewmodel.StatusBarDecorator;
 import com.mercadopago.android.px.internal.util.TextUtil;
 
 public class ExplodingFragment extends Fragment {
