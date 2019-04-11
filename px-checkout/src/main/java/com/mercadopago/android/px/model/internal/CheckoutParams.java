@@ -7,13 +7,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @SuppressWarnings("unused")
+/**
+ * Checkout params contains feature specific params and metadata about integration.
+ * and additional configurations (like discount specific params)
+ */
 public final class CheckoutParams {
 
+    /**
+     * Feature specific params.
+     */
     @NonNull private final Collection<String> cardsWithEsc;
     @NonNull private final Collection<PaymentTypeChargeRule> charges;
     @NonNull private final DiscountParamsConfiguration discountParamsConfiguration;
+
+    /**
+     * Opt-in and feature related descriptors params. This represents metadata about integration that will help to
+     * the backend to decide if it should turn on or off certain flow / features.
+     */
     private final boolean supportsExpress;
     private final boolean supportsSplit;
+    // here will be more.
+
 
     /* default */ CheckoutParams(@NonNull final Builder builder) {
         cardsWithEsc = builder.cardsWithEsc;

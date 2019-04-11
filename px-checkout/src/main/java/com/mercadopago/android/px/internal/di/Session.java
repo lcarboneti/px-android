@@ -16,7 +16,7 @@ import com.mercadopago.android.px.internal.datasource.BankDealsService;
 import com.mercadopago.android.px.internal.datasource.CardTokenService;
 import com.mercadopago.android.px.internal.datasource.DiscountServiceImp;
 import com.mercadopago.android.px.internal.datasource.EscManagerImp;
-import com.mercadopago.android.px.internal.datasource.GroupsService;
+import com.mercadopago.android.px.internal.datasource.InitService;
 import com.mercadopago.android.px.internal.datasource.IdentificationService;
 import com.mercadopago.android.px.internal.datasource.InstructionsService;
 import com.mercadopago.android.px.internal.datasource.IssuersServiceImp;
@@ -157,7 +157,7 @@ public final class Session extends ApplicationModule
     public GroupsRepository getGroupsRepository() {
         if (groupsRepository == null) {
             final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
-            groupsRepository = new GroupsService(paymentSettings, getMercadoPagoESC(),
+            groupsRepository = new InitService(paymentSettings, getMercadoPagoESC(),
                 RetrofitUtil.getRetrofitClient(getContext()).create(CheckoutService.class),
                 LocaleUtil.getLanguage(getContext()),
                 getGroupsCache());

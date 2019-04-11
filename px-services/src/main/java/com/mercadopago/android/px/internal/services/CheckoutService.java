@@ -16,10 +16,9 @@ import retrofit2.http.Query;
 
 public interface CheckoutService {
 
-    String GROUPS_VERSION = "3.0";
-
-    @POST("{environment}/{version}/px_mobile_api/payment_methods?api_version=" + GROUPS_VERSION)
-    MPCall<PaymentMethodSearch> getPaymentMethodSearch(
+    //TODO modify RESPONSE to support backend driven on/off features + merchant order + pref retrieved.
+    @POST("{environment}/{version}/px_mobile_api/init")
+    MPCall<PaymentMethodSearch> init(
         @Path(value = "environment", encoded = true) String environment,
         @Path(value = "version", encoded = true) String version,
         @Header("Accept-Language") String locale,

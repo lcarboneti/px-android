@@ -10,14 +10,32 @@ import com.mercadopago.android.px.preferences.CheckoutPreference;
 @SuppressWarnings("unused")
 public final class InitRequest {
 
+    /**
+     * When when there is a "close" preference this value is not null.
+     */
     @Nullable private final String preferenceId;
+    /**
+     * When it's an "open" preference, this value is not null. Open preference means a fictional preference (does not
+     * exists in backend)
+     */
     @Nullable private final CheckoutPreference preference;
+
+    /**
+     * When integrator already have a merchant order we will inform to our backend the id. Otherwise null. This avoid
+     * the creation of a new merchant order
+     */
+    @Nullable private final String merchantOrderId;
+
+    /**
+     * Specific feature related params.
+     */
     @NonNull private final CheckoutParams checkoutParams;
 
     /* default */ InitRequest(final Builder builder) {
         preference = builder.preference;
         preferenceId = builder.preferenceId;
         checkoutParams = builder.checkoutParams;
+        merchantOrderId = null; // Not implemented yet.
     }
 
     public static class Builder {

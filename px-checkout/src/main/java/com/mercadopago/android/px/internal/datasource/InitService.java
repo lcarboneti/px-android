@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT;
 import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 
-public class GroupsService implements GroupsRepository {
+public class InitService implements GroupsRepository {
 
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
     @NonNull private final MercadoPagoESC mercadoPagoESC;
@@ -28,7 +28,7 @@ public class GroupsService implements GroupsRepository {
     @NonNull private final String language;
     @NonNull /* default */ final GroupsCache groupsCache;
 
-    public GroupsService(@NonNull final PaymentSettingRepository paymentSettingRepository,
+    public InitService(@NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final MercadoPagoESC mercadoPagoESC,
         @NonNull final CheckoutService checkoutService,
         @NonNull final String language, @NonNull final GroupsCache groupsCache) {
@@ -83,6 +83,7 @@ public class GroupsService implements GroupsRepository {
 
     /* default */
     @NonNull
+    //TODO modify RESPONSE to support backend driven on/off features + merchant order + pref retrieved.
     MPCall<PaymentMethodSearch> newRequest() {
 
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
@@ -106,9 +107,7 @@ public class GroupsService implements GroupsRepository {
             .setCheckoutParams(checkoutParams)
             .build();
 
-        return checkoutService
-            .getPaymentMethodSearch(API_ENVIRONMENT,
-                API_VERSION, language, paymentSettingRepository.getPublicKey(),
+        return checkoutService.init(API_ENVIRONMENT, API_VERSION, language, paymentSettingRepository.getPublicKey(),
                 paymentSettingRepository.getPrivateKey(), JsonUtil.getInstance().getMapFromObject(initRequest));
     }
 }
