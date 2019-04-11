@@ -10,6 +10,7 @@ import com.mercadopago.android.px.model.Issuer;
 import java.util.List;
 
 import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT;
+import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 
 public class IssuersServiceImp implements IssuersRepository {
 
@@ -24,7 +25,8 @@ public class IssuersServiceImp implements IssuersRepository {
 
     @Override
     public MPCall<List<Issuer>> getIssuers(final String paymentMethodId, final String bin) {
-        return issuersService.getIssuers(API_ENVIRONMENT, paymentSettingRepository.getPublicKey(),
+        return issuersService.getIssuers(API_ENVIRONMENT,
+            API_VERSION, paymentSettingRepository.getPublicKey(),
             paymentSettingRepository.getPrivateKey(), paymentMethodId, bin, ProcessingModes.AGGREGATOR);
     }
 }

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT;
+import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 
 public class InstructionsService implements InstructionsRepository {
 
@@ -99,6 +100,7 @@ public class InstructionsService implements InstructionsRepository {
             @Override
             protected MPCall<Instructions> method() {
                 return instructionsClient.getInstructions(API_ENVIRONMENT,
+                    API_VERSION,
                     locale, id,
                     paymentSettingRepository.getPublicKey(),
                     paymentSettingRepository.getPrivateKey(),

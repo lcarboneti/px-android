@@ -18,8 +18,9 @@ public interface CheckoutService {
 
     String GROUPS_VERSION = "3.0";
 
-    @POST("/{version}/px_mobile_api/payment_methods?api_version=" + GROUPS_VERSION)
+    @POST("{environment}/{version}/px_mobile_api/payment_methods?api_version=" + GROUPS_VERSION)
     MPCall<PaymentMethodSearch> getPaymentMethodSearch(
+        @Path(value = "environment", encoded = true) String environment,
         @Path(value = "version", encoded = true) String version,
         @Header("Accept-Language") String locale,
         @Query("public_key") String publicKey,
@@ -44,8 +45,9 @@ public interface CheckoutService {
      * @param accessToken
      * @return payment method search
      */
-    @GET("/{version}/px_mobile_api/payment_methods?api_version=1.8")
+    @GET("{environment}/{version}/px_mobile_api/payment_methods?api_version=1.8")
     MPCall<PaymentMethodSearch> getPaymentMethodSearch(
+        @Path(value = "environment", encoded = true) String environment,
         @Path(value = "version", encoded = true) String version,
         @Header("Accept-Language") String locale,
         @Query("public_key") String publicKey,
@@ -60,8 +62,11 @@ public interface CheckoutService {
         @Query("express_enabled") final boolean expressEnabled,
         @Nullable @Query("access_token") String accessToken);
 
-    @GET("/v1/payment_methods")
-    MPCall<List<PaymentMethod>> getPaymentMethods(@Query("public_key") String publicKey,
+    @GET("{environment}/{version}/payment_methods")
+    MPCall<List<PaymentMethod>> getPaymentMethods(
+        @Path(value = "environment", encoded = true) String environment,
+        @Path(value = "version", encoded = true) String version,
+        @Query("public_key") String publicKey,
         @Query("access_token") String privateKey);
 }
 

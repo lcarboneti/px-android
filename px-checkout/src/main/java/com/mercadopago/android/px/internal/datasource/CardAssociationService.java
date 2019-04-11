@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT;
+import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 
 public class CardAssociationService {
     @NonNull private final CardService cardService;
@@ -31,12 +32,14 @@ public class CardAssociationService {
         body.put("payment_method", paymentMethodBody);
         body.put("issuer", issuerBody);
 
-        return cardService.assignCard(API_ENVIRONMENT, accessToken, body);
+        return cardService.assignCard(API_ENVIRONMENT,
+            API_VERSION, accessToken, body);
     }
 
     public MPCall<List<Issuer>> getCardIssuers(@NonNull final String accessToken, @NonNull final String paymentMethodId,
         @NonNull final String bin) {
         return cardService
-            .getCardIssuers(API_ENVIRONMENT, accessToken, paymentMethodId, bin, ProcessingModes.AGGREGATOR);
+            .getCardIssuers(API_ENVIRONMENT,
+                API_VERSION, accessToken, paymentMethodId, bin, ProcessingModes.AGGREGATOR);
     }
 }

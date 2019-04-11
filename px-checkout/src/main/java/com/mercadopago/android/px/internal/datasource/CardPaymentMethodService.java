@@ -8,6 +8,7 @@ import com.mercadopago.android.px.model.PaymentMethod;
 import java.util.List;
 
 import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT;
+import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 
 public class CardPaymentMethodService implements CardPaymentMethodRepository {
 
@@ -19,6 +20,7 @@ public class CardPaymentMethodService implements CardPaymentMethodRepository {
 
     @Override
     public MPCall<List<PaymentMethod>> getCardPaymentMethods(@NonNull final String accessToken) {
-        return mPaymentService.getCardPaymentMethods(API_ENVIRONMENT, accessToken);
+        return mPaymentService.getCardPaymentMethods(API_ENVIRONMENT,
+            API_VERSION, accessToken);
     }
 }

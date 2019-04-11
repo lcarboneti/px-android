@@ -9,8 +9,9 @@ import retrofit2.http.Query;
 
 public interface IssuersService {
 
-    @GET("/{version}/checkout/payment_methods/card_issuers")
-    MPCall<List<Issuer>> getIssuers(@Path(value = "version", encoded = true) String version,
+    @GET("{environment}/{version}/checkout/payment_methods/card_issuers")
+    MPCall<List<Issuer>> getIssuers(@Path(value = "environment", encoded = true) String environment,
+        @Path(value = "version", encoded = true) String version,
         @Query("public_key") String publicKey, @Query("access_token") String privateKey,
         @Query("payment_method_id") String paymentMethodId, @Query("bin") String bin,
         @Query("processing_mode") String processingMode);

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT;
+import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 
 public class SummaryAmountService implements SummaryAmountRepository {
 
@@ -60,7 +61,8 @@ public class SummaryAmountService implements SummaryAmountRepository {
         body.put("processing_mode", ProcessingModes.AGGREGATOR);
         body.put("charges", paymentSettingRepository.getPaymentConfiguration().getCharges());
 
-        return installmentService.createSummaryAmount(API_ENVIRONMENT, body,
+        return installmentService.createSummaryAmount(API_ENVIRONMENT,
+            API_VERSION, body,
             paymentSettingRepository.getPublicKey(), paymentSettingRepository.getPrivateKey());
     }
 }

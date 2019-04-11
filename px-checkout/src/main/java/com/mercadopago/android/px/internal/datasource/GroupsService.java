@@ -18,6 +18,7 @@ import com.mercadopago.android.px.services.Callback;
 import java.util.ArrayList;
 
 import static com.mercadopago.android.px.services.BuildConfig.API_ENVIRONMENT;
+import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 
 public class GroupsService implements GroupsRepository {
 
@@ -106,7 +107,8 @@ public class GroupsService implements GroupsRepository {
             .build();
 
         return checkoutService
-            .getPaymentMethodSearch(API_ENVIRONMENT, language, paymentSettingRepository.getPublicKey(),
+            .getPaymentMethodSearch(API_ENVIRONMENT,
+                API_VERSION, language, paymentSettingRepository.getPublicKey(),
                 paymentSettingRepository.getPrivateKey(), JsonUtil.getInstance().getMapFromObject(initRequest));
     }
 }
