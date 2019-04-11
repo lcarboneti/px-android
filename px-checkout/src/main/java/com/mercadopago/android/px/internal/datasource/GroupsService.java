@@ -28,7 +28,8 @@ public class GroupsService implements GroupsRepository {
     @NonNull /* default */ final GroupsCache groupsCache;
 
     public GroupsService(@NonNull final PaymentSettingRepository paymentSettingRepository,
-        @NonNull final MercadoPagoESC mercadoPagoESC, @NonNull final CheckoutService checkoutService,
+        @NonNull final MercadoPagoESC mercadoPagoESC,
+        @NonNull final CheckoutService checkoutService,
         @NonNull final String language, @NonNull final GroupsCache groupsCache) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.mercadoPagoESC = mercadoPagoESC;
@@ -94,9 +95,8 @@ public class GroupsService implements GroupsRepository {
             .setDiscountConfiguration(discountParamsConfiguration)
             .setCardWithEsc(new ArrayList<>(mercadoPagoESC.getESCCardIds()))
             .setCharges(paymentConfiguration.getCharges())
-            .setHasSplit(paymentConfiguration.getPaymentProcessor()
-                .supportsSplitPayment(checkoutPreference))
-            .setHasExpressPayment(paymentSettingRepository.getAdvancedConfiguration().isExpressPaymentEnabled())
+            .setSupportsSplit(paymentConfiguration.getPaymentProcessor().supportsSplitPayment(checkoutPreference))
+            .setSupportsExpress(paymentSettingRepository.getAdvancedConfiguration().isExpressPaymentEnabled())
             .build();
 
         final InitRequest initRequest = new InitRequest.Builder()
