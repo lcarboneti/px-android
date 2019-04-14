@@ -11,8 +11,8 @@ import com.mercadopago.android.px.internal.controllers.PaymentMethodGuessingCont
 import com.mercadopago.android.px.internal.features.installments.PayerCostSolver;
 import com.mercadopago.android.px.internal.repository.BankDealsRepository;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
-import com.mercadopago.android.px.internal.repository.GroupsRepository;
 import com.mercadopago.android.px.internal.repository.IdentificationRepository;
+import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.IssuersRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.SummaryAmountRepository;
@@ -25,23 +25,24 @@ import com.mercadopago.android.px.model.BankDeal;
 import com.mercadopago.android.px.model.IdentificationType;
 import com.mercadopago.android.px.model.Issuer;
 import com.mercadopago.android.px.model.PaymentMethod;
-import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentType;
 import com.mercadopago.android.px.model.SummaryAmount;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.PaymentPreference;
 import com.mercadopago.android.px.services.Callback;
 import java.lang.reflect.Type;
 import java.util.List;
+import retrofit2.http.HEAD;
 
 public class GuessingCardPaymentPresenter extends GuessingCardPresenter implements SummaryAmountListener {
 
     @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
     @NonNull private final UserSelectionRepository userSelectionRepository;
-    @NonNull private final GroupsRepository groupsRepository;
+    @NonNull private final InitRepository initRepository;
     @NonNull private final IssuersRepository issuersRepository;
     @NonNull private final CardTokenRepository cardTokenRepository;
     @NonNull private final BankDealsRepository bankDealsRepository;
@@ -56,7 +57,7 @@ public class GuessingCardPaymentPresenter extends GuessingCardPresenter implemen
 
     public GuessingCardPaymentPresenter(@NonNull final UserSelectionRepository userSelectionRepository,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
-        @NonNull final GroupsRepository groupsRepository,
+        @NonNull final InitRepository initRepository,
         @NonNull final IssuersRepository issuersRepository,
         @NonNull final CardTokenRepository cardTokenRepository,
         @NonNull final BankDealsRepository bankDealsRepository,
@@ -69,7 +70,7 @@ public class GuessingCardPaymentPresenter extends GuessingCardPresenter implemen
         super();
         this.userSelectionRepository = userSelectionRepository;
         this.paymentSettingRepository = paymentSettingRepository;
-        this.groupsRepository = groupsRepository;
+        this.initRepository = initRepository;
         this.issuersRepository = issuersRepository;
         this.cardTokenRepository = cardTokenRepository;
         this.bankDealsRepository = bankDealsRepository;
@@ -133,9 +134,9 @@ public class GuessingCardPaymentPresenter extends GuessingCardPresenter implemen
     @Override
     public void getPaymentMethods() {
         getView().showProgress();
-        groupsRepository.getGroups().enqueue(new Callback<PaymentMethodSearch>() {
+        initRepository.getInit().enqueue(new Callback<InitResponse>() {
             @Override
-            public void success(final PaymentMethodSearch paymentMethodSearch) {
+            public void success(final InitResponse paymentMethodSearch) {
                 if (isViewAttached()) {
                     getView().hideProgress();
                     final PaymentPreference paymentPreference =
@@ -152,12 +153,7 @@ public class GuessingCardPaymentPresenter extends GuessingCardPresenter implemen
             public void failure(final ApiException apiException) {
                 if (isViewAttached()) {
                     getView().hideProgress();
-                    setFailureRecovery(new FailureRecovery() {
-                        @Override
-                        public void recover() {
-                            getPaymentMethods();
-                        }
-                    });
+                    setFailureRecovery(() -> getPaymentMethods());
                 }
             }
         });

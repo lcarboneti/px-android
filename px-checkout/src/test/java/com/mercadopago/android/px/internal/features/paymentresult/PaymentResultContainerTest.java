@@ -10,7 +10,7 @@ import com.mercadopago.android.px.internal.features.paymentresult.props.HeaderPr
 import com.mercadopago.android.px.internal.features.paymentresult.props.PaymentResultProps;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.view.ActionDispatcher;
-import com.mercadopago.android.px.mocks.PaymentMethods;
+import com.mercadopago.android.px.mocks.InitStubUtils;
 import com.mercadopago.android.px.mocks.PaymentResults;
 import com.mercadopago.android.px.model.Instruction;
 import com.mercadopago.android.px.model.PaymentData;
@@ -147,7 +147,7 @@ public class PaymentResultContainerTest {
     @Test
     public void onInvalidPaymentResultStatusGetDefaultBackground() {
         final PaymentData paymentData = new PaymentData.Builder()
-            .setPaymentMethod(PaymentMethods.getPaymentMethodOff())
+            .setPaymentMethod(InitStubUtils.getPaymentMethodOff())
             .createPaymentData();
 
         final PaymentResult paymentResult = new PaymentResult.Builder()
@@ -226,7 +226,7 @@ public class PaymentResultContainerTest {
     @Test
     public void onInvalidPaymentResultStatusGetDefaultIcon() {
         final PaymentData paymentData = new PaymentData.Builder()
-            .setPaymentMethod(PaymentMethods.getPaymentMethodOff())
+            .setPaymentMethod(InitStubUtils.getPaymentMethodOff())
             .createPaymentData();
 
         final PaymentResult paymentResult = new PaymentResult.Builder()
@@ -366,7 +366,7 @@ public class PaymentResultContainerTest {
     @Test
     public void onInvalidPaymentResultStatusGetDefaultBadge() {
         final PaymentData paymentData = new PaymentData.Builder()
-            .setPaymentMethod(PaymentMethods.getPaymentMethodOff())
+            .setPaymentMethod(InitStubUtils.getPaymentMethodOff())
             .createPaymentData();
 
         final PaymentResult paymentResult = new PaymentResult.Builder()
@@ -619,7 +619,7 @@ public class PaymentResultContainerTest {
     @Test
     public void onInvalidPaymentResultStatusGetEmptyLabel() {
         final PaymentData paymentData = new PaymentData.Builder()
-            .setPaymentMethod(PaymentMethods.getPaymentMethodOff())
+            .setPaymentMethod(InitStubUtils.getPaymentMethodOff())
             .createPaymentData();
 
         final PaymentResult paymentResult = new PaymentResult.Builder()

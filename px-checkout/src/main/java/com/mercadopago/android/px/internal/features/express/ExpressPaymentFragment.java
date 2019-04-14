@@ -49,7 +49,6 @@ import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActi
 import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.internal.util.FragmentUtil;
 import com.mercadopago.android.px.internal.util.ScaleUtil;
-import com.mercadopago.android.px.internal.viewmodel.StatusBarDecorator;
 import com.mercadopago.android.px.internal.util.VibrationUtils;
 import com.mercadopago.android.px.internal.view.DiscountDetailDialog;
 import com.mercadopago.android.px.internal.view.ElementDescriptorView;
@@ -59,6 +58,7 @@ import com.mercadopago.android.px.internal.view.PaymentMethodHeaderView;
 import com.mercadopago.android.px.internal.view.ScrollingPagerIndicator;
 import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.view.TitlePager;
+import com.mercadopago.android.px.internal.viewmodel.StatusBarDecorator;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.Card;
@@ -250,7 +250,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             session.getConfigurationModule().getDisabledPaymentMethodRepository(),
             session.getDiscountRepository(),
             session.getAmountRepository(),
-            session.getGroupsRepository(),
+            session.getInitRepository(),
             session.getAmountConfigurationRepository());
     }
 

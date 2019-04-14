@@ -3,14 +3,14 @@ package com.mercadopago.android.px.internal.datasource;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
-import com.mercadopago.android.px.internal.repository.GroupsRepository;
+import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.CustomSearchItem;
-import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.exceptions.ApiException;
+import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.services.Callback;
 import java.util.ArrayList;
 
@@ -18,12 +18,12 @@ public class AmountConfigurationRepositoryImpl implements AmountConfigurationRep
 
     /* default */ @Nullable ConfigurationSolver configurationSolver;
 
-    @NonNull private final GroupsRepository groupsRepository;
+    @NonNull private final InitRepository initRepository;
     private final UserSelectionRepository userSelectionRepository;
 
-    public AmountConfigurationRepositoryImpl(@NonNull final GroupsRepository groupsRepository,
+    public AmountConfigurationRepositoryImpl(@NonNull final InitRepository initRepository,
         @NonNull final UserSelectionRepository userSelectionRepository) {
-        this.groupsRepository = groupsRepository;
+        this.initRepository = initRepository;
         this.userSelectionRepository = userSelectionRepository;
     }
 
@@ -55,9 +55,9 @@ public class AmountConfigurationRepositoryImpl implements AmountConfigurationRep
             return;
         }
 
-        groupsRepository.getGroups().execute(new Callback<PaymentMethodSearch>() {
+        initRepository.getInit().execute(new Callback<InitResponse>() {
             @Override
-            public void success(final PaymentMethodSearch paymentMethodSearch) {
+            public void success(final InitResponse paymentMethodSearch) {
                 configurationSolver =
                     new ConfigurationSolverImpl(paymentMethodSearch.getDefaultAmountConfiguration(),
                         paymentMethodSearch.getCustomSearchItems());

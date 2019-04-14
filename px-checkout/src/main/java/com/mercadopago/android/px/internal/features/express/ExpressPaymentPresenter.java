@@ -10,7 +10,7 @@ import com.mercadopago.android.px.internal.repository.AmountConfigurationReposit
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
-import com.mercadopago.android.px.internal.repository.GroupsRepository;
+import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
@@ -35,11 +35,11 @@ import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
 import com.mercadopago.android.px.model.PayerCost;
-import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.SummaryInfo;
+import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.services.Callback;
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
@@ -85,7 +85,7 @@ import java.util.Set;
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final DiscountRepository discountRepository,
         @NonNull final AmountRepository amountRepository,
-        @NonNull final GroupsRepository groupsRepository,
+        @NonNull final InitRepository initRepository,
         @NonNull final AmountConfigurationRepository amountConfigurationRepository) {
 
         this.paymentRepository = paymentRepository;
@@ -97,9 +97,9 @@ import java.util.Set;
         explodeDecoratorMapper = new ExplodeDecoratorMapper();
         paymentMethodDrawableItemMapper = new PaymentMethodDrawableItemMapper();
 
-        groupsRepository.getGroups().execute(new Callback<PaymentMethodSearch>() {
+        initRepository.getInit().execute(new Callback<InitResponse>() {
             @Override
-            public void success(final PaymentMethodSearch paymentMethodSearch) {
+            public void success(final InitResponse paymentMethodSearch) {
                 expressMetadataList = paymentMethodSearch.getExpress();
                 //Plus one to compensate for add new payment method
                 payerCostSelection = createNewPayerCostSelected();

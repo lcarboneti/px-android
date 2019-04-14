@@ -104,7 +104,7 @@ public class PaymentVaultActivity extends PXActivity<PaymentVaultPresenter> impl
             session.getConfigurationModule().getUserSelectionRepository(),
             session.getConfigurationModule().getDisabledPaymentMethodRepository(),
             session.getDiscountRepository(),
-            session.getGroupsRepository(),
+            session.getInitRepository(),
             session.getMercadoPagoESC(),
             new PaymentVaultTitleSolverImpl(getApplicationContext(),
                 configuration.getAdvancedConfiguration().getCustomStringConfiguration()));

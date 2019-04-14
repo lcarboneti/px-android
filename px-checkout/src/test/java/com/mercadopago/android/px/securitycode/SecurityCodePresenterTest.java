@@ -5,7 +5,7 @@ import com.mercadopago.android.px.internal.features.SecurityCodeActivityView;
 import com.mercadopago.android.px.internal.features.SecurityCodePresenter;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
-import com.mercadopago.android.px.mocks.PaymentMethods;
+import com.mercadopago.android.px.mocks.InitStubUtils;
 import com.mercadopago.android.px.mocks.Tokens;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.CardInfo;
@@ -14,12 +14,10 @@ import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.SavedCardToken;
 import com.mercadopago.android.px.model.SavedESCCardToken;
 import com.mercadopago.android.px.model.SecurityCode;
-import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
-import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
 import org.junit.Before;
@@ -56,7 +54,7 @@ public class SecurityCodePresenterTest {
     @Before
     public void setUp() {
         stubToken = Tokens.getVisaToken();
-        stubPaymentMethod = PaymentMethods.getPaymentMethodOnVisa();
+        stubPaymentMethod = InitStubUtils.getPaymentMethodOnVisa();
         presenter = getPresenter();
     }
 

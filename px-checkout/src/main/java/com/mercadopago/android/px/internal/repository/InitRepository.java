@@ -1,11 +1,11 @@
 package com.mercadopago.android.px.internal.repository;
 
 import android.support.annotation.NonNull;
-import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
+import com.mercadopago.android.px.model.internal.InitResponse;
 
-public interface GroupsRepository {
+public interface InitRepository {
 
     @NonNull
-    MPCall<PaymentMethodSearch> getGroups();
+    MPCall<InitResponse> getInit();
 }

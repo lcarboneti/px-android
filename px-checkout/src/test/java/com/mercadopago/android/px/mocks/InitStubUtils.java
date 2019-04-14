@@ -8,12 +8,12 @@ import com.mercadopago.android.px.utils.ResourcesUtil;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class PaymentMethods {
+public final class InitStubUtils {
 
     private static String doNotFindPaymentMethodsException =
         "{\"message\":\"doesn't find payment methods\",\"error\":\"payment methods not found error\",\"cause\":[]}";
 
-    private PaymentMethods() {
+    private InitStubUtils() {
 
     }
 

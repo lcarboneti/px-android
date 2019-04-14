@@ -9,7 +9,7 @@ import com.mercadopago.android.px.internal.features.uicontrollers.AmountRowContr
 import com.mercadopago.android.px.internal.navigation.DefaultPayerInformationDriver;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
-import com.mercadopago.android.px.internal.repository.GroupsRepository;
+import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
@@ -26,6 +26,7 @@ import com.mercadopago.android.px.model.PaymentMethodSearchItem;
 import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.PaymentPreference;
 import com.mercadopago.android.px.services.Callback;
 import com.mercadopago.android.px.tracking.internal.views.SelectMethodChildView;
@@ -42,7 +43,7 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
 
     private final DiscountRepository discountRepository;
     @NonNull
-    private final GroupsRepository groupsRepository;
+    private final InitRepository initRepository;
 
     @NonNull private DisabledPaymentMethodRepository disabledPaymentMethodRepository;
 
@@ -60,14 +61,14 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
         @NonNull final UserSelectionRepository userSelectionRepository,
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final DiscountRepository discountRepository,
-        @NonNull final GroupsRepository groupsRepository,
+        @NonNull final InitRepository initRepository,
         @NonNull final MercadoPagoESC mercadoPagoESC,
         @NonNull final PaymentVaultTitleSolver titleSolver) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.userSelectionRepository = userSelectionRepository;
         this.discountRepository = discountRepository;
-        this.groupsRepository = groupsRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
+        this.initRepository = initRepository;
         this.mercadoPagoESC = mercadoPagoESC;
         this.titleSolver = titleSolver;
     }
@@ -85,9 +86,9 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
     public void initPaymentVaultFlow() {
         initializeAmountRow();
 
-        groupsRepository.getGroups().enqueue(new Callback<PaymentMethodSearch>() {
+        initRepository.getInit().enqueue(new Callback<InitResponse>() {
             @Override
-            public void success(final PaymentMethodSearch paymentMethodSearch) {
+            public void success(final InitResponse paymentMethodSearch) {
                 if (isViewAttached()) {
                     PaymentVaultPresenter.this.paymentMethodSearch = paymentMethodSearch;
                     initPaymentMethodSearch();
@@ -100,12 +101,7 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
                     .showError(MercadoPagoError
                             .createNotRecoverable(apiException, ApiException.ErrorCodes.PAYMENT_METHOD_NOT_FOUND),
                         ApiException.ErrorCodes.PAYMENT_METHOD_NOT_FOUND);
-                setFailureRecovery(new FailureRecovery() {
-                    @Override
-                    public void recover() {
-                        initPaymentVaultFlow();
-                    }
-                });
+                setFailureRecovery(() -> initPaymentVaultFlow());
             }
         });
     }

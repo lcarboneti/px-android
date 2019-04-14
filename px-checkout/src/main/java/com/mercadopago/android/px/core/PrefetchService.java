@@ -6,8 +6,8 @@ import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.services.PreferenceService;
 import com.mercadopago.android.px.internal.util.TextUtil;
-import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.exceptions.ApiException;
+import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
 
@@ -74,9 +74,9 @@ import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
     }
 
     /* default */ void fetchGroups() {
-        session.getGroupsRepository().getGroups().execute(new Callback<PaymentMethodSearch>() {
+        session.getInitRepository().getInit().execute(new Callback<InitResponse>() {
             @Override
-            public void success(final PaymentMethodSearch paymentMethodSearch) {
+            public void success(final InitResponse paymentMethodSearch) {
                 postSuccess();
             }
 

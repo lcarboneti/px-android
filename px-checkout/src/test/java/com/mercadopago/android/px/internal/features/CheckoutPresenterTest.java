@@ -1,13 +1,12 @@
 package com.mercadopago.android.px.internal.features;
 
 import android.support.annotation.NonNull;
-
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
 import com.mercadopago.android.px.internal.features.providers.CheckoutProvider;
-import com.mercadopago.android.px.internal.repository.GroupsRepository;
+import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
@@ -71,7 +70,7 @@ public class CheckoutPresenterTest {
     @Mock private CheckoutProvider checkoutProvider;
     @Mock private PaymentSettingRepository paymentSettingRepository;
     @Mock private UserSelectionRepository userSelectionRepository;
-    @Mock private GroupsRepository groupsRepository;
+    @Mock private InitRepository initRepository;
     @Mock private PluginRepository pluginRepository;
     @Mock private PaymentRepository paymentRepository;
     @Mock private InternalConfiguration internalConfiguration;
@@ -97,7 +96,7 @@ public class CheckoutPresenterTest {
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(preference);
 
         stubProvider.setCheckoutPreferenceResponse(preference);
-        when(groupsRepository.getGroups())
+        when(initRepository.getInit())
             .thenReturn(new StubSuccessMpCall<>(PaymentMethodSearchs.getCompletePaymentMethodSearchMLA()));
         return getBasePresenter(stubView, stubProvider);
     }
@@ -106,7 +105,7 @@ public class CheckoutPresenterTest {
     private CheckoutPresenter getPaymentPresenterWithOnlyAccountMoneyMLA() {
         final CheckoutPreference preference = stubPreferenceOneItem();
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(preference);
-        when(groupsRepository.getGroups())
+        when(initRepository.getInit())
             .thenReturn(new StubSuccessMpCall<>(PaymentMethodSearchs.getPaymentMethodSearchWithOnlyAccountMoneyMLA()));
         return getPresenter();
     }
@@ -119,7 +118,7 @@ public class CheckoutPresenterTest {
         final CheckoutPresenter presenter =
             new CheckoutPresenter(new CheckoutStateModel(), paymentSettingRepository,
                 userSelectionRepository,
-                groupsRepository,
+                initRepository,
                 pluginRepository,
                 paymentRepository,
                 internalConfiguration,
@@ -160,7 +159,7 @@ public class CheckoutPresenterTest {
         final CheckoutPreference preference = stubPreferenceOneItemAndPayer();
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(preference);
         final CheckoutPresenter presenter = getPresenter();
-        when(groupsRepository.getGroups())
+        when(initRepository.getInit())
             .thenReturn(new StubSuccessMpCall<>(PaymentMethodSearchs.getCompletePaymentMethodSearchMLA()));
         presenter.initialize();
         verify(checkoutProvider).fetchFonts();
@@ -181,12 +180,12 @@ public class CheckoutPresenterTest {
     public void whenChoHasPreferenceAndPaymentMethodRetrivedShowPaymentMethodSelection() {
         final CheckoutPreference preference = stubPreferenceOneItemAndPayer();
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(preference);
-        when(groupsRepository.getGroups())
+        when(initRepository.getInit())
             .thenReturn(new StubSuccessMpCall<>(PaymentMethodSearchs.getCompletePaymentMethodSearchMLA()));
         final CheckoutPresenter presenter = getPresenter();
         presenter.initialize();
 
-        verify(groupsRepository).getGroups();
+        verify(initRepository).getInit();
         verify(checkoutView).showProgress();
         verify(checkoutView).trackScreen();
         verify(checkoutView).showPaymentMethodSelection();

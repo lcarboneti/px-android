@@ -11,7 +11,7 @@ import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.EscManager;
-import com.mercadopago.android.px.internal.repository.GroupsRepository;
+import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -30,7 +30,6 @@ import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.PaymentMethod;
-import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.PaymentTypes;
@@ -38,6 +37,7 @@ import com.mercadopago.android.px.model.Split;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
 import java.util.Arrays;
@@ -52,7 +52,7 @@ public class PaymentService implements PaymentRepository {
     @NonNull private final SplitPaymentProcessor paymentProcessor;
     @NonNull private final Context context;
     @NonNull private final TokenRepository tokenRepository;
-    @NonNull private final GroupsRepository groupsRepository;
+    @NonNull private final InitRepository initRepository;
     @NonNull private final EscManager escManager;
 
     @NonNull /* default */ final PaymentServiceHandlerWrapper handlerWrapper;
@@ -73,7 +73,7 @@ public class PaymentService implements PaymentRepository {
         @NonNull final EscManager escManager,
         @NonNull final TokenRepository tokenRepository,
         @NonNull final InstructionsRepository instructionsRepository,
-        @NonNull final GroupsRepository groupsRepository,
+        @NonNull final InitRepository initRepository,
         @NonNull final AmountConfigurationRepository amountConfigurationRepository) {
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.escManager = escManager;
@@ -85,7 +85,7 @@ public class PaymentService implements PaymentRepository {
         this.paymentProcessor = paymentProcessor;
         this.context = context;
         this.tokenRepository = tokenRepository;
-        this.groupsRepository = groupsRepository;
+        this.initRepository = initRepository;
 
         handlerWrapper =
             new PaymentServiceHandlerWrapper(this, disabledPaymentMethodRepository, escManager, instructionsRepository);
@@ -141,9 +141,9 @@ public class PaymentService implements PaymentRepository {
         @Nullable final PayerCost payerCost,
         final boolean splitPayment) {
 
-        groupsRepository.getGroups().enqueue(new Callback<PaymentMethodSearch>() {
+        initRepository.getInit().enqueue(new Callback<InitResponse>() {
             @Override
-            public void success(final PaymentMethodSearch paymentMethodSearch) {
+            public void success(final InitResponse paymentMethodSearch) {
                 final String paymentTypeId = expressMetadata.getPaymentTypeId();
 
                 if (PaymentTypes.isCardPaymentType(paymentTypeId)) {

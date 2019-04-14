@@ -66,7 +66,7 @@ public class CheckoutPreference implements Serializable {
     @Nullable private final BigDecimal conceptAmount;
 
     @Nullable private final String conceptId;
-    
+
     @Nullable private final String additionalInfo;
 
     @NonNull private final List<String> processingMode;

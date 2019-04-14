@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
+import com.mercadopago.android.px.model.internal.InitResponse;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ public interface CheckoutService {
 
     //TODO modify RESPONSE to support backend driven on/off features + merchant order + pref retrieved.
     @POST("{environment}/{version}/px_mobile_api/init")
-    MPCall<PaymentMethodSearch> init(
+    MPCall<InitResponse> init(
         @Path(value = "environment", encoded = true) String environment,
         @Path(value = "version", encoded = true) String version,
         @Header("Accept-Language") String locale,

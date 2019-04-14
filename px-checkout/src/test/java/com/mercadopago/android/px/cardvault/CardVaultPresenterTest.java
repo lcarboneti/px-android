@@ -223,7 +223,7 @@ public class CardVaultPresenterTest {
     public void ifPaymentRecoveryIsSetThenStartTokenRecoverableFlow() {
 
         final Token mockedToken = Tokens.getToken();
-        final PaymentMethod mockedPaymentMethod = PaymentMethods.getPaymentMethodOnVisa();
+        final PaymentMethod mockedPaymentMethod = InitStubUtils.getPaymentMethodOnVisa();
         final Issuer mockedIssuer = Issuers.getIssuerMLA();
         final String mockedPaymentStatus = Payment.StatusCodes.STATUS_REJECTED;
         final String mockedPaymentStatusDeatil = Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_CALL_FOR_AUTHORIZE;
@@ -251,7 +251,7 @@ public class CardVaultPresenterTest {
         provider.setResponse(installmentsList);
 
         final Token mockedToken = Tokens.getToken();
-        final PaymentMethod mockedPaymentMethod = PaymentMethods.getPaymentMethodOnVisa();
+        final PaymentMethod mockedPaymentMethod = InitStubUtils.getPaymentMethodOnVisa();
         final Issuer mockedIssuer = Issuers.getIssuerMLA();
         final String mockedPaymentStatus = Payment.StatusCodes.STATUS_REJECTED;
         final String mockedPaymentStatusDetail = Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_CALL_FOR_AUTHORIZE;

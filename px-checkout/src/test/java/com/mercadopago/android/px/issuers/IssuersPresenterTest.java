@@ -5,8 +5,8 @@ import com.mercadopago.android.px.internal.callbacks.OnSelectedCallback;
 import com.mercadopago.android.px.internal.features.IssuersActivityView;
 import com.mercadopago.android.px.internal.features.IssuersPresenter;
 import com.mercadopago.android.px.internal.repository.IssuersRepository;
+import com.mercadopago.android.px.mocks.InitStubUtils;
 import com.mercadopago.android.px.mocks.Issuers;
-import com.mercadopago.android.px.mocks.PaymentMethods;
 import com.mercadopago.android.px.model.CardInfo;
 import com.mercadopago.android.px.model.Issuer;
 import com.mercadopago.android.px.model.PaymentMethod;
@@ -49,7 +49,7 @@ public class IssuersPresenterTest {
     @NonNull
     private IssuersPresenter getBasePresenter(
         final IssuersActivityView view, final boolean comesFromStorageFlow) {
-        final PaymentMethod paymentMethod = PaymentMethods.getPaymentMethodOnVisa();
+        final PaymentMethod paymentMethod = InitStubUtils.getPaymentMethodOnVisa();
         IssuersPresenter presenter = new IssuersPresenter(issuersRepository, paymentMethod, comesFromStorageFlow);
         presenter.attachView(view);
         return presenter;

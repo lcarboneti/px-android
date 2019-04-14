@@ -3,7 +3,7 @@ package com.mercadopago.android.px.guessing;
 import com.mercadopago.android.px.internal.features.ReviewPaymentMethodsPresenter;
 import com.mercadopago.android.px.internal.features.ReviewPaymentMethodsView;
 import com.mercadopago.android.px.internal.features.providers.ReviewPaymentMethodsProvider;
-import com.mercadopago.android.px.mocks.PaymentMethods;
+import com.mercadopago.android.px.mocks.InitStubUtils;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import java.util.List;
@@ -23,7 +23,7 @@ public class ReviewPaymentMethodsPresenterTest {
         MockedView mockedView = new MockedView();
         MockedProvider provider = new MockedProvider();
 
-        List<PaymentMethod> paymentMethodList = PaymentMethods.getPaymentMethodListMLA();
+        List<PaymentMethod> paymentMethodList = InitStubUtils.getPaymentMethodListMLA();
 
         ReviewPaymentMethodsPresenter presenter = new ReviewPaymentMethodsPresenter(paymentMethodList);
         presenter.attachView(mockedView);

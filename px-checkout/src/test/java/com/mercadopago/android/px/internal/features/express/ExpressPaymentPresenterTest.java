@@ -5,7 +5,7 @@ import com.mercadopago.android.px.internal.repository.AmountConfigurationReposit
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
-import com.mercadopago.android.px.internal.repository.GroupsRepository;
+import com.mercadopago.android.px.internal.repository.InitRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
@@ -17,9 +17,9 @@ import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.Item;
 import com.mercadopago.android.px.model.PayerCost;
-import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.Sites;
+import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
 import java.util.Arrays;
@@ -54,7 +54,7 @@ public class ExpressPaymentPresenterTest {
     private DisabledPaymentMethodRepository disabledPaymentMethodRepository;
 
     @Mock
-    private GroupsRepository groupsRepository;
+    private InitRepository initRepository;
 
     @Mock
     private DiscountRepository discountRepository;
@@ -66,7 +66,7 @@ public class ExpressPaymentPresenterTest {
     private AmountRepository amountRepository;
 
     @Mock
-    private PaymentMethodSearch paymentMethodSearch;
+    private InitResponse paymentMethodSearch;
 
     @Mock
     private ExpressMetadata expressMetadata;
@@ -89,7 +89,7 @@ public class ExpressPaymentPresenterTest {
         when(preference.getSite()).thenReturn(Sites.ARGENTINA);
         when(preference.getItems()).thenReturn(Collections.singletonList(mock(Item.class)));
         when(configuration.getCheckoutPreference()).thenReturn(preference);
-        when(groupsRepository.getGroups())
+        when(initRepository.getInit())
             .thenReturn(new StubSuccessMpCall<>(paymentMethodSearch));
         when(paymentMethodSearch.getExpress()).thenReturn(Collections.singletonList(expressMetadata));
         when(expressMetadata.getCard()).thenReturn(cardMetadata);
@@ -99,10 +99,9 @@ public class ExpressPaymentPresenterTest {
         when(discountRepository.getConfigurationFor(TextUtil.EMPTY)).thenReturn(discountConfigurationModel);
         when(amountConfigurationRepository.getConfigurationFor("123")).thenReturn(amountConfiguration);
 
-        expressPaymentPresenter =
-            new ExpressPaymentPresenter(paymentRepository, configuration, disabledPaymentMethodRepository,
-                discountRepository,
-                amountRepository, groupsRepository, amountConfigurationRepository);
+        expressPaymentPresenter = new ExpressPaymentPresenter(
+            paymentRepository, configuration, disabledPaymentMethodRepository, discountRepository, amountRepository,
+            initRepository, amountConfigurationRepository);
 
         verifyAttachView();
     }
