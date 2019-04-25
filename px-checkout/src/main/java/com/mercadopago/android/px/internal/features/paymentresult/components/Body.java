@@ -5,6 +5,8 @@ import com.mercadopago.android.px.internal.features.PaymentResultViewModelFactor
 import com.mercadopago.android.px.internal.features.paymentresult.props.BodyErrorProps;
 import com.mercadopago.android.px.internal.features.paymentresult.props.InstructionsProps;
 import com.mercadopago.android.px.internal.features.paymentresult.props.PaymentResultBodyProps;
+import com.mercadopago.android.px.internal.util.CurrenciesUtil;
+import com.mercadopago.android.px.internal.util.PaymentDataHelper;
 import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.internal.view.CompactComponent;
 import com.mercadopago.android.px.internal.view.Component;
@@ -48,7 +50,8 @@ public class Body extends Component<PaymentResultBodyProps, Void> {
             .setStatus(props.paymentResult.getPaymentStatus())
             .setStatusDetail(props.paymentResult.getPaymentStatusDetail())
             .setPaymentMethodName(props.paymentResult.getPaymentData().getPaymentMethod().getName())
-            .setPaymentAmount(props.paymentResult.getPaymentData().getTransactionAmount().toBigInteger())
+            .setPaymentAmount(CurrenciesUtil.getLocalizedAmountWithoutZeroDecimals(props.currencyId,
+                PaymentDataHelper.getPrettyAmountToPay(props.paymentResult.getPaymentData())))
             .build();
         return new BodyError(bodyErrorProps, getDispatcher());
     }

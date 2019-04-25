@@ -5,6 +5,7 @@ import android.view.View;
 import com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView;
 import com.mercadopago.android.px.internal.view.TitlePager;
 import com.mercadopago.android.px.internal.viewmodel.GoingToModel;
+import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import java.util.List;
 
 public class TitlePagerAdapter extends ViewAdapter<List<PaymentMethodDescriptorView.Model>, TitlePager> {
@@ -22,14 +23,15 @@ public class TitlePagerAdapter extends ViewAdapter<List<PaymentMethodDescriptorV
     }
 
     @Override
-    public void updateData(final int currentIndex, final int payerCostSelected, final boolean userWantsToSplit) {
+    public void updateData(final int currentIndex, final int payerCostSelected,
+        @NonNull final SplitSelectionState splitSelectionState) {
         if (this.currentIndex != currentIndex) {
             final GoingToModel goingTo =
                 this.currentIndex < currentIndex ? GoingToModel.BACKWARDS : GoingToModel.FORWARD;
             view.orderViews(goingTo);
             this.currentIndex = currentIndex;
         }
-        refreshData(currentIndex, payerCostSelected, userWantsToSplit);
+        refreshData(currentIndex, payerCostSelected, splitSelectionState);
     }
 
     @Override
@@ -47,7 +49,8 @@ public class TitlePagerAdapter extends ViewAdapter<List<PaymentMethodDescriptorV
         this.nextView = (PaymentMethodDescriptorView) nextView;
     }
 
-    private void refreshData(final int currentIndex, final int payerCostSelected, final boolean userWantsToSplit) {
+    private void refreshData(final int currentIndex, final int payerCostSelected,
+        @NonNull final SplitSelectionState splitSelectionState) {
         if (currentIndex > 0) {
             final PaymentMethodDescriptorView.Model previousModel = data.get(currentIndex - 1);
             previousView.update(previousModel);
@@ -55,7 +58,7 @@ public class TitlePagerAdapter extends ViewAdapter<List<PaymentMethodDescriptorV
 
         final PaymentMethodDescriptorView.Model currentModel = data.get(currentIndex);
         currentModel.setCurrentPayerCost(payerCostSelected);
-        currentModel.setSplit(userWantsToSplit);
+        currentModel.setSplit(splitSelectionState.userWantsToSplit());
         currentView.update(currentModel);
 
         if (currentIndex + 1 < data.size()) {

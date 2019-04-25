@@ -222,6 +222,18 @@ public class PaymentMethodSearch implements Serializable {
 
     @Nullable
     public Card getCardById(@NonNull final String cardId) {
+        for (final CustomSearchItem customSearchItem : getCustomSearchItems()) {
+            if (customSearchItem.getId().equals(cardId)) {
+                final PaymentMethod paymentMethod = getPaymentMethodById(customSearchItem.getPaymentMethodId());
+                final Card card = new Card();
+                card.setId(cardId);
+                card.setSecurityCode(paymentMethod != null ? paymentMethod.getSecurityCode() : null);
+                card.setPaymentMethod(paymentMethod);
+                //TODO fix issuer for saved card.
+//                card.setIssuer(new Issuer(cardMetadata.getDisplayInfo().getIssuerId(), ""));
+            }
+        }
+
         Card foundCard = null;
         if (cards != null) {
             for (final Card card : cards) {

@@ -125,7 +125,7 @@
     <string name="px_title_rejection_fraud">Estás suspendido para pagar</string>
     <string name="px_rejection_label">Algo salió mal…</string>
     <string name="px_error_bad_filled_action">Reingresar los datos de la tarjeta</string>
-    <string name="px_error_description_call">1- Llama al teléfono que está al reverso de tu tarjeta para autorizar el pago a Mercado Pago. \n 2- Avísanos para que podamos acreditarlo.</string>
+    <string name="px_error_description_call">1- Llama al teléfono que está al reverso de tu tarjeta para autorizar el pago de %1$s a Mercado Pago. \n 2- Avísanos para que podamos acreditarlo.</string>
     <string name="px_error_description_card_disabled">Llama a %1$s para activar tu tarjeta o usa otro medio de pago.</string>
     <string name="px_error_description_other_reason">Usa otra tarjeta u otro medio de pago.</string>
     <string name="px_error_description_by_bank">Por favor, intente pagar de otra forma.</string>

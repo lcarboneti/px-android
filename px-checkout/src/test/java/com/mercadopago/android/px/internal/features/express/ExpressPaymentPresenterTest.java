@@ -33,6 +33,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyListOf;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -147,8 +148,7 @@ public class ExpressPaymentPresenterTest {
 
         expressPaymentPresenter.onSliderOptionSelected(currentElementPosition);
 
-        verify(view).updateViewForPosition(currentElementPosition, PayerCost.NO_SELECTED,
-            false);
+        verify(view).updateViewForPosition(eq(currentElementPosition), eq(PayerCost.NO_SELECTED), any());
         verifyNoMoreInteractions(view);
     }
 
@@ -162,7 +162,7 @@ public class ExpressPaymentPresenterTest {
         when(amountConfiguration.getAppliedPayerCost(false)).thenReturn(payerCostList);
         expressPaymentPresenter.onPayerCostSelected(paymentMethodIndex, payerCostList.get(selectedPayerCostIndex));
 
-        verify(view).updateViewForPosition(paymentMethodIndex, selectedPayerCostIndex, false);
+        verify(view).updateViewForPosition(eq(paymentMethodIndex), eq(selectedPayerCostIndex), any());
         verify(view).collapseInstallmentsSelection();
         verifyNoMoreInteractions(view);
     }

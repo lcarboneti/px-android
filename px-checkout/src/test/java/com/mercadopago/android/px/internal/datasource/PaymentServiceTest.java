@@ -16,6 +16,7 @@ import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.TokenRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.model.Card;
+import com.mercadopago.android.px.model.CardDisplayInfo;
 import com.mercadopago.android.px.model.CardMetadata;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
@@ -95,7 +96,6 @@ public class PaymentServiceTest {
         when(amountConfigurationRepository.getCurrentConfiguration()).thenThrow(IllegalStateException.class);
         paymentService.attach(handler);
         paymentService.startExpressPayment(expressMetadata.get(0), payerCost, false);
-
         verify(userSelectionRepository).select(card, null);
     }
 
@@ -189,7 +189,6 @@ public class PaymentServiceTest {
         when(node.getCard()).thenReturn(cardMetadata);
         final Card card = mock(Card.class);
         when(paymentMethodSearch.getCardById(node.getCard().getId())).thenReturn(card);
-        when(paymentMethodSearch.getPaymentMethodById(node.getPaymentMethodId())).thenReturn(mock(PaymentMethod.class));
         return card;
     }
 }

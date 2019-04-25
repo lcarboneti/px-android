@@ -13,6 +13,7 @@ import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.util.textformatter.AmountLabeledFormatter;
 import com.mercadopago.android.px.internal.util.textformatter.TextFormatter;
 import com.mercadopago.android.px.internal.view.LabeledSwitch;
+import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.model.Split;
 import java.util.List;
 
@@ -97,7 +98,8 @@ public class SplitPaymentHeaderAdapter extends ViewAdapter<List<SplitPaymentHead
     }
 
     @Override
-    public void updateData(final int currentIndex, final int payerCostSelected, final boolean userWantsToSplit) {
+    public void updateData(final int currentIndex, final int payerCostSelected,
+        @NonNull final SplitSelectionState splitSelectionState) {
         // Empty data case
         if (currentIndex >= data.size()) {
             new Empty().visit(view);
@@ -105,14 +107,14 @@ public class SplitPaymentHeaderAdapter extends ViewAdapter<List<SplitPaymentHead
         }
 
         final Model model = data.get(currentIndex);
+        if (!splitSelectionState.preferDefault()) {
+            model.visit(splitSelectionState.userWantsToSplit());
+        }
         model.visit(view);
     }
 
     @Override
     public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
-        for (final Model model : data) {
-            model.visit(isChecked);
-        }
         splitListener.onSplitChanged(isChecked);
     }
 }

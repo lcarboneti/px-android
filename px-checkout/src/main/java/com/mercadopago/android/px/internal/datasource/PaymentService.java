@@ -19,7 +19,6 @@ import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.TokenRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.viewmodel.mappers.AccountMoneyMapper;
-import com.mercadopago.android.px.internal.viewmodel.mappers.CardMapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.Discount;
@@ -148,7 +147,7 @@ public class PaymentService implements PaymentRepository {
 
                 if (PaymentTypes.isCardPaymentType(paymentTypeId)) {
                     // Saved card.
-                    final Card card = new CardMapper(paymentMethodSearch).map(expressMetadata);
+                    final Card card = paymentMethodSearch.getCardById(expressMetadata.getCard().getId());
                     if (splitPayment) {
                         //TODO refactor
                         final String secondaryPaymentMethodId =

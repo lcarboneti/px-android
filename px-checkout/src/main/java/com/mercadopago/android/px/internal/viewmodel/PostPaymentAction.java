@@ -68,10 +68,13 @@ public abstract class PostPaymentAction implements Parcelable {
     }
 
     public interface ActionController {
-        void recoverFromReviewAndConfirm(@NonNull final PostPaymentAction postPaymentAction);
+        default void recoverFromReviewAndConfirm(@NonNull final PostPaymentAction postPaymentAction) {
+        }
 
-        void recoverFromOneTap();
+        default void recoverFromOneTap() {
+        }
 
-        void onChangePaymentMethod();
+        default void onChangePaymentMethod() {
+        }
     }
 }

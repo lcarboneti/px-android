@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.util.PaymentDataHelper;
 import com.mercadopago.android.px.internal.util.ResourceUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.internal.util.ViewUtils;
@@ -47,7 +48,7 @@ public class PaymentMethodComponent extends CompactComponent<PaymentMethodCompon
             @NonNull final String currencyId,
             @NonNull final String statementDescription) {
             final TotalAmount.Props totalAmountProps =
-                new TotalAmount.Props(currencyId, paymentData.getRawAmount(),
+                new TotalAmount.Props(currencyId, PaymentDataHelper.getPrettyAmountToPay(paymentData),
                     paymentData.getPayerCost());
 
             return new PaymentMethodComponent.PaymentMethodProps(paymentData.getPaymentMethod(),

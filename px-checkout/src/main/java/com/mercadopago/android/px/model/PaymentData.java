@@ -223,6 +223,7 @@ public final class PaymentData implements Serializable {
         @Nullable /* default */ PayerCost payerCost;
         @Nullable /* default */ Token token;
 
+        @Deprecated
         public Builder setTransactionAmount(final BigDecimal transactionAmount) {
             this.transactionAmount = transactionAmount;
             return this;

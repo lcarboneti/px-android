@@ -21,6 +21,8 @@ import com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView;
 import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.viewmodel.ConfirmButtonViewModel;
 import com.mercadopago.android.px.internal.viewmodel.PayerCostSelection;
+import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
+import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.mappers.ConfirmButtonViewModelMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.ElementDescriptorMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.PaymentMethodDescriptorMapper;
@@ -51,19 +53,20 @@ import java.util.List;
 import java.util.Set;
 
 /* default */ class ExpressPaymentPresenter extends BasePresenter<ExpressPayment.View>
-    implements ExpressPayment.Actions,
+    implements PostPaymentAction.ActionController, ExpressPayment.Actions,
     AmountDescriptorView.OnClickListenerWithDiscount {
 
     private static final String BUNDLE_STATE_PAYER_COST =
         "com.mercadopago.android.px.internal.features.express.PAYER_COST";
-    /* default */ PayerCostSelection payerCostSelection;
 
     private static final String BUNDLE_STATE_SPLIT_PREF =
         "com.mercadopago.android.px.internal.features.express.SPLIT_PREF";
-    /* default */ boolean isSplitUserPreference = false;
 
     private static final String BUNDLE_STATE_AVAILABLE_PM_COUNT =
         "com.mercadopago.android.px.internal.features.express.AVAILABLE_PM_COUNT";
+
+    private PayerCostSelection payerCostSelection;
+    private SplitSelectionState splitSelectionState;
     private int availablePaymentMethodsCount = -1;
 
     @NonNull private final PaymentRepository paymentRepository;
@@ -96,6 +99,7 @@ import java.util.Set;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
         explodeDecoratorMapper = new ExplodeDecoratorMapper();
         paymentMethodDrawableItemMapper = new PaymentMethodDrawableItemMapper();
+        splitSelectionState = new SplitSelectionState();
 
         initRepository.getInit().execute(new Callback<InitResponse>() {
             @Override
@@ -187,7 +191,7 @@ import java.util.Set;
     @Override
     public void recoverFromBundle(@NonNull final Bundle bundle) {
         payerCostSelection = bundle.getParcelable(BUNDLE_STATE_PAYER_COST);
-        isSplitUserPreference = bundle.getBoolean(BUNDLE_STATE_SPLIT_PREF, false);
+        splitSelectionState = bundle.getParcelable(BUNDLE_STATE_SPLIT_PREF);
         availablePaymentMethodsCount = bundle.getInt(BUNDLE_STATE_AVAILABLE_PM_COUNT);
     }
 
@@ -195,7 +199,7 @@ import java.util.Set;
     @Override
     public Bundle storeInBundle(@NonNull final Bundle bundle) {
         bundle.putParcelable(BUNDLE_STATE_PAYER_COST, payerCostSelection);
-        bundle.putBoolean(BUNDLE_STATE_SPLIT_PREF, isSplitUserPreference);
+        bundle.putParcelable(BUNDLE_STATE_SPLIT_PREF, splitSelectionState);
         bundle.putInt(BUNDLE_STATE_AVAILABLE_PM_COUNT, availablePaymentMethodsCount);
         return bundle;
     }
@@ -225,13 +229,14 @@ import java.util.Set;
         if (expressMetadata.isCard()) {
             final AmountConfiguration amountConfiguration =
                 amountConfigurationRepository.getConfigurationFor(expressMetadata.getCard().getId());
-            splitPayment = isSplitUserPreference && amountConfiguration.allowSplit();
+            splitPayment = splitSelectionState.userWantsToSplit() && amountConfiguration.allowSplit();
             payerCost = amountConfiguration
-                .getCurrentPayerCost(isSplitUserPreference, payerCostSelection.get(paymentMethodSelectedIndex));
+                .getCurrentPayerCost(
+                    splitSelectionState.userWantsToSplit(), payerCostSelection.get(paymentMethodSelectedIndex));
         } else if (expressMetadata.isAccountMoney()) {
             final AmountConfiguration amountConfiguration =
                 amountConfigurationRepository.getConfigurationFor(expressMetadata.getPaymentMethodId());
-            splitPayment = isSplitUserPreference && amountConfiguration.allowSplit();
+            splitPayment = splitSelectionState.userWantsToSplit() && amountConfiguration.allowSplit();
         }
 
         //TODO fill cards with esc
@@ -319,9 +324,11 @@ import java.util.Set;
         if (currentItem <= expressMetadataList.size() && cardMetadata != null) {
             final AmountConfiguration amountConfiguration =
                 amountConfigurationRepository.getConfigurationFor(cardMetadata.getId());
-            final List<PayerCost> payerCostList = amountConfiguration.getAppliedPayerCost(isSplitUserPreference);
+            final List<PayerCost> payerCostList = amountConfiguration.getAppliedPayerCost(
+                splitSelectionState.userWantsToSplit());
             final int index = payerCostList.indexOf(
-                amountConfiguration.getCurrentPayerCost(isSplitUserPreference, payerCostSelection.get(currentItem)));
+                amountConfiguration.getCurrentPayerCost(
+                    splitSelectionState.userWantsToSplit(), payerCostSelection.get(currentItem)));
             getView().showInstallmentsList(payerCostList, index);
             new InstallmentsEventTrack(expressMetadata, amountConfiguration).track();
         }
@@ -352,7 +359,7 @@ import java.util.Set;
     @Override
     public void updateElementPosition(final int paymentMethodIndex) {
         getView().updateViewForPosition(paymentMethodIndex, payerCostSelection.get(paymentMethodIndex),
-            isSplitUserPreference);
+            splitSelectionState);
     }
 
     /**
@@ -365,7 +372,7 @@ import java.util.Set;
     public void onPayerCostSelected(final int paymentMethodIndex, final PayerCost payerCostSelected) {
         final CardMetadata cardMetadata = expressMetadataList.get(paymentMethodIndex).getCard();
         final int selected = amountConfigurationRepository.getConfigurationFor(cardMetadata.getId())
-            .getAppliedPayerCost(isSplitUserPreference)
+            .getAppliedPayerCost(splitSelectionState.userWantsToSplit())
             .indexOf(payerCostSelected);
 
         updateElementPosition(paymentMethodIndex, selected);
@@ -404,8 +411,10 @@ import java.util.Set;
 
     @Override
     public void onSplitChanged(final boolean isChecked, final int currentItem) {
-        payerCostSelection = createNewPayerCostSelected();
-        isSplitUserPreference = isChecked;
+        if (splitSelectionState.userWantsToSplit() != isChecked) {
+            payerCostSelection = createNewPayerCostSelected();
+        }
+        splitSelectionState.setUserWantsToSplit(isChecked);
         // cancel also update the position.
         // it is used because the installment selection can be expanded by the user.
         onInstallmentSelectionCanceled(currentItem);
@@ -414,5 +423,10 @@ import java.util.Set;
     @NonNull
     private PayerCostSelection createNewPayerCostSelected() {
         return new PayerCostSelection(expressMetadataList.size() + 1);
+    }
+
+    @Override
+    public void onChangePaymentMethod() {
+        getView().resetPagerIndex();
     }
 }

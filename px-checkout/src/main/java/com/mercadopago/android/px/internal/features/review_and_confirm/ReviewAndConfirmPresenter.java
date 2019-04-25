@@ -209,16 +209,6 @@ import java.util.Set;
             public void recoverFromReviewAndConfirm(@NonNull final PostPaymentAction postPaymentAction) {
                 getView().startPaymentRecoveryFlow(paymentRepository.createPaymentRecovery());
             }
-
-            @Override
-            public void recoverFromOneTap() {
-                //do nothing
-            }
-
-            @Override
-            public void onChangePaymentMethod() {
-                //do nothing
-            }
         });
     }
 

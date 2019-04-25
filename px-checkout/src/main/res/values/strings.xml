@@ -132,7 +132,7 @@
     <string name="px_title_rejection_blacklist">We rejected the payment with this card</string>
     <string name="px_title_rejection_fraud">You are suspended for payments</string>
     <string name="px_rejection_label">Something went wrong…</string>
-    <string name="px_error_description_call">1- Call the phone number on the back of your card to authorize the payment to Mercado Pago. \n 2- Please let us know so that we can credit it.</string>
+    <string name="px_error_description_call">1- Call the phone number on the back of your card to authorize the payment of %1$s to Mercado Pago. \n 2- Please let us know so that we can credit it.</string>
     <string name="px_error_bad_filled_action">Enter the card details again</string>
     <string name="px_error_description_card_disabled">Call %1$s to activate your card or use a different payment method</string>
     <string name="px_error_description_other_reason">Use another card or other payment method.</string>

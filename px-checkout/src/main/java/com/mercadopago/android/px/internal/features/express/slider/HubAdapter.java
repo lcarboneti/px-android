@@ -5,6 +5,7 @@ import android.view.View;
 import com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView;
 import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.viewmodel.ConfirmButtonViewModel;
+import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,9 +41,10 @@ public class HubAdapter extends ViewAdapter<List<ViewAdapter<?, ? extends View>>
     }
 
     @Override
-    public void updateData(final int currentIndex, final int payerCostSelected, final boolean userWantsToSplit) {
+    public void updateData(final int currentIndex, final int payerCostSelected,
+        @NonNull final SplitSelectionState splitSelectionState) {
         for (final ViewAdapter adapter : data) {
-            adapter.updateData(currentIndex, payerCostSelected, userWantsToSplit);
+            adapter.updateData(currentIndex, payerCostSelected, splitSelectionState);
         }
     }
 

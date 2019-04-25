@@ -92,7 +92,7 @@ public class TotalAmount extends Component<TotalAmount.Props, Void> {
         return amountDetail;
     }
 
-    public boolean hasPayerCostWithMultipleInstallments() {
+    private boolean hasPayerCostWithMultipleInstallments() {
         return props.payerCost != null && props.payerCost.hasMultipleInstallments();
     }
 }

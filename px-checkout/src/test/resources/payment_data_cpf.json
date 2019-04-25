@@ -34,5 +34,6 @@
     "thumbnail": "http://img.mlstatic.com/org-img/MP3/API/logos/bolbradesco.gif"
   },
   "token": null,
-  "transaction_amount": 100
+  "transaction_amount": 100,
+  "raw_amount": 100
 }

@@ -100,15 +100,15 @@ public final class PaymentResultViewModel {
         return isSuccess;
     }
 
+    @NonNull
     public String getDescription(@NonNull final Context context) {
-        if (descriptionParam != null) {
-            return getDescriptionWithParams(context);
-        }
-        return descriptionResId == 0 ? TextUtil.EMPTY : context.getString(descriptionResId);
+        return descriptionResId == 0 ? TextUtil.EMPTY : getDescriptionText(context);
     }
 
-    private String getDescriptionWithParams(final Context context) {
-        return context.getString(descriptionResId, descriptionParam);
+    @NonNull
+    private String getDescriptionText(@NonNull final Context context) {
+        return descriptionParam != null ? context.getString(descriptionResId, descriptionParam)
+            : context.getString(descriptionResId);
     }
 
     public String getBodyTitle(@NonNull final Context context) {

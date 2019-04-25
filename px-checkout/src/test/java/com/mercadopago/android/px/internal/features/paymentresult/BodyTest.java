@@ -25,6 +25,8 @@ import static org.mockito.Mockito.mock;
 
 public class BodyTest {
 
+    private static final String CURRENCY_ID = "ARS";
+
     private ActionDispatcher dispatcher;
 
     @Before
@@ -222,6 +224,7 @@ public class BodyTest {
         @NonNull final PaymentResultScreenConfiguration preference) {
         return new PaymentResultBodyProps.Builder(preference)
             .setPaymentResult(paymentResult)
+            .setCurrencyId(CURRENCY_ID)
             .build();
     }
 }

@@ -32,9 +32,7 @@ public class OnChangePaymentMethodDriver {
                 callback.driveToFinishWithoutPaymentResult(RESULT_CHANGE_PAYMENT_METHOD);
             }
         } else {
-            if (checkoutStateModel.isExpressCheckout) {
-                callback.driveToShowOneTap();
-            } else {
+            if (!checkoutStateModel.isExpressCheckout) {
                 callback.driveToShowPaymentMethodSelection();
             }
         }
@@ -44,8 +42,6 @@ public class OnChangePaymentMethodDriver {
         void driveToFinishWithPaymentResult(Integer resultCode, Payment payment);
 
         void driveToFinishWithoutPaymentResult(Integer resultCode);
-
-        void driveToShowOneTap();
 
         void driveToShowPaymentMethodSelection();
     }

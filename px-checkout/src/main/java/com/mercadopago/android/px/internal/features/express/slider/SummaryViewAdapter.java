@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.features.express.slider;
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.viewmodel.GoingToModel;
+import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import java.util.List;
 
 public class SummaryViewAdapter extends ViewAdapter<List<SummaryView.Model>, SummaryView> {
@@ -17,7 +18,8 @@ public class SummaryViewAdapter extends ViewAdapter<List<SummaryView.Model>, Sum
     }
 
     @Override
-    public void updateData(final int index, final int payerCostSelected, final boolean userWantsToSplit) {
+    public void updateData(final int index, final int payerCostSelected,
+        @NonNull final SplitSelectionState splitSelectionState) {
         final SummaryView.Model nextModel = data.get(index);
         if (!nextModel.equals(currentModel)) {
             view.update(nextModel);

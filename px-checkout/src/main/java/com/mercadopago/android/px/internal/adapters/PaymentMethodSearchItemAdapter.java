@@ -76,7 +76,5 @@ public class PaymentMethodSearchItemAdapter extends RecyclerView.Adapter<Payment
             model.tint(icon);
             itemView.setOnClickListener(v -> model.handleOnClick());
         }
-
-
     }
 }

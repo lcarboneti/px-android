@@ -88,6 +88,7 @@ public final class PaymentResultViewModelFactory {
         final String status = paymentResult.getPaymentStatus();
         final String detail = paymentResult.getPaymentStatusDetail();
         final String paymentMethodName = props == null ? TextUtil.EMPTY : props.paymentMethodName;
+        final String paymentAmount = props == null ? null : props.paymentAmount;
 
         final PaymentResultViewModel.Builder builder = new PaymentResultViewModel.Builder();
         // defaults
@@ -124,7 +125,7 @@ public final class PaymentResultViewModelFactory {
             builder.setMainAction(new ChangePaymentMethodAction());
             builder.setIsErrorRecoverable(true);
             builder.setMainActionTitle(R.string.px_text_pay_with_other_method);
-            return rejectedStatusBuilder(detail, builder, paymentMethodName);
+            return rejectedStatusBuilder(detail, builder, paymentMethodName, paymentAmount);
 
         default:
             builder.setLabelResId(EMPTY_LABEL);
@@ -174,7 +175,8 @@ public final class PaymentResultViewModelFactory {
     }
 
     private static PaymentResultViewModel.Builder rejectedStatusBuilder(final String detail,
-        final PaymentResultViewModel.Builder builder, final String paymentMethodName) {
+        final PaymentResultViewModel.Builder builder, final String paymentMethodName,
+        final String paymentAmount) {
 
         if (!Payment.StatusDetail.isKnownStatusDetail(detail)) {
             return unknownStatusFallback(builder, STATUS_REJECTED, detail);
@@ -264,7 +266,7 @@ public final class PaymentResultViewModelFactory {
                 .setLinkAction(new ChangePaymentMethodAction())
                 .setLinkActionTitle(R.string.px_text_pay_with_other_method)
                 .setBodyTitleResId(R.string.px_text_how_can_authorize)
-                .setDescriptionResId(R.string.px_error_description_call)
+                .setDescriptionResId(R.string.px_error_description_call, paymentAmount)
                 .setHasDetail(true);
 
         case STATUS_DETAIL_REJECTED_REJECTED_BY_BANK:

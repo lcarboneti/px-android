@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import com.mercadopago.android.px.internal.view.PaymentMethodDescriptorView;
 import com.mercadopago.android.px.internal.view.PaymentMethodHeaderView;
 import com.mercadopago.android.px.internal.viewmodel.GoingToModel;
+import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import java.util.List;
 
 public class PaymentMethodHeaderAdapter
@@ -25,7 +26,8 @@ public class PaymentMethodHeaderAdapter
     }
 
     @Override
-    public void updateData(final int currentIndex, final int payerCostSelected, final boolean userWantsToSplit) {
+    public void updateData(final int currentIndex, final int payerCostSelected,
+        @NonNull final SplitSelectionState splitSelectionState) {
         this.currentIndex = currentIndex;
         PaymentMethodDescriptorView.Model currentModel = data.get(currentIndex);
         view.showTitlePager(currentModel.hasPayerCostList() && !currentModel.isDisabledPaymentMethod());

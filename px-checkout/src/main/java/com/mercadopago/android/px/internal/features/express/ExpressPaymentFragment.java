@@ -59,6 +59,8 @@ import com.mercadopago.android.px.internal.view.ScrollingPagerIndicator;
 import com.mercadopago.android.px.internal.view.SummaryView;
 import com.mercadopago.android.px.internal.view.TitlePager;
 import com.mercadopago.android.px.internal.viewmodel.StatusBarDecorator;
+import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
+import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
 import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.Card;
@@ -124,8 +126,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void onSplitChanged(final boolean isChecked) {
-        final int currentItem = paymentMethodPager.getCurrentItem();
-        presenter.onSplitChanged(isChecked, currentItem);
+        presenter.onSplitChanged(isChecked, paymentMethodPager.getCurrentItem());
     }
 
     public interface CallBack {
@@ -164,14 +165,11 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         toolbarAppearAnimation = AnimationUtils.loadAnimation(view.getContext(), R.anim.px_toolbar_appear);
         toolbarDisappearAnimation = AnimationUtils.loadAnimation(view.getContext(), R.anim.px_toolbar_disappear);
 
-        confirmButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                if (ApiUtil.checkConnection(getContext())) {
-                    presenter.confirmPayment(paymentMethodPager.getCurrentItem());
-                } else {
-                    presenter.manageNoConnection();
-                }
+        confirmButton.setOnClickListener(v -> {
+            if (ApiUtil.checkConnection(getContext())) {
+                presenter.confirmPayment(paymentMethodPager.getCurrentItem());
+            } else {
+                presenter.manageNoConnection();
             }
         });
 
@@ -309,7 +307,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
                 .setAdapter(PaymentMethodFragmentAdapter.with(getContext(), getChildFragmentManager(), items));
         }
 
-        installmentsAdapter = new InstallmentsAdapter(site, new ArrayList<PayerCost>(), PayerCost.NO_SELECTED, this);
+        installmentsAdapter = new InstallmentsAdapter(site, new ArrayList<>(), PayerCost.NO_SELECTED, this);
         installmentsRecyclerView.setAdapter(installmentsAdapter);
         installmentsRecyclerView.setVisibility(View.GONE);
 
@@ -386,8 +384,16 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
                 }
             });
             super.onActivityResult(requestCode, resultCode, data);
+        } else if (resultCode == Constants.RESULT_ACTION) {
+            handleAction(data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void handleAction(final Intent data) {
+        if (data != null && data.getExtras() != null) {
+            PostPaymentAction.fromBundle(data.getExtras()).execute(presenter);
         }
     }
 
@@ -416,8 +422,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public void updateViewForPosition(final int paymentMethodIndex,
         final int payerCostSelected,
-        final boolean isSplitUserPreference) {
-        hubAdapter.updateData(paymentMethodIndex, payerCostSelected, isSplitUserPreference);
+        @NonNull final SplitSelectionState splitSelectionState) {
+        hubAdapter.updateData(paymentMethodIndex, payerCostSelected, splitSelectionState);
     }
 
     //TODO refactor
@@ -593,5 +599,10 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public boolean isExploding() {
         return FragmentUtil.isFragmentVisible(getChildFragmentManager(), TAG_EXPLODING_FRAGMENT);
+    }
+
+    @Override
+    public void resetPagerIndex() {
+        paymentMethodPager.setCurrentItem(0);
     }
 }

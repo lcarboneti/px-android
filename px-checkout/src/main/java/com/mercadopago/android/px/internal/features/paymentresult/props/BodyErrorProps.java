@@ -12,7 +12,7 @@ public class BodyErrorProps {
     public final String status;
     public final String statusDetail;
     public final String paymentMethodName;
-    public final BigInteger paymentAmount;
+    public final String paymentAmount;
 
     public BodyErrorProps(@NonNull final Builder builder) {
         status = builder.status;
@@ -34,7 +34,7 @@ public class BodyErrorProps {
         public String status;
         public String statusDetail;
         public String paymentMethodName;
-        public BigInteger paymentAmount;
+        public String paymentAmount;
 
         public Builder setStatus(@NonNull final String status) {
             this.status = status;
@@ -51,7 +51,7 @@ public class BodyErrorProps {
             return this;
         }
 
-        public Builder setPaymentAmount(final BigInteger paymentAmount) {
+        public Builder setPaymentAmount(final String paymentAmount) {
             this.paymentAmount = paymentAmount;
             return this;
         }

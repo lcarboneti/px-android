@@ -83,7 +83,6 @@ public class InitService implements InitRepository {
 
     /* default */
     @NonNull
-    //TODO modify RESPONSE to support backend driven on/off features + merchant order + pref retrieved.
     MPCall<InitResponse> newRequest() {
 
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();

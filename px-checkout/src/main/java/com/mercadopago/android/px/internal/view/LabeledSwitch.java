@@ -51,6 +51,4 @@ public class LabeledSwitch extends LinearLayoutCompat implements CompoundButton.
             listener.onCheckedChanged(buttonView, isChecked);
         }
     }
-
-
 }

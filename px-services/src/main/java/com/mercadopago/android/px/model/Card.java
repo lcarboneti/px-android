@@ -158,4 +158,23 @@ public class Card implements CardInformation {
             ", securityCode=" + securityCode +
             '}';
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Card)) {
+            return false;
+        }
+
+        final Card card = (Card) o;
+
+        return id.equals(card.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

@@ -1,3 +1,11 @@
+## VERSION 4.10.1
+_22_04_2019_
+* ENHANCEMENT - Added amount on call for auth rejection message
+* FIX - User wants to split selection persist
+* FIX - Correct amount on congrats
+* FIX - Reset payment method slider position on payment method changed after rejection
+* FIX - Show result using visual payment processor
+
 ## VERSION 4.10.0
 _11_04_2019_
 * FEATURE - Disable last selected payment method after reject and recover

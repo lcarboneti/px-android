@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.features.express.slider;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
+import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 
 public abstract class ViewAdapter<T, V extends View> {
 
@@ -22,7 +23,8 @@ public abstract class ViewAdapter<T, V extends View> {
         data = newData;
     }
 
-    public abstract void updateData(final int currentIndex, final int payerCostSelected, final boolean userWantsToSplit);
+    public abstract void updateData(final int currentIndex, final int payerCostSelected,
+        @NonNull final SplitSelectionState splitSelectionState);
 
     public void updateViewsOrder(@NonNull final View previousView,
         @NonNull final View currentView,
