@@ -6,6 +6,7 @@ import com.mercadopago.android.px.core.DynamicDialogCreator;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 // Used by single player to inform charges and other payment special information.
 // Single player usecase depends on amount and payment method.
@@ -30,6 +31,10 @@ public final class DynamicDialogConfiguration implements Serializable {
 
     public boolean hasCreatorFor(@NonNull final DialogLocation fragmentLocation) {
         return creators.containsKey(fragmentLocation);
+    }
+
+    public Set<DialogLocation> getSupportedLocations() {
+        return creators.keySet();
     }
 
     public static final class Builder {

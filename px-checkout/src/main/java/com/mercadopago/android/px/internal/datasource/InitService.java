@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.datasource;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
@@ -88,8 +89,9 @@ public class InitService implements InitRepository {
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
         final PaymentConfiguration paymentConfiguration = paymentSettingRepository.getPaymentConfiguration();
 
+        final AdvancedConfiguration advancedConfiguration = paymentSettingRepository.getAdvancedConfiguration();
         final DiscountParamsConfiguration discountParamsConfiguration =
-            paymentSettingRepository.getAdvancedConfiguration()
+            advancedConfiguration
                 .getDiscountParamsConfiguration();
 
         final CheckoutParams checkoutParams = new CheckoutParams.Builder()
@@ -97,7 +99,11 @@ public class InitService implements InitRepository {
             .setCardWithEsc(new ArrayList<>(mercadoPagoESC.getESCCardIds()))
             .setCharges(paymentConfiguration.getCharges())
             .setSupportsSplit(paymentConfiguration.getPaymentProcessor().supportsSplitPayment(checkoutPreference))
-            .setSupportsExpress(paymentSettingRepository.getAdvancedConfiguration().isExpressPaymentEnabled())
+            .setSupportsExpress(advancedConfiguration.isExpressPaymentEnabled())
+            .setShouldSkipUserConfirmation(paymentSettingRepository.getPaymentConfiguration()
+                .getPaymentProcessor().shouldSkipUserConfirmation())
+            .setDynamicDialogLocations(advancedConfiguration.getDynamicDialogConfiguration().getSupportedLocations())
+            .setDynamicViewLocations(advancedConfiguration.getDynamicFragmentConfiguration().getSupportedLocations())
             .build();
 
         final InitRequest initRequest = new InitRequest.Builder()

@@ -2,9 +2,13 @@ package com.mercadopago.android.px.model.internal;
 
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
+import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
+import com.mercadopago.android.px.configuration.DynamicFragmentConfiguration;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("unused")
 /**
@@ -26,6 +30,9 @@ public final class CheckoutParams {
      */
     private final boolean supportsExpress;
     private final boolean supportsSplit;
+    private final boolean shouldSkipUserConfirmation;
+    private final Set<DynamicDialogConfiguration.DialogLocation> dynamicDialogLocations;
+    private final Set<DynamicFragmentConfiguration.FragmentLocation> dynamicViewLocations;
     // here will be more.
 
 
@@ -35,6 +42,9 @@ public final class CheckoutParams {
         discountParamsConfiguration = builder.discountParamsConfiguration;
         supportsSplit = builder.supportsSplit;
         supportsExpress = builder.supportsExpress;
+        shouldSkipUserConfirmation = builder.shouldSkipUserConfirmation;
+        dynamicDialogLocations = builder.dynamicDialogLocations;
+        dynamicViewLocations = builder.dynamicViewLocations;
     }
 
     public static final class Builder {
@@ -46,6 +56,9 @@ public final class CheckoutParams {
         /* default */ Collection<PaymentTypeChargeRule> charges = new ArrayList<>();
         /* default */ boolean supportsSplit;
         /* default */ boolean supportsExpress;
+        /* default */ boolean shouldSkipUserConfirmation;
+        /* default */ Set<DynamicDialogConfiguration.DialogLocation> dynamicDialogLocations = new HashSet<>();
+        private Set<DynamicFragmentConfiguration.FragmentLocation> dynamicViewLocations = new HashSet<>();
 
         public Builder setDiscountConfiguration(final DiscountParamsConfiguration discountParamsConfiguration) {
             this.discountParamsConfiguration = discountParamsConfiguration;
@@ -72,8 +85,25 @@ public final class CheckoutParams {
             return this;
         }
 
+        public Builder setShouldSkipUserConfirmation(final boolean shouldSkipUserConfirmation) {
+            this.shouldSkipUserConfirmation = shouldSkipUserConfirmation;
+            return this;
+        }
+
         public CheckoutParams build() {
             return new CheckoutParams(this);
+        }
+
+        public Builder setDynamicDialogLocations(
+            final Set<DynamicDialogConfiguration.DialogLocation> locations) {
+            dynamicDialogLocations.addAll(locations);
+            return this;
+        }
+
+        public Builder setDynamicViewLocations(
+            final Set<DynamicFragmentConfiguration.FragmentLocation> dynamicViewLocations) {
+            this.dynamicViewLocations.addAll(dynamicViewLocations);
+            return this;
         }
     }
 }

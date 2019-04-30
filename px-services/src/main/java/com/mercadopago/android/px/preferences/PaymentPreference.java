@@ -28,19 +28,15 @@ public class PaymentPreference implements Serializable, Parcelable {
         }
     };
 
+    private List<PaymentMethod> excludedPaymentMethods;
+    private List<PaymentType> excludedPaymentTypes;
+    private String defaultPaymentTypeId;
+    private String defaultPaymentMethodId;
+    private String defaultCardId;
     @SerializedName("installments")
     private Integer maxInstallments;
     private Integer defaultInstallments;
-    private List<PaymentMethod> excludedPaymentMethods;
-    private List<PaymentType> excludedPaymentTypes;
 
-    @SerializedName("default_payment_method_id")
-    private String defaultPaymentMethodId;
-
-    @SerializedName("default_card_id")
-    private String defaultCardId;
-
-    private String defaultPaymentTypeId;
 
     public Integer getMaxInstallments() {
         return maxInstallments;
