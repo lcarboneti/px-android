@@ -1,3 +1,38 @@
+## VERSION 4.12.3
+_13_05_2019_
+* FIX - Business result crash when session isn't initialized correctly
+
+## VERSION 4.12.2
+_08_05_2019_
+* FIX - Removed empty box and divider in rejected views
+* FIX - Catch NPE in network status check
+
+## VERSION 4.12.1
+_07_05_2019_
+* FIX - Populate card properties with custom options in one tap
+
+## VERSION 4.12.0
+_03_05_2019_
+* FEATURE - Esc for guessing card
+* FEATURE - Using discount name for his description
+* ENHANCEMENT - Track friction event when invalid esc
+* ENHANCEMENT - Add reason to cvv tracker
+* FIX - Returning to one tap after esc recover
+* FIX - Orientation issues
+
+## VERSION 4.11.0
+_26_04_2019_
+* FEATURE - Congrats tracking new attributes
+* FIX - Crash payment processor activity
+
+## VERSION 4.10.3
+_25_04_2019_
+* FIX - Recover removed method avoiding breaking changes.
+
+## VERSION 4.10.2
+_25_04_2019_
+* FIX - Creation of session id for tracking purpose
+
 ## VERSION 4.10.1
 _22_04_2019_
 * ENHANCEMENT - Added amount on call for auth rejection message

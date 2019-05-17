@@ -10,7 +10,7 @@ import com.mercadopago.android.px.tracking.internal.views.ViewTracker;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class FrictionEventTracker extends EventTracker {
+public class FrictionEventTracker extends EventTracker {
 
     public static final String PATH = "/friction";
     private static final String ATTR_PATH = "path";
@@ -60,7 +60,7 @@ public final class FrictionEventTracker extends EventTracker {
     public static EventTracker with(@NonNull final String path,
         @NonNull final Id fId,
         @NonNull final Style style,
-        @NonNull final Map<String, String> metadata) {
+        @NonNull final Map<?, ?> metadata) {
         final FrictionEventTracker frictionEventTracker = new FrictionEventTracker(path, fId, style);
         frictionEventTracker.extraInfo.putAll(metadata);
         return frictionEventTracker;
@@ -81,7 +81,9 @@ public final class FrictionEventTracker extends EventTracker {
         INVALID_EXP_DATE("invalid_expiration_date"),
         INVALID_CVV("invalid_cvv"),
         INVALID_DOCUMENT("invalid_document_number"),
-        INVALID_STATUS_DETAIL("invalid_status_detail");
+        INVALID_STATUS_DETAIL("invalid_status_detail"),
+        INVALID_ESC("invalid_esc"),
+        INVALID_FINGERPRINT("invalid_fingerprint");
 
         private static final String ATTR = "id";
 
@@ -108,7 +110,7 @@ public final class FrictionEventTracker extends EventTracker {
 
     }
 
-    private FrictionEventTracker(@NonNull final String path,
+    protected FrictionEventTracker(@NonNull final String path,
         @NonNull final Id fId,
         @NonNull final Style style) {
         this.path = path;
@@ -119,7 +121,7 @@ public final class FrictionEventTracker extends EventTracker {
 
     @NonNull
     @Override
-    public Map<String, Object> getEventData() {
+    public final Map<String, Object> getEventData() {
         final Map<String, Object> eventData = super.getEventData();
         eventData.put(Id.ATTR, fId.value);
         eventData.put(Style.ATTR, style.value);
@@ -131,7 +133,7 @@ public final class FrictionEventTracker extends EventTracker {
 
     @NonNull
     @Override
-    public String getEventPath() {
+    public final String getEventPath() {
         return PATH;
     }
 }

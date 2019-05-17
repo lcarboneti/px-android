@@ -784,7 +784,7 @@ public abstract class GuessingCardPresenter extends BasePresenter<GuessingCard.V
 
     public void checkFinishWithCardToken() {
         if (showPaymentTypes && getGuessedPaymentMethods() != null) {
-            getView().askForPaymentType(getGuessedPaymentMethods(), getPaymentTypes(), new CardInfo(getCardToken()));
+            getView().askForPaymentType(getGuessedPaymentMethods(), getPaymentTypes(), CardInfo.create(getCardToken()));
         } else {
             getView().showFinishCardFlow();
         }

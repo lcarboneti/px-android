@@ -9,7 +9,7 @@ import android.support.v4.provider.FontRequest;
 import android.support.v4.provider.FontsContractCompat;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
-import com.mercadopago.android.px.internal.datasource.MercadoPagoESC;
+import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.datasource.MercadoPagoServicesAdapter;
 import com.mercadopago.android.px.internal.features.uicontrollers.FontCache;
 import com.mercadopago.android.px.internal.util.ApiUtil;
@@ -25,16 +25,16 @@ public class CheckoutProviderImpl implements CheckoutProvider {
 
     private final Context context;
     private final MercadoPagoServicesAdapter mercadoPagoServicesAdapter;
-    private final MercadoPagoESC mercadoPagoESC;
+    private final IESCManager IESCManager;
     private Handler mHandler;
 
     public CheckoutProviderImpl(@NonNull final Context context,
         @NonNull String publicKey,
         @NonNull String privateKey,
-        @NonNull final MercadoPagoESC mercadoPagoESC) {
+        @NonNull final IESCManager IESCManager) {
         this.context = context;
         mercadoPagoServicesAdapter = new MercadoPagoServicesAdapter(context, publicKey, privateKey);
-        this.mercadoPagoESC = mercadoPagoESC;
+        this.IESCManager = IESCManager;
     }
 
     @Override

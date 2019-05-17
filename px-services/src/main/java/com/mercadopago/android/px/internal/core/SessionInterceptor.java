@@ -10,6 +10,7 @@ import okhttp3.Response;
 public final class SessionInterceptor implements Interceptor {
 
     @NonNull private final Context context;
+
     private static final String SESSION_ID_HEADER = "X-Session-Id";
 
     public SessionInterceptor(@NonNull final Context context) {
@@ -19,9 +20,9 @@ public final class SessionInterceptor implements Interceptor {
     @Override
     public Response intercept(@NonNull final Chain chain) throws IOException {
         final Request originalRequest = chain.request();
-        final Request requestWithUserAgent = originalRequest.newBuilder()
+        final Request request = originalRequest.newBuilder()
             .header(SESSION_ID_HEADER, new ApplicationModule(context).getSessionIdProvider().getSessionId())
             .build();
-        return chain.proceed(requestWithUserAgent);
+        return chain.proceed(request);
     }
 }

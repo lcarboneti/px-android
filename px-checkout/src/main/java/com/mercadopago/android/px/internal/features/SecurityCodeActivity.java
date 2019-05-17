@@ -1,9 +1,11 @@
 package com.mercadopago.android.px.internal.features;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.Toolbar;
@@ -42,8 +44,16 @@ import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import com.mercadopago.android.px.model.exceptions.ExceptionHandler;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
+import com.mercadopago.android.px.tracking.internal.model.Reason;
 
 public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> implements SecurityCodeActivityView {
+
+    private static final String EXTRA_PAYMENT_METHOD = "PAYMENT_METHOD";
+    private static final String EXTRA_TOKEN = "TOKEN";
+    private static final String EXTRA_CARD = "CARD";
+    private static final String EXTRA_CARD_INFO = "CARD_INFO";
+    private static final String EXTRA_PAYMENT_RECOVERY = "PAYMENT_RECOVERY";
+    private static final String EXTRA_REASON = "REASON";
 
     private static final String CARD_INFO_BUNDLE = "cardInfoBundle";
     private static final String PAYMENT_RECOVERY_BUNDLE = "paymentRecoveryBundle";
@@ -88,6 +98,7 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     public void onSaveInstanceState(final Bundle outState) {
         outState.putSerializable(CARD_INFO_BUNDLE, presenter.getCardInfo());
         outState.putSerializable(PAYMENT_RECOVERY_BUNDLE, presenter.getPaymentRecovery());
+        presenter.storeInBundle(outState);
 
         super.onSaveInstanceState(outState);
     }
@@ -107,6 +118,7 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
             presenter.setCardInfo((CardInfo) savedInstanceState.getSerializable(CARD_INFO_BUNDLE));
             presenter
                 .setPaymentRecovery((PaymentRecovery) savedInstanceState.getSerializable(PAYMENT_RECOVERY_BUNDLE));
+            presenter.recoverFromBundle(savedInstanceState);
 
             configurePresenter();
             setContentView();
@@ -137,19 +149,23 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
 
     private void getActivityParameters() {
 
-        CardInfo cardInfo = JsonUtil.getInstance().fromJson(getIntent().getStringExtra("cardInfo"), CardInfo.class);
-        Card card = JsonUtil.getInstance().fromJson(getIntent().getStringExtra("card"), Card.class);
-        Token token = JsonUtil.getInstance().fromJson(getIntent().getStringExtra("token"), Token.class);
-        PaymentMethod paymentMethod =
-            JsonUtil.getInstance().fromJson(getIntent().getStringExtra("paymentMethod"), PaymentMethod.class);
-        PaymentRecovery paymentRecovery =
-            JsonUtil.getInstance().fromJson(getIntent().getStringExtra("paymentRecovery"), PaymentRecovery.class);
+        final CardInfo cardInfo =
+            JsonUtil.getInstance().fromJson(getIntent().getStringExtra(EXTRA_CARD_INFO), CardInfo.class);
+        final Card card = JsonUtil.getInstance().fromJson(getIntent().getStringExtra(EXTRA_CARD), Card.class);
+        final Token token = JsonUtil.getInstance().fromJson(getIntent().getStringExtra(EXTRA_TOKEN), Token.class);
+        final PaymentMethod paymentMethod =
+            JsonUtil.getInstance().fromJson(getIntent().getStringExtra(EXTRA_PAYMENT_METHOD), PaymentMethod.class);
+        final PaymentRecovery paymentRecovery =
+            JsonUtil.getInstance().fromJson(getIntent().getStringExtra(EXTRA_PAYMENT_RECOVERY), PaymentRecovery.class);
+        final Reason reason =
+            Reason.valueOf(getIntent().getStringExtra(EXTRA_REASON));
 
         presenter.setToken(token);
         presenter.setCard(card);
         presenter.setPaymentMethod(paymentMethod);
         presenter.setCardInfo(cardInfo);
         presenter.setPaymentRecovery(paymentRecovery);
+        presenter.setReason(reason);
     }
 
     public void setContentView() {
@@ -446,5 +462,79 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     public void finishWithResult() {
         setResult(RESULT_OK);
         finish();
+    }
+
+    public static final class Builder {
+        private CardInfo cardInformation;
+        private PaymentMethod paymentMethod;
+        private Card card;
+        private Token token;
+        private PaymentRecovery paymentRecovery;
+        private Reason reason;
+
+        public Builder() {
+        }
+
+        public Builder setCardInfo(final CardInfo cardInformation) {
+            this.cardInformation = cardInformation;
+            return this;
+        }
+
+        public Builder setPaymentRecovery(final PaymentRecovery paymentRecovery) {
+            this.paymentRecovery = paymentRecovery;
+            return this;
+        }
+
+        public Builder setPaymentMethod(final PaymentMethod paymentMethod) {
+            this.paymentMethod = paymentMethod;
+            return this;
+        }
+
+        public Builder setCard(final Card card) {
+            this.card = card;
+            return this;
+        }
+
+        public Builder setToken(final Token token) {
+            this.token = token;
+            return this;
+        }
+
+        public Builder setReason(final Reason reason) {
+            this.reason = reason;
+            return this;
+        }
+
+        public void startActivity(@NonNull final Activity activity, final int requestCode) {
+            if (reason == null) {
+                throw new IllegalStateException("reason is null");
+            }
+            if (cardInformation == null) {
+                throw new IllegalStateException("card info is null");
+            }
+            if (paymentMethod == null) {
+                throw new IllegalStateException("payment method is null");
+            }
+            if (card != null && token != null && paymentRecovery == null) {
+                throw new IllegalStateException(
+                    "can't start with card and token at the same time if it's not recoverable");
+            }
+            if (card == null && token == null) {
+                throw new IllegalStateException("card and token can't both be null");
+            }
+
+            startSecurityCodeActivity(activity, requestCode);
+        }
+
+        private void startSecurityCodeActivity(@NonNull final Activity activity, final int requestCode) {
+            final Intent intent = new Intent(activity, SecurityCodeActivity.class);
+            intent.putExtra(EXTRA_PAYMENT_METHOD, JsonUtil.getInstance().toJson(paymentMethod));
+            intent.putExtra(EXTRA_TOKEN, JsonUtil.getInstance().toJson(token));
+            intent.putExtra(EXTRA_CARD, JsonUtil.getInstance().toJson(card));
+            intent.putExtra(EXTRA_CARD_INFO, JsonUtil.getInstance().toJson(cardInformation));
+            intent.putExtra(EXTRA_PAYMENT_RECOVERY, JsonUtil.getInstance().toJson(paymentRecovery));
+            intent.putExtra(EXTRA_REASON, reason.name());
+            activity.startActivityForResult(intent, requestCode);
+        }
     }
 }

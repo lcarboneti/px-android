@@ -2,7 +2,6 @@ package com.mercadopago.android.px.internal.features.paymentresult;
 
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.internal.base.MvpView;
-import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.model.Instruction;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.exceptions.ApiException;
@@ -31,7 +30,7 @@ public interface PaymentResultContract {
 
         void changePaymentMethod();
 
-        void recoverPayment(@NonNull final PostPaymentAction.OriginAction originAction);
+        void recoverPayment();
 
         void copyToClipboard(@NonNull final String content);
     }

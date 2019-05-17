@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 
 public class RecoverPaymentPostPaymentAction extends PostPaymentAction {
 
-    public RecoverPaymentPostPaymentAction(@NonNull final OriginAction originAction) {
-        super(RequiredAction.RECOVER_PAYMENT, originAction);
+    public RecoverPaymentPostPaymentAction() {
+        super(RequiredAction.RECOVER_PAYMENT);
     }
 
     /* default */ RecoverPaymentPostPaymentAction(final Parcel in) {
@@ -15,17 +15,7 @@ public class RecoverPaymentPostPaymentAction extends PostPaymentAction {
 
     @Override
     public void execute(@NonNull final ActionController actionController) {
-        switch (originAction) {
-        case ONE_TAP:
-            actionController.recoverFromOneTap();
-            break;
-        case REVIEW_AND_CONFIRM:
-            actionController.recoverFromReviewAndConfirm(this);
-            break;
-        case UNKNOWN:
-        default:
-            break;
-        }
+        actionController.recoverPayment(this);
     }
 
     public static final Creator<RecoverPaymentPostPaymentAction> CREATOR =

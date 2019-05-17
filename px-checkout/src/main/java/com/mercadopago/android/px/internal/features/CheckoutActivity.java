@@ -2,17 +2,18 @@ package com.mercadopago.android.px.internal.features;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.PXActivity;
-import com.mercadopago.android.px.internal.datasource.MercadoPagoESCImpl;
+import com.mercadopago.android.px.internal.datasource.ReflectiveESCManager;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.business_result.BusinessPaymentResultActivity;
-import com.mercadopago.android.px.internal.features.express.ExpressPayment;
+import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
 import com.mercadopago.android.px.internal.features.express.ExpressPaymentFragment;
 import com.mercadopago.android.px.internal.features.paymentresult.PaymentResultActivity;
 import com.mercadopago.android.px.internal.features.plugins.PaymentProcessorActivity;
@@ -89,11 +90,9 @@ public class CheckoutActivity extends PXActivity implements CheckoutView, Expres
     }
 
     private void configurePresenter() {
-        final CheckoutProvider provider = new CheckoutProviderImpl(this,
-            merchantPublicKey,
-            privateKey,
-            new MercadoPagoESCImpl(this, presenter.isESCEnabled()));
-
+        final Session session = Session.getSession(this);
+        final CheckoutProvider provider = new CheckoutProviderImpl(this, merchantPublicKey, privateKey,
+            new ReflectiveESCManager(this, session.getSessionIdProvider().getSessionId(), presenter.isESCEnabled()));
         presenter.attachResourcesProvider(provider);
         presenter.attachView(this);
     }
@@ -147,8 +146,8 @@ public class CheckoutActivity extends PXActivity implements CheckoutView, Expres
 
     @Override
     public void onBackPressed() {
-        final ExpressPayment.View fragment =
-            (ExpressPayment.View) FragmentUtil.getFragmentByTag(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT);
+        final ExpressPaymentFragment fragment = FragmentUtil
+            .getFragmentByTag(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT, ExpressPaymentFragment.class);
         if (fragment == null || !fragment.isExploding()) {
             super.onBackPressed();
         }
@@ -178,7 +177,7 @@ public class CheckoutActivity extends PXActivity implements CheckoutView, Expres
     }
 
     @Override
-    public void showBusinessResult(final BusinessPaymentModel model) {
+    public void showBusinessResult(@NonNull final BusinessPaymentModel model) {
         overrideTransitionIn();
         final Intent intent = BusinessPaymentResultActivity.getIntent(this, model);
         showResult(intent, REQ_CONGRATS_BUSINESS);
@@ -186,7 +185,8 @@ public class CheckoutActivity extends PXActivity implements CheckoutView, Expres
 
     private void showResult(@NonNull final Intent intent, final int requestCode) {
         //TODO handle this directly in fragment.
-        final Fragment fragment = FragmentUtil.getFragmentByTag(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT);
+        final ExpressPaymentFragment fragment = FragmentUtil
+            .getFragmentByTag(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT, ExpressPaymentFragment.class);
         if (fragment != null) {
             fragment.startActivityForResult(intent, requestCode);
         } else {
@@ -196,6 +196,8 @@ public class CheckoutActivity extends PXActivity implements CheckoutView, Expres
 
     @Override
     public void showOneTap() {
+        //One tap only supports portrait
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
 
         final FragmentManager supportFragmentManager = getSupportFragmentManager();
 
@@ -438,30 +440,32 @@ public class CheckoutActivity extends PXActivity implements CheckoutView, Expres
     @Override
     public void showPaymentResult(final PaymentResult paymentResult) {
         overrideTransitionIn();
-        final Intent intent = PaymentResultActivity.getIntent(this, paymentResult,
-            PostPaymentAction.OriginAction.ONE_TAP);
+        final Intent intent = PaymentResultActivity.getIntent(this, paymentResult);
         showResult(intent, REQ_CONGRATS);
     }
 
     @Override
     public void showSavedCardFlow(final Card card) {
-        new Constants.Activities.CardVaultActivityBuilder()
-            .setCard(card)
-            .startActivity(this, REQ_CARD_VAULT);
+        CardVaultActivity.startActivity(this, REQ_CARD_VAULT);
     }
 
     @Override
     public void showNewCardFlow() {
-        new Constants.Activities.CardVaultActivityBuilder()
-            .startActivity(this, REQ_CARD_VAULT);
+        CardVaultActivity.startActivity(this, REQ_CARD_VAULT);
     }
 
     @Override
     public void startPaymentRecoveryFlow(final PaymentRecovery paymentRecovery) {
-        new Constants.Activities.CardVaultActivityBuilder()
-            .setPaymentRecovery(paymentRecovery)
-            .startActivity(this, REQ_CARD_VAULT);
+        CardVaultActivity.startActivity(this, REQ_CARD_VAULT, paymentRecovery);
         overrideTransitionIn();
+    }
+
+    @Override
+    public void startExpressPaymentRecoveryFlow(@NonNull final PaymentRecovery paymentRecovery) {
+        final ExpressPaymentFragment fragment = FragmentUtil
+            .getFragmentByTag(getSupportFragmentManager(), TAG_ONETAP_FRAGMENT, ExpressPaymentFragment.class);
+        //noinspection ConstantConditions
+        fragment.showCardFlow(paymentRecovery);
     }
 
     private void resolveErrorRequest(final int resultCode, final Intent data) {

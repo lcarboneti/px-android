@@ -21,12 +21,16 @@ public class ConnectivityStateInterceptor implements Interceptor {
     public Response intercept(@NonNull final Chain chain) throws IOException {
         final ConnectivityManager connectivityManager =
             (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivityManager != null && (connectivityManager.getActiveNetworkInfo() == null
-            || !connectivityManager.getActiveNetworkInfo().isAvailable()
-            || !connectivityManager.getActiveNetworkInfo().isConnected())) {
+        try {
+            //noinspection ConstantConditions
+            if (!connectivityManager.getActiveNetworkInfo().isAvailable()
+                || !connectivityManager.getActiveNetworkInfo().isConnected()) {
+                throw new NoConnectivityException();
+            } else {
+                return chain.proceed(chain.request());
+            }
+        } catch (final NullPointerException e) {
             throw new NoConnectivityException();
-        } else {
-            return chain.proceed(chain.request());
         }
     }
 }

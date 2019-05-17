@@ -10,21 +10,22 @@ import com.mercadopago.android.px.core.MercadoPagoCheckout;
 import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
 import com.mercadopago.android.px.internal.core.ApplicationModule;
+import com.mercadopago.android.px.internal.core.SessionIdProvider;
 import com.mercadopago.android.px.internal.datasource.AmountConfigurationRepositoryImpl;
 import com.mercadopago.android.px.internal.datasource.AmountService;
 import com.mercadopago.android.px.internal.datasource.BankDealsService;
 import com.mercadopago.android.px.internal.datasource.CardTokenService;
 import com.mercadopago.android.px.internal.datasource.DiscountServiceImp;
-import com.mercadopago.android.px.internal.datasource.EscManagerImp;
+import com.mercadopago.android.px.internal.datasource.EscPaymentManagerImp;
+import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.datasource.IdentificationService;
 import com.mercadopago.android.px.internal.datasource.InitService;
 import com.mercadopago.android.px.internal.datasource.InstructionsService;
 import com.mercadopago.android.px.internal.datasource.IssuersServiceImp;
-import com.mercadopago.android.px.internal.datasource.MercadoPagoESC;
-import com.mercadopago.android.px.internal.datasource.MercadoPagoESCImpl;
 import com.mercadopago.android.px.internal.datasource.MercadoPagoServicesAdapter;
 import com.mercadopago.android.px.internal.datasource.PaymentService;
 import com.mercadopago.android.px.internal.datasource.PluginService;
+import com.mercadopago.android.px.internal.datasource.ReflectiveESCManager;
 import com.mercadopago.android.px.internal.datasource.SummaryAmountService;
 import com.mercadopago.android.px.internal.datasource.TokenizeService;
 import com.mercadopago.android.px.internal.features.guessing_card.IssuersSolver;
@@ -60,8 +61,7 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.BusinessModelMapper
 import com.mercadopago.android.px.model.Device;
 import com.mercadopago.android.px.tracking.internal.MPTracker;
 
-public final class Session extends ApplicationModule
-    implements AmountComponent {
+public final class Session extends ApplicationModule implements AmountComponent {
 
     /**
      * This singleton instance is safe because session will work with application context. Application context it's
@@ -107,8 +107,9 @@ public final class Session extends ApplicationModule
         // delete old data.
         clear();
 
-        //start new session id
-        MPTracker.getInstance().setSessionId(getSessionIdProvider().getSessionId());
+        final SessionIdProvider sessionIdProvider =
+            newSessionProvider(mercadoPagoCheckout.getTrackingConfiguration().getSessionId());
+        MPTracker.getInstance().setSessionId(sessionIdProvider.getSessionId());
 
         // Store persistent paymentSetting
         final ConfigurationModule configurationModule = getConfigurationModule();
@@ -181,9 +182,10 @@ public final class Session extends ApplicationModule
     }
 
     @NonNull
-    public MercadoPagoESC getMercadoPagoESC() {
+    public IESCManager getMercadoPagoESC() {
         final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
-        return new MercadoPagoESCImpl(getContext(), paymentSettings.getAdvancedConfiguration().isEscEnabled());
+        return new ReflectiveESCManager(getContext(), getSessionIdProvider().getSessionId(),
+            paymentSettings.getAdvancedConfiguration().isEscEnabled());
     }
 
     @NonNull
@@ -276,7 +278,7 @@ public final class Session extends ApplicationModule
                 getDiscountRepository(), getAmountRepository(),
                 paymentProcessor,
                 getContext(),
-                new EscManagerImp(getMercadoPagoESC()),
+                new EscPaymentManagerImp(getMercadoPagoESC()),
                 getTokenRepository(),
                 getInstructionsRepository(),
                 getInitRepository(),
@@ -358,7 +360,8 @@ public final class Session extends ApplicationModule
                 RetrofitUtil.getRetrofitClient(getContext()).create(GatewayService.class);
             cardTokenRepository =
                 new CardTokenService(gatewayService, getConfigurationModule().getPaymentSettings(),
-                    new Device(getContext()));
+                    new Device(getContext()),
+                    getMercadoPagoESC());
         }
         return cardTokenRepository;
     }

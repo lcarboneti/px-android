@@ -10,6 +10,8 @@ import retrofit2.Retrofit;
 
 public class ApplicationModule implements PreferenceComponent {
 
+    private static final String SHARED_PREFERENCE_NAME = "com.mercadopago.checkout.store";
+
     @NonNull
     private final Context context;
 
@@ -24,12 +26,17 @@ public class ApplicationModule implements PreferenceComponent {
 
     @NonNull
     public SessionIdProvider getSessionIdProvider() {
-        return SessionIdProvider.create(getSharedPreferences());
+        return new SessionIdProvider(getSharedPreferences());
+    }
+
+    @NonNull
+    public SessionIdProvider newSessionProvider(final String sessionId) {
+        return new SessionIdProvider(getSharedPreferences(), sessionId);
     }
 
     @Override
     public SharedPreferences getSharedPreferences() {
-        return context.getSharedPreferences("com.mercadopago.checkout.store", Context.MODE_PRIVATE);
+        return context.getSharedPreferences(SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
     }
 
     public JsonUtil getJsonUtil() {

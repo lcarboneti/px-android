@@ -23,8 +23,14 @@ public class CustomSearchItem implements Serializable, Parcelable {
 
     @Nullable private String discountInfo;
 
+
     private String defaultAmountConfiguration;
+
     private Map<String, AmountConfiguration> amountConfigurations;
+
+    @Nullable private Issuer issuer;
+    @Nullable private String lastFourDigits;
+    @Nullable private String firstSixDigits;
 
     @Deprecated
     public CustomSearchItem() {
@@ -41,6 +47,9 @@ public class CustomSearchItem implements Serializable, Parcelable {
         defaultAmountConfiguration = in.readString();
         amountConfigurations = new HashMap<>();
         in.readMap(amountConfigurations, CustomSearchItem.class.getClassLoader());
+        lastFourDigits = in.readString();
+        firstSixDigits = in.readString();
+        issuer = in.readParcelable(Issuer.class.getClassLoader());
     }
 
     public static final Creator<CustomSearchItem> CREATOR = new Creator<CustomSearchItem>() {
@@ -103,6 +112,9 @@ public class CustomSearchItem implements Serializable, Parcelable {
         dest.writeString(discountInfo);
         dest.writeString(defaultAmountConfiguration);
         dest.writeMap(amountConfigurations);
+        dest.writeString(lastFourDigits);
+        dest.writeString(firstSixDigits);
+        dest.writeParcelable(issuer, 0);
     }
 
     @Deprecated
@@ -127,5 +139,20 @@ public class CustomSearchItem implements Serializable, Parcelable {
 
     public boolean hasDiscountInfo() {
         return !TextUtils.isEmpty(discountInfo);
+    }
+
+    @Nullable
+    public Issuer getIssuer() {
+        return issuer;
+    }
+
+    @Nullable
+    public String getLastFourDigits() {
+        return lastFourDigits;
+    }
+
+    @Nullable
+    public String getFirstSixDigits() {
+        return firstSixDigits;
     }
 }

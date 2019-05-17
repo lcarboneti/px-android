@@ -20,6 +20,7 @@ import com.mercadopago.android.px.internal.controllers.CheckoutTimer;
 import com.mercadopago.android.px.internal.datasource.PaymentVaultTitleSolverImpl;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.Constants;
+import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
 import com.mercadopago.android.px.internal.features.disable_payment_method.DisabledPaymentMethodDetailDialog;
 import com.mercadopago.android.px.internal.features.payer_information.PayerInformationActivity;
 import com.mercadopago.android.px.internal.features.uicontrollers.FontCache;
@@ -378,16 +379,13 @@ public class PaymentVaultActivity extends PXActivity<PaymentVaultPresenter> impl
 
     @Override
     public void startSavedCardFlow(final Card card) {
-        new Constants.Activities.CardVaultActivityBuilder()
-            .setCard(card)
-            .startActivity(this, REQ_CARD_VAULT);
+        CardVaultActivity.startActivity(this, REQ_CARD_VAULT);
         overrideTransitionIn();
     }
 
     @Override
     public void startCardFlow() {
-        new Constants.Activities.CardVaultActivityBuilder()
-            .startActivity(this, REQ_CARD_VAULT);
+        CardVaultActivity.startActivity(this, REQ_CARD_VAULT);
         overrideTransitionIn();
     }
 

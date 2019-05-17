@@ -6,7 +6,7 @@ import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import java.util.List;
 
-public interface EscManager {
+public interface EscPaymentManager {
 
     /**
      * Verify if exists ESC saved for certain card.

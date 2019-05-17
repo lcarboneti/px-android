@@ -19,11 +19,6 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.BusinessModelMapper
 import com.mercadopago.android.px.mocks.PaymentMethodSearchs;
 import com.mercadopago.android.px.mocks.Payments;
 import com.mercadopago.android.px.model.Card;
-import com.mercadopago.android.px.model.Customer;
-import com.mercadopago.android.px.model.IPayment;
-import com.mercadopago.android.px.model.Issuer;
-import com.mercadopago.android.px.model.Payer;
-import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.PaymentData;
 import com.mercadopago.android.px.model.PaymentMethod;
@@ -31,7 +26,6 @@ import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.Setting;
-import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.CheckoutPreferenceException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
@@ -129,19 +123,23 @@ public class CheckoutPresenterTest {
         return presenter;
     }
 
-    private void whenFlowHasRecoverableTokenProcess(final IPayment payment) {
-        final Token token = mock(Token.class);
-        final PaymentMethod paymentMethod = mock(PaymentMethod.class);
-        final PayerCost payerCost = mock(PayerCost.class);
-        final Issuer issuer = mock(Issuer.class);
+    @NonNull
+    private CheckoutPresenter getOneTapPresenter() {
 
-        when(paymentSettingRepository.getToken()).thenReturn(token);
-        when(userSelectionRepository.getPaymentMethod()).thenReturn(paymentMethod);
-        when(userSelectionRepository.getPayerCost()).thenReturn(payerCost);
-        when(userSelectionRepository.getIssuer()).thenReturn(issuer);
-        when(payment.getPaymentStatus()).thenReturn(Payment.StatusCodes.STATUS_REJECTED);
-        when(payment.getPaymentStatusDetail())
-            .thenReturn(Payment.StatusDetail.STATUS_DETAIL_CC_REJECTED_CALL_FOR_AUTHORIZE);
+        CheckoutStateModel stateModel = new CheckoutStateModel();
+        stateModel.isExpressCheckout = true;
+        final CheckoutPresenter presenter =
+            new CheckoutPresenter(stateModel, paymentSettingRepository,
+                userSelectionRepository,
+                initRepository,
+                pluginRepository,
+                paymentRepository,
+                internalConfiguration,
+                businessModelMapper
+            );
+        presenter.attachResourcesProvider(checkoutProvider);
+        presenter.attachView(checkoutView);
+        return presenter;
     }
 
     @Test
@@ -354,27 +352,45 @@ public class CheckoutPresenterTest {
     }
 
     @Test
-    public void whenPaymentNeedsRecoveryFromReviewAndConfirmThenStartPaymentRecoveryFlow() {
+    public void whenPaymentNeedsRecoveryFromReviewAndConfirmThenShowReviewAndConfirmAndRecoverPayment() {
         final CheckoutPresenter presenter = getPresenter();
 
         final RecoverPaymentPostPaymentAction action =
-            new RecoverPaymentPostPaymentAction(PostPaymentAction.OriginAction.REVIEW_AND_CONFIRM);
+            new RecoverPaymentPostPaymentAction();
         action.execute(presenter);
 
         verify(checkoutView).showReviewAndConfirmAndRecoverPayment(false, action);
     }
 
     @Test
-    public void whenPaymentNeedsRecoveryFromOneTapThenStartPaymentRecoveryFlow() {
-        final CheckoutPresenter presenter = getPresenter();
-        final PaymentRecovery paymentRecovery = mock(PaymentRecovery.class);
-        when(paymentRepository.createPaymentRecovery()).thenReturn(paymentRecovery);
+    public void whenPaymentNeedsRecoveryFromOneTapThenDoNothing() {
+        final CheckoutPresenter presenter = getOneTapPresenter();
 
         final RecoverPaymentPostPaymentAction action =
-            new RecoverPaymentPostPaymentAction(PostPaymentAction.OriginAction.ONE_TAP);
+            new RecoverPaymentPostPaymentAction();
         action.execute(presenter);
 
+        verifyNoMoreInteractions(checkoutView);
+    }
+
+    @Test
+    public void whenPaymentHasInvalidEscThenStartPaymentRecoveryFlow() {
+        final CheckoutPresenter presenter = getPresenter();
+        final PaymentRecovery paymentRecovery = mock(PaymentRecovery.class);
+
+        presenter.onRecoverPaymentEscInvalid(paymentRecovery);
+
         verify(checkoutView).startPaymentRecoveryFlow(paymentRecovery);
+    }
+
+    @Test
+    public void whenOneTapPaymentHasInvalidEscThenStartPaymentRecoveryFlow() {
+        final CheckoutPresenter presenter = getOneTapPresenter();
+        final PaymentRecovery paymentRecovery = mock(PaymentRecovery.class);
+
+        presenter.onRecoverPaymentEscInvalid(paymentRecovery);
+
+        verify(checkoutView).startExpressPaymentRecoveryFlow(paymentRecovery);
     }
 
     //TODO verify, should not happen
@@ -385,7 +401,7 @@ public class CheckoutPresenterTest {
         when(paymentRepository.createPaymentRecovery()).thenReturn(null);
 
         final RecoverPaymentPostPaymentAction action =
-            new RecoverPaymentPostPaymentAction(PostPaymentAction.OriginAction.REVIEW_AND_CONFIRM);
+            new RecoverPaymentPostPaymentAction();
         action.execute(presenter);
 
         verify(checkoutView).showError(any(MercadoPagoError.class));
@@ -661,6 +677,10 @@ public class CheckoutPresenterTest {
         }
 
         @Override
+        public void startExpressPaymentRecoveryFlow(@NonNull final PaymentRecovery paymentRecovery) {
+        }
+
+        @Override
         public void showError(MercadoPagoError error) {
             this.showingError = true;
             this.errorShown = error;
@@ -763,20 +783,6 @@ public class CheckoutPresenterTest {
     public class MockedProvider implements CheckoutProvider {
 
         private CheckoutPreference preference;
-        private boolean paymentMethodSearchRequested = false;
-        private PaymentMethodSearch paymentMethodSearchResponse;
-        private Payment paymentResponse;
-        private boolean paymentRequested;
-        private Customer customerResponse;
-
-        private String transactionId;
-        private String paymentCustomerId;
-        private PaymentMethod paymentMethodPaid;
-        private Payer payerPosted;
-
-        private boolean shouldFail = false;
-        private MercadoPagoError failedResponse;
-        public boolean manageEscRequested = false;
 
         @Override
         public void fetchFonts() {
@@ -786,7 +792,6 @@ public class CheckoutPresenterTest {
         @Override
         public void getCheckoutPreference(String checkoutPreferenceId,
             TaggedCallback<CheckoutPreference> taggedCallback) {
-            //TODO
         }
 
         @Override

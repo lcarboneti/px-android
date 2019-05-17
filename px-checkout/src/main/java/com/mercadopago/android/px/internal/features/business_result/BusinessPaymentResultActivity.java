@@ -15,11 +15,10 @@ import com.mercadopago.android.px.internal.view.ActionDispatcher;
 import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.model.Action;
 import com.mercadopago.android.px.model.ExitAction;
-import com.mercadopago.android.px.model.PaymentData;
-import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.internal.PrimaryExitAction;
 import com.mercadopago.android.px.model.internal.SecondaryExitAction;
+import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.events.AbortEvent;
 import com.mercadopago.android.px.tracking.internal.events.PrimaryActionEvent;
 import com.mercadopago.android.px.tracking.internal.events.SecondaryActionEvent;
@@ -44,7 +43,6 @@ public class BusinessPaymentResultActivity extends PXActivity implements ActionD
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         final BusinessPaymentModel model = parseBusinessPaymentModel();
-
         if (model != null) {
             viewTracker = createTracker(model);
 
@@ -65,23 +63,17 @@ public class BusinessPaymentResultActivity extends PXActivity implements ActionD
         }
     }
 
+    @NonNull
     private ViewTracker createTracker(final BusinessPaymentModel model) {
-        //TODO refactor - added because tracking needed.
-        final PaymentMethod paymentMethod =
-            Session.getSession(this).getConfigurationModule()
-                .getUserSelectionRepository()
-                .getPaymentMethod();
-
-        final PaymentData paymentData = new PaymentData.Builder()
-            .setPaymentMethod(paymentMethod)
-            .createPaymentData();
+        final CheckoutPreference checkoutPreference =
+            Session.getSession(this).getConfigurationModule().getPaymentSettings().getCheckoutPreference();
 
         return new ResultViewTrack(ResultViewTrack.Style.CUSTOM, new PaymentResult.Builder()
-            .setPaymentData(paymentData)
+            .setPaymentData(model.getPaymentDataList())
             .setPaymentStatus(model.payment.getPaymentStatus())
             .setPaymentStatusDetail(model.payment.getPaymentStatusDetail())
             .setPaymentId(model.payment.getId())
-            .build());
+            .build(), checkoutPreference);
     }
 
     @Nullable

@@ -4,7 +4,7 @@ import android.support.annotation.Nullable;
 import java.util.Date;
 
 @SuppressWarnings("UseOfObsoleteDateTimeApi")
-public class Card implements CardInformation {
+public final class Card implements CardInformation {
 
     public static final int CARD_DEFAULT_IDENTIFICATION_NUMBER_LENGTH = 12;
     public static final int CARD_DEFAULT_SECURITY_CODE_LENGTH = 4;
@@ -24,35 +24,46 @@ public class Card implements CardInformation {
     private PaymentMethod paymentMethod;
     private SecurityCode securityCode;
 
+    @Deprecated
+    public Card() {
+    }
+
     @Override
     public Cardholder getCardHolder() {
         return cardHolder;
     }
 
+    @Deprecated
     public void setCardHolder(final Cardholder cardHolder) {
         this.cardHolder = cardHolder;
     }
 
+    @Deprecated
     public String getCustomerId() {
         return customerId;
     }
 
+    @Deprecated
     public void setCustomerId(final String customerId) {
         this.customerId = customerId;
     }
 
+    @Deprecated
     public Date getDateCreated() {
         return dateCreated;
     }
 
+    @Deprecated
     public void setDateCreated(final Date dateCreated) {
         this.dateCreated = dateCreated;
     }
 
+    @Deprecated
     public Date getDateLastUpdated() {
         return dateLastUpdated;
     }
 
+    @Deprecated
     public void setDateLastUpdated(final Date dateLastUpdated) {
         this.dateLastUpdated = dateLastUpdated;
     }
@@ -62,6 +73,7 @@ public class Card implements CardInformation {
         return expirationMonth;
     }
 
+    @Deprecated
     public void setExpirationMonth(final Integer expirationMonth) {
         this.expirationMonth = expirationMonth;
     }
@@ -71,6 +83,7 @@ public class Card implements CardInformation {
         return expirationYear;
     }
 
+    @Deprecated
     public void setExpirationYear(final Integer expirationYear) {
         this.expirationYear = expirationYear;
     }
@@ -80,6 +93,7 @@ public class Card implements CardInformation {
         return firstSixDigits;
     }
 
+    @Deprecated
     public void setFirstSixDigits(final String firstSixDigits) {
         this.firstSixDigits = firstSixDigits;
     }

@@ -469,6 +469,23 @@ public final class Payment implements IPayment, IPaymentDescriptor {
             return statusList;
         }
 
+        public static boolean isKnownErrorDetail(final String statusDetail) {
+            return STATUS_DETAIL_CC_REJECTED_BAD_FILLED_OTHER.equals(statusDetail)
+                || STATUS_DETAIL_CC_REJECTED_BAD_FILLED_SECURITY_CODE.equals(statusDetail)
+                || STATUS_DETAIL_CC_REJECTED_BAD_FILLED_DATE.equals(statusDetail)
+                || STATUS_DETAIL_CC_REJECTED_CARD_DISABLED.equals(statusDetail)
+                || STATUS_DETAIL_CC_REJECTED_BAD_FILLED_CARD_NUMBER.equals(statusDetail)
+                || STATUS_DETAIL_CC_REJECTED_CALL_FOR_AUTHORIZE.equals(statusDetail)
+                || STATUS_DETAIL_CC_REJECTED_DUPLICATED_PAYMENT.equals(statusDetail)
+                || STATUS_DETAIL_CC_REJECTED_INSUFFICIENT_AMOUNT.equals(statusDetail)
+                || STATUS_DETAIL_CC_REJECTED_MAX_ATTEMPTS.equals(statusDetail)
+                || STATUS_DETAIL_INVALID_ESC.equals(statusDetail)
+                || STATUS_DETAIL_REJECTED_HIGH_RISK.equals(statusDetail)
+                || STATUS_DETAIL_REJECTED_REJECTED_BY_BANK.equals(statusDetail)
+                || STATUS_DETAIL_REJECTED_REJECTED_INSUFFICIENT_DATA.equals(statusDetail)
+                || STATUS_DETAIL_REJECTED_BY_REGULATIONS.equals(statusDetail);
+        }
+
         public static boolean isKnownStatusDetail(final String statusDetail) {
             boolean knownError = false;
 

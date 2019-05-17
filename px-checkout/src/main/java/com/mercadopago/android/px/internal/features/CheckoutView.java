@@ -12,6 +12,8 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 
 public interface CheckoutView extends MvpView {
 
+    void startExpressPaymentRecoveryFlow(@NonNull PaymentRecovery paymentRecovery);
+
     void showError(MercadoPagoError error);
 
     void showProgress();
@@ -64,5 +66,4 @@ public interface CheckoutView extends MvpView {
         @NonNull final PostPaymentAction postPaymentAction);
 
     void startPayment();
-
 }

@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import com.mercadolibre.android.ui.font.Font;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
+import com.mercadopago.android.px.configuration.TrackingConfiguration;
 import com.mercadopago.android.px.internal.callbacks.CallbackHolder;
 import com.mercadopago.android.px.internal.datasource.MercadoPagoPaymentConfiguration;
 import com.mercadopago.android.px.internal.di.Session;
@@ -47,6 +48,9 @@ public final class MercadoPagoCheckout {
     @Nullable
     private final CheckoutPreference checkoutPreference;
 
+    @NonNull
+    private final TrackingConfiguration trackingConfiguration;
+
     /* default */ boolean prefetch = false;
 
     /* default */ MercadoPagoCheckout(final Builder builder) {
@@ -56,6 +60,7 @@ public final class MercadoPagoCheckout {
         privateKey = builder.privateKey;
         paymentConfiguration = builder.paymentConfiguration;
         checkoutPreference = builder.checkoutPreference;
+        trackingConfiguration = builder.trackingConfiguration;
         CallbackHolder.getInstance().clean();
     }
 
@@ -147,6 +152,11 @@ public final class MercadoPagoCheckout {
         return paymentConfiguration;
     }
 
+    @NonNull
+    public TrackingConfiguration getTrackingConfiguration() {
+        return trackingConfiguration;
+    }
+
     @SuppressWarnings("unused")
     public static final class Builder {
 
@@ -162,6 +172,9 @@ public final class MercadoPagoCheckout {
         /* default */ @NonNull PaymentConfiguration paymentConfiguration = MercadoPagoPaymentConfiguration.create();
 
         /* default */ @Nullable String privateKey;
+
+        /* default */ @NonNull TrackingConfiguration trackingConfiguration =
+            new TrackingConfiguration.Builder().build();
 
         /**
          * Checkout builder allow you to create a {@link MercadoPagoCheckout} {@see  <a
@@ -232,6 +245,17 @@ public final class MercadoPagoCheckout {
          */
         public Builder setAdvancedConfiguration(@NonNull final AdvancedConfiguration advancedConfiguration) {
             this.advancedConfiguration = advancedConfiguration;
+            return this;
+        }
+
+        /**
+         * It provides additional configurations to modify tracking and session data.
+         *
+         * @param trackingConfiguration your configuration.
+         * @return builder to keep operating
+         */
+        public Builder setTrackingConfiguration(@NonNull final TrackingConfiguration trackingConfiguration) {
+            this.trackingConfiguration = trackingConfiguration;
             return this;
         }
 

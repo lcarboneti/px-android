@@ -6,6 +6,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.mercadopago.android.px.internal.core.ConnectivityStateInterceptor;
+import com.mercadopago.android.px.internal.core.ProductIdInterceptor;
+import com.mercadopago.android.px.internal.core.RequestIdInterceptor;
 import com.mercadopago.android.px.internal.core.SessionInterceptor;
 import com.mercadopago.android.px.internal.core.TLSSocketFactory;
 import com.mercadopago.android.px.internal.core.UserAgentInterceptor;
@@ -80,15 +82,9 @@ public final class HttpClientUtil {
             .connectTimeout(connectTimeout, TimeUnit.SECONDS)
             .writeTimeout(writeTimeout, TimeUnit.SECONDS)
             .readTimeout(readTimeout, TimeUnit.SECONDS);
-        //User-Agent interceptor
-        okHttpClientBuilder.addInterceptor(new UserAgentInterceptor(BuildConfig.USER_AGENT));
-        // add logging interceptor
-        final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(LOGGING_INTERCEPTOR);
-        okHttpClientBuilder.addInterceptor(interceptor);
+
         // Set cache size
         if (context != null) {
-
             okHttpClientBuilder.addInterceptor(getConnectionInterceptor(context));
             okHttpClientBuilder.addInterceptor(new SessionInterceptor(context));
 
@@ -101,6 +97,16 @@ public final class HttpClientUtil {
                 // do nothing
             }
         }
+
+        // Custom interceptors
+        okHttpClientBuilder.addInterceptor(new ProductIdInterceptor());
+        okHttpClientBuilder.addInterceptor(new RequestIdInterceptor());
+        okHttpClientBuilder.addInterceptor(new UserAgentInterceptor(BuildConfig.USER_AGENT));
+
+        // add logging interceptor (should be last interceptor)
+        final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+        interceptor.setLevel(LOGGING_INTERCEPTOR);
+        okHttpClientBuilder.addInterceptor(interceptor);
 
         // Set client
         OkHttpClient client = okHttpClientBuilder.build();

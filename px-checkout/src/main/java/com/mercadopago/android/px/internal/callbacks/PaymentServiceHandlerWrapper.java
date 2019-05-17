@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.mercadopago.android.px.internal.repository.DisabledPaymentMethodRepository;
-import com.mercadopago.android.px.internal.repository.EscManager;
+import com.mercadopago.android.px.internal.repository.EscPaymentManager;
 import com.mercadopago.android.px.internal.repository.InstructionsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
 import com.mercadopago.android.px.model.BusinessPayment;
@@ -27,7 +27,7 @@ import java.util.Queue;
 public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler {
 
     @Nullable private WeakReference<PaymentServiceHandler> handler;
-    @NonNull private final EscManager escManager;
+    @NonNull private final EscPaymentManager escPaymentManager;
     @NonNull private final InstructionsRepository instructionsRepository;
     @NonNull private final Queue<Message> messages;
     @NonNull /* default */ final PaymentRepository paymentRepository;
@@ -77,11 +77,11 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     public PaymentServiceHandlerWrapper(
         @NonNull final PaymentRepository paymentRepository,
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
-        @NonNull final EscManager escManager,
+        @NonNull final EscPaymentManager escPaymentManager,
         @NonNull final InstructionsRepository instructionsRepository) {
         this.paymentRepository = paymentRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
-        this.escManager = escManager;
+        this.escPaymentManager = escPaymentManager;
         this.instructionsRepository = instructionsRepository;
         messages = new LinkedList<>();
     }
@@ -144,11 +144,11 @@ public final class PaymentServiceHandlerWrapper implements PaymentServiceHandler
     }
 
     private boolean handleEsc(@NonNull final MercadoPagoError error) {
-        return escManager.manageEscForError(error, paymentRepository.getPaymentDataList());
+        return escPaymentManager.manageEscForError(error, paymentRepository.getPaymentDataList());
     }
 
     private boolean handleEsc(@NonNull final IPayment payment) {
-        return escManager.manageEscForPayment(paymentRepository.getPaymentDataList(),
+        return escPaymentManager.manageEscForPayment(paymentRepository.getPaymentDataList(),
             payment.getPaymentStatus(),
             payment.getPaymentStatusDetail());
     }

@@ -25,18 +25,14 @@ import com.mercadopago.android.px.internal.viewmodel.BusinessPaymentModel;
 import com.mercadopago.android.px.model.ExitAction;
 import javax.annotation.Nonnull;
 
-public class BusinessPaymentContainer
-    extends CompactComponent<BusinessPaymentModel, ActionDispatcher> {
+public class BusinessPaymentContainer extends CompactComponent<BusinessPaymentModel, ActionDispatcher> {
 
-    public BusinessPaymentContainer(
-        final BusinessPaymentModel businessPaymentModel,
-        final ActionDispatcher callBack) {
+    public BusinessPaymentContainer(final BusinessPaymentModel businessPaymentModel, final ActionDispatcher callBack) {
         super(businessPaymentModel, callBack);
     }
 
     @Override
     public View render(@Nonnull final ViewGroup parent) {
-
         final Context context = parent.getContext();
         final LinearLayout mainContentContainer = ViewUtils.createLinearContainer(context);
         final LinearLayout headerContainer = ViewUtils.createLinearContainer(context);
@@ -95,15 +91,12 @@ public class BusinessPaymentContainer
     private ViewTreeObserver.OnGlobalLayoutListener bodyCorrection(final LinearLayout mainContentContainer,
         final ScrollView scrollView,
         final View toCorrect) {
-        return new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                final int diffHeight = calculateDiff(mainContentContainer, scrollView);
-                if (diffHeight > 0) {
-                    toCorrect.setPadding(toCorrect.getPaddingLeft(),
-                        toCorrect.getPaddingTop() + (int) Math.ceil(diffHeight / 2f), toCorrect.getPaddingRight(),
-                        toCorrect.getPaddingBottom() + (int) Math.ceil(diffHeight / 2f));
-                }
+        return () -> {
+            final int diffHeight = calculateDiff(mainContentContainer, scrollView);
+            if (diffHeight > 0) {
+                toCorrect.setPadding(toCorrect.getPaddingLeft(),
+                    toCorrect.getPaddingTop() + (int) Math.ceil(diffHeight / 2f), toCorrect.getPaddingRight(),
+                    toCorrect.getPaddingBottom() + (int) Math.ceil(diffHeight / 2f));
             }
         };
     }
@@ -139,16 +132,12 @@ public class BusinessPaymentContainer
     private ViewTreeObserver.OnGlobalLayoutListener noBodyCorrection(@NonNull final LinearLayout mainContentContainer,
         @NonNull final ScrollView scrollView,
         @NonNull final View header) {
-        return new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                final int diffHeight = calculateDiff(mainContentContainer, scrollView);
-                if (diffHeight > 0) {
-                    header
-                        .setPadding(header.getPaddingLeft(), header.getPaddingTop() + (int) Math.ceil(diffHeight / 2f),
-                            header.getPaddingRight(),
-                            (header.getPaddingBottom() + (int) Math.ceil(diffHeight / 2f)));
-                }
+        return () -> {
+            final int diffHeight = calculateDiff(mainContentContainer, scrollView);
+            if (diffHeight > 0) {
+                header
+                    .setPadding(header.getPaddingLeft(), header.getPaddingTop() + (int) Math.ceil(diffHeight / 2f),
+                        header.getPaddingRight(), (header.getPaddingBottom() + (int) Math.ceil(diffHeight / 2f)));
             }
         };
     }

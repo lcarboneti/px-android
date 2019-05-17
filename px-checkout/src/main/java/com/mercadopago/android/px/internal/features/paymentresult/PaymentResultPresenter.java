@@ -1,7 +1,6 @@
 package com.mercadopago.android.px.internal.features.paymentresult;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
@@ -16,7 +15,6 @@ import com.mercadopago.android.px.internal.view.LinkAction;
 import com.mercadopago.android.px.internal.view.NextAction;
 import com.mercadopago.android.px.internal.view.RecoverPaymentAction;
 import com.mercadopago.android.px.internal.view.ResultCodeAction;
-import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.model.Action;
 import com.mercadopago.android.px.model.Instruction;
 import com.mercadopago.android.px.model.PaymentResult;
@@ -34,20 +32,19 @@ import java.util.List;
     private final PaymentResult paymentResult;
     private final PaymentSettingRepository paymentSettings;
     private final InstructionsRepository instructionsRepository;
-    @Nullable private final PostPaymentAction.OriginAction originAction;
     @NonNull private final ResultViewTrack resultViewTrack;
 
     private FailureRecovery failureRecovery;
 
     /* default */ PaymentResultPresenter(@NonNull final PaymentSettingRepository paymentSettings,
         @NonNull final InstructionsRepository instructionsRepository,
-        @NonNull final PaymentResult paymentResult,
-        @Nullable final PostPaymentAction.OriginAction originAction) {
+        @NonNull final PaymentResult paymentResult) {
         this.paymentSettings = paymentSettings;
         this.instructionsRepository = instructionsRepository;
         this.paymentResult = paymentResult;
-        this.originAction = originAction;
-        resultViewTrack = new ResultViewTrack(ResultViewTrack.Style.GENERIC, paymentResult);
+
+        resultViewTrack =
+            new ResultViewTrack(ResultViewTrack.Style.GENERIC, paymentResult, paymentSettings.getCheckoutPreference());
     }
 
     @Override
@@ -154,7 +151,7 @@ import java.util.List;
             ChangePaymentMethodEvent.with(resultViewTrack).track();
             getView().changePaymentMethod();
         } else if (action instanceof RecoverPaymentAction) {
-            getView().recoverPayment(originAction);
+            getView().recoverPayment();
         } else if (action instanceof LinkAction) {
             getView().openLink(((LinkAction) action).url);
         } else if (action instanceof CopyAction) {

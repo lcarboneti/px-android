@@ -3,10 +3,14 @@ package com.mercadopago.android.px.model;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import com.google.gson.annotations.SerializedName;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import java.util.Calendar;
 import java.util.Locale;
 
+/**
+ * Model used to tokenize 'Guessed' cards
+ */
 public class CardToken {
 
     private static final int MIN_LENGTH_NUMBER = 10;
@@ -19,6 +23,15 @@ public class CardToken {
     private Integer expirationMonth;
     private Integer expirationYear;
     private String securityCode;
+
+    // used in network call
+    @SuppressWarnings("unused")
+    @SerializedName("require_esc")
+    private boolean requireEsc = false;
+
+    public void setRequireEsc(final boolean requireEsc) {
+        this.requireEsc = requireEsc;
+    }
 
     public static CardToken createEmpty() {
         return new CardToken();

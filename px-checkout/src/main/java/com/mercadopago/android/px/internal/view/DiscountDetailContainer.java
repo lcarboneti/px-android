@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.util.DiscountHelper;
 import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.util.textformatter.TextFormatter;
 import com.mercadopago.android.px.model.Discount;
@@ -67,21 +68,7 @@ public class DiscountDetailContainer extends CompactComponent<DiscountDetailCont
     }
 
     private void configureOffTitle(final MPTextView textView, final Discount discount) {
-        if (discount.hasPercentOff()) {
-            TextFormatter.withCurrencyId(discount.getCurrencyId())
-                .noSpace().noSymbol()
-                .amount(discount.getPercentOff())
-                .normalDecimals()
-                .into(textView)
-                .holder(R.string.px_discount_percent_off);
-        } else {
-            TextFormatter.withCurrencyId(discount.getCurrencyId())
-                .withSpace()
-                .amount(discount.getAmountOff())
-                .normalDecimals()
-                .into(textView)
-                .holder(R.string.px_discount_amount_off);
-        }
+        textView.setText(DiscountHelper.getDiscountDescription(textView.getContext(), discount));
     }
 
     private MPTextView getTitleTextView(final ViewGroup parent) {
@@ -90,4 +77,3 @@ public class DiscountDetailContainer extends CompactComponent<DiscountDetailCont
             : (MPTextView) ViewUtils.inflate(parent, R.layout.px_view_small_modal_title);
     }
 }
-

@@ -22,7 +22,7 @@ public interface ReviewAndConfirm {
 
         void showPaymentProcessor();
 
-        void showResult(BusinessPaymentModel businessPaymentModel);
+        void showResult(@NonNull BusinessPaymentModel businessPaymentModel);
 
         void showResult(@NonNull PaymentResult paymentResult);
 

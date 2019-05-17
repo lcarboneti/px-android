@@ -26,7 +26,7 @@ public class PaymentMethodDescriptorView extends MPTextView {
 
     public void update(@NonNull final Model model) {
         final SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
-        model.updateSpannable(spannableStringBuilder, getContext(), this);
+        model.updateSpannable(spannableStringBuilder, this);
         setText(spannableStringBuilder);
     }
 
@@ -37,7 +37,7 @@ public class PaymentMethodDescriptorView extends MPTextView {
         protected boolean disabledPaymentMethod;
 
         public abstract void updateSpannable(@NonNull final SpannableStringBuilder spannableStringBuilder,
-            @NonNull final Context context, @NonNull final TextView textView);
+            @NonNull final TextView textView);
 
         public final void setCurrentPayerCost(final int payerCostSelected) {
             this.payerCostSelected = payerCostSelected;

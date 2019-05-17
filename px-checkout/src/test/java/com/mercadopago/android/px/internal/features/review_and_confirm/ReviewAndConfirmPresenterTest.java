@@ -3,7 +3,7 @@ package com.mercadopago.android.px.internal.features.review_and_confirm;
 import android.support.annotation.NonNull;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
-import com.mercadopago.android.px.internal.datasource.MercadoPagoESC;
+import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
@@ -49,7 +49,7 @@ public class ReviewAndConfirmPresenterTest {
 
     private ReviewAndConfirmPresenter reviewAndConfirmPresenter;
 
-    @Mock private MercadoPagoESC mercadoPagoESC;
+    @Mock private IESCManager IESCManager;
 
     @Mock private PaymentSettingRepository paymentSettingRepository;
 
@@ -73,7 +73,7 @@ public class ReviewAndConfirmPresenterTest {
             new ReviewAndConfirmPresenter(paymentRepository, businessModelMapper,
                 discountRepository, paymentSettingRepository,
                 userSelectionRepository,
-                mercadoPagoESC);
+                IESCManager);
 
         verifyAttachView();
     }

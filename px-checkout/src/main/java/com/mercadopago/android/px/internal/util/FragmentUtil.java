@@ -37,7 +37,17 @@ public final class FragmentUtil {
     }
 
     @Nullable
-    public static Fragment getFragmentByTag(@NonNull final FragmentManager manager, @NonNull final String tag) {
+    public static <T extends Fragment> T getFragmentByTag(@NonNull final FragmentManager manager,
+        @NonNull final String tag, @NonNull final Class<T> fragmentClass) {
+        final Fragment fragment = getFragmentByTag(manager, tag);
+        if (fragmentClass.isInstance(fragment)) {
+            return fragmentClass.cast(fragment);
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Fragment getFragmentByTag(@NonNull final FragmentManager manager, @NonNull final String tag) {
         final Fragment fragment = manager.findFragmentByTag(tag);
         if (fragment != null && fragment.isAdded() && fragment.isVisible()) {
             return fragment;

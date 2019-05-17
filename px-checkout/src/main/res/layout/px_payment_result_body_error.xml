@@ -30,53 +30,9 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/px_xxxs_height"
         android:background="@color/px_med_light_gray"
-        android:visibility="visible"/>
+        android:visibility="gone"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="@dimen/px_l_margin"
-        android:paddingEnd="@dimen/px_xl_margin"
-        android:paddingLeft="@dimen/px_xl_margin"
-        android:paddingRight="@dimen/px_xl_margin"
-        android:paddingStart="@dimen/px_xl_margin">
-
-        <com.mercadopago.android.px.internal.view.MPTextView
-            android:id="@+id/paymentResultBodyErrorTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/px_l_margin"
-            android:gravity="center_horizontal"
-            android:textColor="@color/ui_meli_black"
-            android:textSize="@dimen/px_l_text"
-            tools:text="Title"/>
-
-        <com.mercadopago.android.px.internal.view.MPTextView
-            android:id="@+id/paymentResultBodyErrorDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/px_s_margin"
-            android:gravity="center_horizontal"
-            android:textColor="@color/ui_meli_dark_grey"
-            android:textSize="@dimen/px_s_text"
-            tools:text="Description"/>
-
-        <com.mercadolibre.android.ui.widgets.MeliButton
-            android:id="@+id/paymentResultBodyErrorAction"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/px_xxs_margin"
-            android:gravity="center_horizontal"
-            app:type="optionPrimary"
-            app:state="normal"
-            android:visibility="gone"
-            tools:text="Action"/>
-
-    </LinearLayout>
+    <include layout="@layout/px_payment_result_body_help"/>
 
     <View
         android:id="@+id/bodyErrorMiddleDivider"

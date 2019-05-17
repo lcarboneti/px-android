@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 public class ChangePaymentMethodPostPaymentAction extends PostPaymentAction {
 
     public ChangePaymentMethodPostPaymentAction() {
-        super(RequiredAction.SELECT_OTHER_PAYMENT_METHOD, OriginAction.UNKNOWN);
+        super(RequiredAction.SELECT_OTHER_PAYMENT_METHOD);
     }
 
     /* default */ ChangePaymentMethodPostPaymentAction(final Parcel in) {

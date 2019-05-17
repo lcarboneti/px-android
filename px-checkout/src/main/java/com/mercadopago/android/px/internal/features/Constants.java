@@ -1,23 +1,16 @@
 package com.mercadopago.android.px.internal.features;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import com.mercadopago.android.px.internal.features.bank_deals.BankDealsActivity;
-import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
 import com.mercadopago.android.px.internal.features.installments.InstallmentsActivity;
 import com.mercadopago.android.px.internal.features.payment_vault.PaymentVaultActivity;
 import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.model.BankDeal;
-import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.CardInfo;
 import com.mercadopago.android.px.model.PaymentMethod;
-import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentType;
-import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.preferences.PaymentPreference;
 import java.util.List;
 
@@ -80,37 +73,6 @@ public final class Constants {
             }
         }
 
-        public static class CardVaultActivityBuilder {
-
-            private Card card;
-            private PaymentRecovery paymentRecovery;
-
-            public CardVaultActivityBuilder setCard(final Card card) {
-                this.card = card;
-                return this;
-            }
-
-            public CardVaultActivityBuilder setPaymentRecovery(final PaymentRecovery paymentRecovery) {
-                this.paymentRecovery = paymentRecovery;
-                return this;
-            }
-
-            private Intent getIntent(final Context context) {
-                final Intent intent = new Intent(context, CardVaultActivity.class);
-                intent.putExtra("paymentRecovery", JsonUtil.getInstance().toJson(paymentRecovery));
-                intent.putExtra("card", JsonUtil.getInstance().toJson(card));
-                return intent;
-            }
-
-            public void startActivity(@NonNull final Activity context, final int reqCode) {
-                context.startActivityForResult(getIntent(context), reqCode);
-            }
-
-            public void startActivity(final Fragment oneTapFragment, final int reqCode) {
-                oneTapFragment.startActivityForResult(getIntent(oneTapFragment.getActivity()), reqCode);
-            }
-        }
-
         public static class PaymentMethodsActivityBuilder {
 
             private Activity activity;
@@ -166,76 +128,6 @@ public final class Constants {
                 final Intent intent = new Intent(activity, InstallmentsActivity.class);
                 intent.putExtra("cardInfo", JsonUtil.getInstance().toJson(cardInfo));
                 activity.startActivityForResult(intent, INSTALLMENTS_REQUEST_CODE);
-            }
-        }
-
-        public static class SecurityCodeActivityBuilder {
-            private Activity activity;
-            private CardInfo cardInformation;
-            private PaymentMethod paymentMethod;
-            private Card card;
-            private Token token;
-            private PaymentRecovery paymentRecovery;
-
-            public SecurityCodeActivityBuilder setActivity(final Activity activity) {
-                this.activity = activity;
-                return this;
-            }
-
-            public SecurityCodeActivityBuilder setCardInfo(final CardInfo cardInformation) {
-                this.cardInformation = cardInformation;
-                return this;
-            }
-
-            public SecurityCodeActivityBuilder setPaymentRecovery(final PaymentRecovery paymentRecovery) {
-                this.paymentRecovery = paymentRecovery;
-                return this;
-            }
-
-            public SecurityCodeActivityBuilder setPaymentMethod(final PaymentMethod paymentMethod) {
-                this.paymentMethod = paymentMethod;
-                return this;
-            }
-
-            public SecurityCodeActivityBuilder setCard(final Card card) {
-                this.card = card;
-                return this;
-            }
-
-            public SecurityCodeActivityBuilder setToken(final Token token) {
-                this.token = token;
-                return this;
-            }
-
-            public void startActivity() {
-                if (activity == null) {
-                    throw new IllegalStateException("activity is null");
-                }
-                if (cardInformation == null) {
-                    throw new IllegalStateException("card info is null");
-                }
-                if (paymentMethod == null) {
-                    throw new IllegalStateException("payment method is null");
-                }
-                if (card != null && token != null && paymentRecovery == null) {
-                    throw new IllegalStateException(
-                        "can't start with card and token at the same time if it's not recoverable");
-                }
-                if (card == null && token == null) {
-                    throw new IllegalStateException("card and token can't both be null");
-                }
-
-                startSecurityCodeActivity();
-            }
-
-            private void startSecurityCodeActivity() {
-                final Intent intent = new Intent(activity, SecurityCodeActivity.class);
-                intent.putExtra("paymentMethod", JsonUtil.getInstance().toJson(paymentMethod));
-                intent.putExtra("token", JsonUtil.getInstance().toJson(token));
-                intent.putExtra("card", JsonUtil.getInstance().toJson(card));
-                intent.putExtra("cardInfo", JsonUtil.getInstance().toJson(cardInformation));
-                intent.putExtra("paymentRecovery", JsonUtil.getInstance().toJson(paymentRecovery));
-                activity.startActivityForResult(intent, SECURITY_CODE_REQUEST_CODE);
             }
         }
 

@@ -302,7 +302,8 @@ import java.util.Set;
 
     @Override
     public void onRecoverPaymentEscInvalid(final PaymentRecovery recovery) {
-        getView().onRecoverPaymentEscInvalid(recovery);
+        cancelLoading();
+        getView().showCardFlow(recovery);
     }
 
     private void updateElementPosition(final int paymentMethodIndex, final int selectedPayerCost) {
@@ -428,5 +429,11 @@ import java.util.Set;
     @Override
     public void onChangePaymentMethod() {
         getView().resetPagerIndex();
+    }
+
+    @Override
+    public void recoverPayment(@NonNull final PostPaymentAction postPaymentAction) {
+        cancelLoading();
+        getView().showCardFlow(paymentRepository.createPaymentRecovery());
     }
 }

@@ -30,7 +30,9 @@ public class AccountMoneyDescriptorModel extends PaymentMethodDescriptorView.Mod
 
     @Override
     public void updateSpannable(@NonNull final SpannableStringBuilder spannableStringBuilder,
-        @NonNull final Context context, @NonNull final TextView textView) {
+        @NonNull final TextView textView) {
+
+        final Context context = textView.getContext();
 
         if (disabledPaymentMethod) {
             final SpannableFormatter amountLabeledFormatter =

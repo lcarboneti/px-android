@@ -1,16 +1,17 @@
 package com.mercadopago.android.px.internal.features.cardvault;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.Constants;
 import com.mercadopago.android.px.internal.features.IssuersActivity;
+import com.mercadopago.android.px.internal.features.SecurityCodeActivity;
 import com.mercadopago.android.px.internal.features.guessing_card.GuessingCardActivity;
 import com.mercadopago.android.px.internal.features.providers.CardVaultProviderImpl;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -27,6 +28,7 @@ import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
+import com.mercadopago.android.px.tracking.internal.model.Reason;
 import java.util.List;
 
 import static com.mercadopago.android.px.internal.features.Constants.RESULT_SILENT_ERROR;
@@ -43,11 +45,35 @@ public class CardVaultActivity extends AppCompatActivity implements CardVaultVie
 
     private CardVaultPresenter presenter;
 
-    private PaymentSettingRepository paymentSettingRepository;
+    @SuppressWarnings("TypeMayBeWeakened")
+    public static void startActivity(@NonNull final Activity context, final int reqCode,
+        @NonNull final PaymentRecovery paymentRecovery) {
+        final Intent intent = new Intent(context, CardVaultActivity.class);
+        intent.putExtra(EXTRA_PAYMENT_RECOVERY, paymentRecovery);
+        context.startActivityForResult(intent, reqCode);
+    }
+
+    @SuppressWarnings("TypeMayBeWeakened")
+    public static void startActivity(final Fragment oneTapFragment, final int reqCode,
+        @NonNull final PaymentRecovery paymentRecovery) {
+        final Intent intent = new Intent(oneTapFragment.getActivity(), CardVaultActivity.class);
+        intent.putExtra(EXTRA_PAYMENT_RECOVERY, paymentRecovery);
+        oneTapFragment.startActivityForResult(intent, reqCode);
+    }
+
+    public static void startActivity(@NonNull final Activity context, final int reqCode) {
+        final Intent intent = new Intent(context, CardVaultActivity.class);
+        context.startActivityForResult(intent, reqCode);
+    }
+
+    public static void startActivity(final Fragment oneTapFragment, final int reqCode) {
+        final Intent intent = new Intent(oneTapFragment.getActivity(), CardVaultActivity.class);
+        oneTapFragment.startActivityForResult(intent, reqCode);
+    }
 
     private void configure() {
         final Session session = Session.getSession(this);
-        paymentSettingRepository = session.getConfigurationModule().getPaymentSettings();
+        final PaymentSettingRepository paymentSettingRepository = session.getConfigurationModule().getPaymentSettings();
         presenter = new CardVaultPresenter(session.getConfigurationModule().getUserSelectionRepository(),
             paymentSettingRepository,
             session.getMercadoPagoESC(), session.getAmountConfigurationRepository(), session.providePayerCostSolver());
@@ -60,7 +86,6 @@ public class CardVaultActivity extends AppCompatActivity implements CardVaultVie
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setScreenOrientation();
         setContentView(R.layout.px_activity_card_vault);
         configure();
 
@@ -87,36 +112,19 @@ public class CardVaultActivity extends AppCompatActivity implements CardVaultVie
         super.onDestroy();
     }
 
-    private void setScreenOrientation() {
-        final int currentOrientation = getResources().getConfiguration().orientation;
-        if (currentOrientation == Configuration.ORIENTATION_PORTRAIT) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        }
-    }
-
     public void restoreInstanceState(final Bundle savedInstanceState) {
-        presenter.setPaymentRecovery(
-            JsonUtil.getInstance()
-                .fromJson(savedInstanceState.getString(EXTRA_PAYMENT_RECOVERY), PaymentRecovery.class));
-        presenter.setCard(JsonUtil.getInstance().fromJson(savedInstanceState.getString(EXTRA_CARD), Card.class));
-
-        presenter.setPaymentMethod(
-            JsonUtil.getInstance().fromJson(savedInstanceState.getString(EXTRA_PAYMENT_METHOD), PaymentMethod.class));
-        presenter
-            .setToken(JsonUtil.getInstance().fromJson(savedInstanceState.getString(EXTRA_TOKEN), Token.class));
-        presenter
-            .setCardInfo(
-                JsonUtil.getInstance().fromJson(savedInstanceState.getString(EXTRA_CARD_INFO), CardInfo.class));
+        presenter.setPaymentRecovery((PaymentRecovery) savedInstanceState.getSerializable(EXTRA_PAYMENT_RECOVERY));
+        presenter.setCard((Card) savedInstanceState.getSerializable(EXTRA_CARD));
+        presenter.setPaymentMethod((PaymentMethod) savedInstanceState.getSerializable(EXTRA_PAYMENT_METHOD));
+        presenter.setToken((Token) savedInstanceState.getSerializable(EXTRA_TOKEN));
+        presenter.setCardInfo((CardInfo) savedInstanceState.getSerializable(EXTRA_CARD_INFO));
         presenter.setInstallmentsListShown(savedInstanceState.getBoolean(EXTRA_INSTALLMENTS_LIST_SHOWN, false));
         presenter.setIssuersListShown(savedInstanceState.getBoolean(EXTRA_ISSUERS_LIST_SHOWN, false));
     }
 
     private void getActivityParameters() {
         final Intent intent = getIntent();
-        final PaymentRecovery paymentRecovery =
-            JsonUtil.getInstance().fromJson(intent.getStringExtra(EXTRA_PAYMENT_RECOVERY), PaymentRecovery.class);
+        final PaymentRecovery paymentRecovery = (PaymentRecovery) intent.getSerializableExtra(EXTRA_PAYMENT_RECOVERY);
         presenter.setPaymentRecovery(paymentRecovery);
     }
 
@@ -126,21 +134,21 @@ public class CardVaultActivity extends AppCompatActivity implements CardVaultVie
     }
 
     @Override
-    public void askForSecurityCodeFromTokenRecovery() {
-        startSecurityCodeActivity();
+    public void askForSecurityCodeFromTokenRecovery(final Reason recoveryReason) {
+        startSecurityCodeActivity(recoveryReason);
         animateTransitionSlideInSlideOut();
     }
 
     @Override
-    public void startSecurityCodeActivity() {
-        new Constants.Activities.SecurityCodeActivityBuilder()
-            .setActivity(this)
+    public void startSecurityCodeActivity(final Reason reason) {
+        new SecurityCodeActivity.Builder()
             .setPaymentMethod(presenter.getPaymentMethod())
             .setCardInfo(presenter.getCardInfo())
             .setToken(presenter.getToken())
             .setCard(presenter.getCard())
             .setPaymentRecovery(presenter.getPaymentRecovery())
-            .startActivity();
+            .setReason(reason)
+            .startActivity(this, Constants.Activities.SECURITY_CODE_REQUEST_CODE);
     }
 
     @Override
@@ -169,23 +177,21 @@ public class CardVaultActivity extends AppCompatActivity implements CardVaultVie
     public void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
         if (presenter != null) {
-            outState.putString(EXTRA_CARD, JsonUtil.getInstance().toJson(presenter.getCard()));
-            outState
-                .putString(EXTRA_PAYMENT_RECOVERY, JsonUtil.getInstance().toJson(presenter.getPaymentRecovery()));
+            outState.putSerializable(EXTRA_CARD, presenter.getCard());
+            outState.putSerializable(EXTRA_PAYMENT_RECOVERY, presenter.getPaymentRecovery());
             outState.putBoolean(EXTRA_INSTALLMENTS_LIST_SHOWN, presenter.isInstallmentsListShown());
             outState.putBoolean(EXTRA_ISSUERS_LIST_SHOWN, presenter.isIssuersListShown());
 
             if (presenter.getPaymentMethod() != null) {
-                outState
-                    .putString(EXTRA_PAYMENT_METHOD, JsonUtil.getInstance().toJson(presenter.getPaymentMethod()));
+                outState.putSerializable(EXTRA_PAYMENT_METHOD, presenter.getPaymentMethod());
             }
 
             if (presenter.getToken() != null) {
-                outState.putString(EXTRA_TOKEN, JsonUtil.getInstance().toJson(presenter.getToken()));
+                outState.putSerializable(EXTRA_TOKEN, presenter.getToken());
             }
 
             if (presenter.getCardInfo() != null) {
-                outState.putString(EXTRA_CARD_INFO, JsonUtil.getInstance().toJson(presenter.getCardInfo()));
+                outState.putSerializable(EXTRA_CARD_INFO, presenter.getCardInfo());
             }
         }
     }

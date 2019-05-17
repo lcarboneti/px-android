@@ -229,6 +229,9 @@ public class PaymentMethodSearch implements Serializable {
                 card.setId(cardId);
                 card.setSecurityCode(paymentMethod != null ? paymentMethod.getSecurityCode() : null);
                 card.setPaymentMethod(paymentMethod);
+                card.setFirstSixDigits(customSearchItem.getFirstSixDigits());
+                card.setLastFourDigits(customSearchItem.getLastFourDigits());
+                card.setIssuer(customSearchItem.getIssuer());
                 return card;
             }
         }
@@ -250,9 +253,15 @@ public class PaymentMethodSearch implements Serializable {
         return null;
     }
 
+    /**
+     *
+     * @return cards or empty arraylist.
+     * @deprecated the card info has been moved to custom option items.
+     */
+    @Deprecated
     @NonNull
     public List<Card> getCards() {
-        return cards == null ? new ArrayList<Card>() : cards;
+        return cards == null ? new ArrayList<>() : cards;
     }
 
     /**

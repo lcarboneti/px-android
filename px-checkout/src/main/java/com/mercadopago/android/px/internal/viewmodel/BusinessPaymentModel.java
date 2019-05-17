@@ -11,18 +11,14 @@ import java.util.List;
 public class BusinessPaymentModel implements Parcelable {
 
     public final BusinessPayment payment;
-    private final List<PaymentMethodComponent.PaymentMethodProps> paymentMethodProps;
+    private final String currencyId;
+    private final List<PaymentData> paymentDataList;
 
-    public BusinessPaymentModel(final BusinessPayment payment,
-        final String currencyId,
-        final Iterable<PaymentData> paymentDataList) {
+    public BusinessPaymentModel(final BusinessPayment payment, final String currencyId,
+        final List<PaymentData> paymentDataList) {
         this.payment = payment;
-        paymentMethodProps = new ArrayList<>();
-
-        for (final PaymentData paymentData : paymentDataList) {
-            paymentMethodProps.add(PaymentMethodComponent.PaymentMethodProps
-                .with(paymentData, currencyId, payment.getStatementDescription()));
-        }
+        this.currencyId = currencyId;
+        this.paymentDataList = paymentDataList;
     }
 
     public BusinessPayment getPayment() {
@@ -30,12 +26,22 @@ public class BusinessPaymentModel implements Parcelable {
     }
 
     public List<PaymentMethodComponent.PaymentMethodProps> getPaymentMethodProps() {
+        final List<PaymentMethodComponent.PaymentMethodProps> paymentMethodProps = new ArrayList<>();
+        for (final PaymentData paymentData : paymentDataList) {
+            paymentMethodProps.add(PaymentMethodComponent.PaymentMethodProps
+                .with(paymentData, currencyId, payment.getStatementDescription()));
+        }
         return paymentMethodProps;
+    }
+
+    public List<PaymentData> getPaymentDataList() {
+        return paymentDataList;
     }
 
     /* default */ BusinessPaymentModel(final Parcel in) {
         payment = in.readParcelable(BusinessPayment.class.getClassLoader());
-        paymentMethodProps = in.createTypedArrayList(PaymentMethodComponent.PaymentMethodProps.CREATOR);
+        currencyId = in.readString();
+        paymentDataList = (ArrayList<PaymentData>) in.readSerializable();
     }
 
     public static final Creator<BusinessPaymentModel> CREATOR = new Creator<BusinessPaymentModel>() {
@@ -58,6 +64,11 @@ public class BusinessPaymentModel implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeParcelable(payment, flags);
-        dest.writeTypedList(paymentMethodProps);
+        dest.writeString(currencyId);
+        if (paymentDataList instanceof ArrayList) {
+            dest.writeSerializable((ArrayList) paymentDataList);
+        } else {
+            dest.writeSerializable(new ArrayList<>(paymentDataList));
+        }
     }
 }

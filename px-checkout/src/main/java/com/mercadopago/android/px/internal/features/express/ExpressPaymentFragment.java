@@ -31,6 +31,7 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.CheckoutActivity;
 import com.mercadopago.android.px.internal.features.Constants;
+import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator;
 import com.mercadopago.android.px.internal.features.explode.ExplodeParams;
 import com.mercadopago.android.px.internal.features.explode.ExplodingFragment;
@@ -283,12 +284,10 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         if (context instanceof CallBack) {
             callback = (CallBack) context;
         }
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @Override
     public void onDetach() {
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
         callback = null;
         //TODO remove null check after session is persisted
         if (presenter != null) {
@@ -438,14 +437,6 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
         }
     }
 
-    //TODO refactor
-    @Override
-    public void onRecoverPaymentEscInvalid(final PaymentRecovery recovery) {
-        if (getActivity() != null) {
-            ((CheckoutActivity) getActivity()).presenter.onRecoverPaymentEscInvalid(recovery);
-        }
-    }
-
     @Override
     public void startPayment() {
         presenter.confirmPayment(paymentMethodPager.getCurrentItem());
@@ -453,9 +444,10 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void finishLoading(@NonNull final ExplodeDecorator params) {
-        final Fragment fragment = FragmentUtil.getFragmentByTag(getChildFragmentManager(), TAG_EXPLODING_FRAGMENT);
+        final ExplodingFragment fragment =
+            FragmentUtil.getFragmentByTag(getChildFragmentManager(), TAG_EXPLODING_FRAGMENT, ExplodingFragment.class);
         if (fragment != null) {
-            ((ExplodingFragment) fragment).finishLoading(params);
+            fragment.finishLoading(params);
         } else {
             presenter.hasFinishPaymentAnimation();
         }
@@ -550,9 +542,12 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void showCardFlow(@NonNull final Card card) {
-        new Constants.Activities.CardVaultActivityBuilder()
-            .setCard(card)
-            .startActivity(this, REQ_CODE_CARD_VAULT);
+        CardVaultActivity.startActivity(this, REQ_CODE_CARD_VAULT);
+    }
+
+    @Override
+    public void showCardFlow(@NonNull final PaymentRecovery paymentRecovery) {
+        CardVaultActivity.startActivity(this, REQ_CODE_CARD_VAULT, paymentRecovery);
     }
 
     @Override

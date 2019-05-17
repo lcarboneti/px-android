@@ -28,7 +28,7 @@
 -dontnote com.mercadopago.android.px.tracking.internal.model.**
 -dontnote com.mercadopago.android.px.internal.viewmodel.**
 -dontnote com.mercadopago.android.px.constants.PaymentTypes
--dontnote com.mercadopago.android.px.internal.datasource.MercadoPagoESCImpl #se usa esta clase pero no se tiene la lib
+-dontnote com.mercadopago.android.px.internal.datasource.ReflectiveESCManager #se usa esta clase pero no se tiene la lib
 
 ######################## Picasso #########################
 -dontwarn com.squareup.okhttp.**

@@ -7,8 +7,8 @@ import com.mercadopago.android.px.internal.core.ApplicationModule;
 import com.mercadopago.android.px.internal.datasource.CardAssociationGatewayService;
 import com.mercadopago.android.px.internal.datasource.CardAssociationService;
 import com.mercadopago.android.px.internal.datasource.CardPaymentMethodService;
-import com.mercadopago.android.px.internal.datasource.MercadoPagoESC;
-import com.mercadopago.android.px.internal.datasource.MercadoPagoESCImpl;
+import com.mercadopago.android.px.internal.datasource.IESCManager;
+import com.mercadopago.android.px.internal.datasource.ReflectiveESCManager;
 import com.mercadopago.android.px.internal.repository.CardPaymentMethodRepository;
 import com.mercadopago.android.px.internal.services.CardService;
 import com.mercadopago.android.px.internal.services.GatewayService;
@@ -18,8 +18,8 @@ import com.mercadopago.android.px.model.Device;
 public final class CardAssociationSession extends ApplicationModule {
 
     /**
-     * This singleton instance is safe because session will work with
-     * application context. Application context it's never leaking.
+     * This singleton instance is safe because session will work with application context. Application context it's
+     * never leaking.
      */
     @SuppressLint("StaticFieldLeak") private static CardAssociationSession instance;
 
@@ -46,8 +46,8 @@ public final class CardAssociationSession extends ApplicationModule {
     }
 
     @NonNull
-    public MercadoPagoESC getMercadoPagoESC() {
-        return new MercadoPagoESCImpl(getContext(), true);
+    public IESCManager getMercadoPagoESC() {
+        return new ReflectiveESCManager(getContext(), getSessionIdProvider().getSessionId(), true);
     }
 
     @NonNull

@@ -15,9 +15,9 @@ public class HelpComponent extends CompactComponent<String, Void> {
 
     @Override
     public View render(@Nonnull final ViewGroup parent) {
-        final ViewGroup bodyErrorView = (ViewGroup) ViewUtils.inflate(parent, R.layout.px_payment_result_body_error);
-        TextView errorTitle = bodyErrorView.findViewById(R.id.paymentResultBodyErrorTitle);
-        TextView errorDescription = bodyErrorView.findViewById(R.id.paymentResultBodyErrorDescription);
+        final ViewGroup bodyErrorView = (ViewGroup) ViewUtils.inflate(parent, R.layout.px_payment_result_body_help);
+        final TextView errorTitle = bodyErrorView.findViewById(R.id.paymentResultBodyErrorTitle);
+        final TextView errorDescription = bodyErrorView.findViewById(R.id.paymentResultBodyErrorDescription);
         errorTitle.setText(parent.getContext().getString(R.string.px_what_can_do));
         errorDescription.setText(props);
         return bodyErrorView;

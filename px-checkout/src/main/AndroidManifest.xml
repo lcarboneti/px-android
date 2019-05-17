@@ -28,10 +28,12 @@
             android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"/>
         <activity
             android:name=".internal.features.CheckoutActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="locked"
             android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"/>
         <activity
             android:name=".internal.features.guessing_card.GuessingCardActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="sensorPortrait"
             android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"
             android:windowSoftInputMode="adjustResize"/>
         <activity
@@ -45,6 +47,7 @@
             android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"/>
         <activity
             android:name=".internal.features.cardvault.CardVaultActivity"
+            android:screenOrientation="locked"
             android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"/>
         <activity
             android:name=".internal.features.ErrorActivity"
@@ -54,7 +57,7 @@
             android:theme="@style/ToolbarTransparentTheme"/>
         <activity
             android:name=".internal.features.SecurityCodeActivity"
-            android:screenOrientation="portrait"
+            android:screenOrientation="sensorPortrait"
             android:theme="@style/Theme.MercadoPagoTheme.NoActionBar"
             android:windowSoftInputMode="stateVisible"/>
         <activity

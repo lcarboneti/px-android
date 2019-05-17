@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentData;
 import java.math.BigDecimal;
+import java.util.Collection;
 
 public final class PaymentDataHelper {
 
@@ -22,5 +23,21 @@ public final class PaymentDataHelper {
 
     private static boolean hasPayerCostWithMultipleInstallments(@Nullable final PayerCost payerCost) {
         return payerCost != null && payerCost.hasMultipleInstallments();
+    }
+
+    public static boolean isSplitPayment(@NonNull final Collection<PaymentData> paymentDataList) {
+        return paymentDataList.size() > 1;
+    }
+
+    @NonNull
+    public static BigDecimal getTotalDiscountAmount(@NonNull final Iterable<PaymentData> paymentDataList) {
+        BigDecimal totalDiscountAmount = BigDecimal.ZERO;
+
+        for (final PaymentData paymentData : paymentDataList) {
+            if (paymentData.getDiscount() != null) {
+                totalDiscountAmount = totalDiscountAmount.add(paymentData.getDiscount().getCouponAmount());
+            }
+        }
+        return totalDiscountAmount;
     }
 }

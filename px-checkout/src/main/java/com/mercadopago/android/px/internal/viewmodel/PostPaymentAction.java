@@ -11,16 +11,13 @@ public abstract class PostPaymentAction implements Parcelable {
 
     private static final String EXTRA_POST_PAYMENT_ACTION = "extra_post_payment_action";
     @NonNull protected final RequiredAction requiredAction;
-    @NonNull protected final OriginAction originAction;
 
-    public PostPaymentAction(@NonNull final RequiredAction requiredAction, @NonNull final OriginAction originAction) {
+    public PostPaymentAction(@NonNull final RequiredAction requiredAction) {
         this.requiredAction = requiredAction;
-        this.originAction = originAction;
     }
 
     protected PostPaymentAction(final Parcel in) {
         requiredAction = RequiredAction.values()[in.readInt()];
-        originAction = OriginAction.values()[in.readInt()];
     }
 
     public abstract void execute(@NonNull final ActionController actionController);
@@ -33,7 +30,6 @@ public abstract class PostPaymentAction implements Parcelable {
     @Override
     public void writeToParcel(final Parcel dest, final int flags) {
         dest.writeInt(requiredAction.ordinal());
-        dest.writeInt(originAction.ordinal());
     }
 
     @NonNull
@@ -51,7 +47,7 @@ public abstract class PostPaymentAction implements Parcelable {
         final PostPaymentAction action = bundle.getParcelable(EXTRA_POST_PAYMENT_ACTION);
         switch (action.requiredAction) {
         case RECOVER_PAYMENT:
-            return new RecoverPaymentPostPaymentAction(action.originAction);
+            return new RecoverPaymentPostPaymentAction();
         case SELECT_OTHER_PAYMENT_METHOD:
             return new ChangePaymentMethodPostPaymentAction();
         default:
@@ -63,18 +59,9 @@ public abstract class PostPaymentAction implements Parcelable {
         SELECT_OTHER_PAYMENT_METHOD, RECOVER_PAYMENT
     }
 
-    public enum OriginAction {
-        REVIEW_AND_CONFIRM, ONE_TAP, UNKNOWN
-    }
-
     public interface ActionController {
-        default void recoverFromReviewAndConfirm(@NonNull final PostPaymentAction postPaymentAction) {
-        }
+        void recoverPayment(@NonNull final PostPaymentAction postPaymentAction);
 
-        default void recoverFromOneTap() {
-        }
-
-        default void onChangePaymentMethod() {
-        }
+        void onChangePaymentMethod();
     }
 }

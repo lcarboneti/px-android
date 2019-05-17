@@ -12,46 +12,49 @@ import com.mercadopago.android.px.model.SavedESCCardToken;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.services.Callback;
+import com.mercadopago.android.px.tracking.internal.events.EscFrictionEventTracker;
 
 public class TokenizeService implements TokenRepository {
 
     @NonNull private final GatewayService gatewayService;
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
-    @NonNull private final MercadoPagoESC mercadoPagoESC;
+    @NonNull private final IESCManager escManager;
     @NonNull private final Device device;
 
     public TokenizeService(@NonNull final GatewayService gatewayService,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
-        @NonNull final MercadoPagoESC mercadoPagoESC,
+        @NonNull final IESCManager escManager,
         @NonNull final Device device) {
         this.gatewayService = gatewayService;
         this.paymentSettingRepository = paymentSettingRepository;
-        this.mercadoPagoESC = mercadoPagoESC;
+        this.escManager = escManager;
         this.device = device;
     }
 
     @Override
     public MPCall<Token> createToken(@NonNull final Card card) {
         return new MPCall<Token>() {
+            private final String esc = escManager.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits());
+
             @Override
             public void enqueue(final Callback<Token> callback) {
-                serviceCallWrapp(card.getId(), mercadoPagoESC.getESC(card.getId())).enqueue(wrap(card, callback));
+                serviceCallWrapp(card.getId(), esc).enqueue(wrap(card, esc, callback));
             }
 
             @Override
             public void execute(final Callback<Token> callback) {
-                serviceCallWrapp(card.getId(), mercadoPagoESC.getESC(card.getId())).enqueue(wrap(card, callback));
+                serviceCallWrapp(card.getId(), esc).enqueue(wrap(card, esc, callback));
             }
         };
     }
 
-    /* default */ Callback<Token> wrap(@NonNull final Card card, final Callback<Token> callback) {
+    /* default */ Callback<Token> wrap(@NonNull final Card card, final String esc, final Callback<Token> callback) {
         return new Callback<Token>() {
             @Override
             public void success(final Token token) {
                 //TODO move to esc manager  / Token repo
                 token.setLastFourDigits(card.getLastFourDigits());
-                mercadoPagoESC.saveESC(card.getId(), token.getEsc());
+                escManager.saveESCWith(card.getId(), token.getEsc());
                 paymentSettingRepository.configure(token);
                 callback.success(token);
             }
@@ -61,7 +64,8 @@ public class TokenizeService implements TokenRepository {
                 //TODO move to esc manager  / Token repo
                 if (EscUtil.isInvalidEscForApiException(apiException)) {
                     paymentSettingRepository.configure((Token) null);
-                    mercadoPagoESC.deleteESC(card.getId());
+                    escManager.deleteESCWith(card.getId());
+                    EscFrictionEventTracker.create(card.getId(), esc, apiException).track();
                 }
 
                 callback.failure(apiException);

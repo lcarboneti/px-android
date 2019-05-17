@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.di.Session;
+import com.mercadopago.android.px.internal.util.DiscountHelper;
 import com.mercadopago.android.px.internal.util.textformatter.TextFormatter;
 import com.mercadopago.android.px.model.Campaign;
 import com.mercadopago.android.px.model.Discount;
@@ -200,20 +201,6 @@ public class AmountView extends LinearLayoutCompat {
     }
 
     private void configureDiscountOffMessage(final Discount discount) {
-        if (discount.hasPercentOff()) {
-            TextFormatter.withCurrencyId(discount.getCurrencyId())
-                .noSpace().noSymbol()
-                .amount(discount.getPercentOff())
-                .normalDecimals()
-                .into(amountDescription)
-                .holder(R.string.px_discount_percent_off);
-        } else {
-            TextFormatter.withCurrencyId(discount.getCurrencyId())
-                .withSpace()
-                .amount(discount.getAmountOff())
-                .normalDecimals()
-                .into(amountDescription)
-                .holder(R.string.px_discount_amount_off_with_minus);
-        }
+        amountDescription.setText(DiscountHelper.getDiscountDescription(getContext(), discount));
     }
 }

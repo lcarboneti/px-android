@@ -53,14 +53,12 @@ import com.mercadopago.android.px.internal.features.paymentresult.props.HeaderPr
 import com.mercadopago.android.px.internal.features.paymentresult.props.PaymentResultProps;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.ErrorUtil;
-import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.internal.view.Component;
 import com.mercadopago.android.px.internal.view.ComponentManager;
 import com.mercadopago.android.px.internal.view.LoadingComponent;
 import com.mercadopago.android.px.internal.view.LoadingRenderer;
 import com.mercadopago.android.px.internal.view.RendererFactory;
 import com.mercadopago.android.px.internal.viewmodel.ChangePaymentMethodPostPaymentAction;
-import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.RecoverPaymentPostPaymentAction;
 import com.mercadopago.android.px.model.Instruction;
 import com.mercadopago.android.px.model.PaymentResult;
@@ -73,20 +71,16 @@ import static com.mercadopago.android.px.internal.features.Constants.RESULT_CUST
 public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> implements
     PaymentResultContract.PaymentResultView {
 
-    private static final String EXTRA_CONFIRM_PAYMENT_ORIGIN = "extra_confirm_payment_origin";
     private static final String EXTRA_PAYMENT_RESULT = "extra_payment_result";
     public static final String EXTRA_RESULT_CODE = "extra_result_code";
 
     private PaymentResultProps props;
     private ComponentManager componentManager;
 
-    public static Intent getIntent(@NonNull final Context context, @NonNull final PaymentResult result,
-        @NonNull final PostPaymentAction.OriginAction confirmPaymentOrigin) {
-
+    public static Intent getIntent(@NonNull final Context context, @NonNull final PaymentResult result) {
         final Intent resultIntent = new Intent(context, PaymentResultActivity.class);
         //TODO remove
-        resultIntent.putExtra(EXTRA_PAYMENT_RESULT, JsonUtil.getInstance().toJson(result));
-        resultIntent.putExtra(EXTRA_CONFIRM_PAYMENT_ORIGIN, confirmPaymentOrigin.ordinal());
+        resultIntent.putExtra(EXTRA_PAYMENT_RESULT, result);
         return resultIntent;
     }
 
@@ -136,20 +130,9 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
 
     private PaymentResultPresenter createPresenter(final PaymentSettingRepository paymentSettings) {
         final Intent intent = getIntent();
-        final PostPaymentAction.OriginAction postPaymentAction;
-        final PaymentResult paymentResult =
-            JsonUtil.getInstance().fromJson(intent.getExtras().getString(EXTRA_PAYMENT_RESULT), PaymentResult.class);
-
-        final int originIndex = intent.getIntExtra(EXTRA_CONFIRM_PAYMENT_ORIGIN, -1);
-
-        if (originIndex != -1) {
-            postPaymentAction = PostPaymentAction.OriginAction.values()[originIndex];
-        } else {
-            postPaymentAction = null;
-        }
-
+        final PaymentResult paymentResult = (PaymentResult) intent.getSerializableExtra(EXTRA_PAYMENT_RESULT);
         return new PaymentResultPresenter(paymentSettings, Session.getSession(this).getInstructionsRepository(),
-            paymentResult, postPaymentAction);
+            paymentResult);
     }
 
     @Override
@@ -233,9 +216,9 @@ public class PaymentResultActivity extends PXActivity<PaymentResultPresenter> im
     }
 
     @Override
-    public void recoverPayment(@NonNull final PostPaymentAction.OriginAction originAction) {
+    public void recoverPayment() {
         final Intent returnIntent = new Intent();
-        new RecoverPaymentPostPaymentAction(originAction).addToIntent(returnIntent);
+        new RecoverPaymentPostPaymentAction().addToIntent(returnIntent);
         setResult(RESULT_ACTION, returnIntent);
         finish();
     }

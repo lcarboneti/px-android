@@ -6,12 +6,14 @@ import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentTypes;
 import com.mercadopago.android.px.preferences.PaymentPreference;
+import com.mercadopago.android.px.utils.ReflectionArgumentMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -81,7 +83,7 @@ public class DefaultPaymentMethodDriverTest {
         when(paymentPreference.getDefaultCardId()).thenReturn(STUB_CARD_ID_PM_STUB_SOURCE);
         final Card card = paymentMethods.getCardById(STUB_CARD_ID_PM_STUB_SOURCE);
         handler.drive(paymentMethodDriverCallback);
-        verify(paymentMethodDriverCallback).driveToCardVault(card);
+        verify(paymentMethodDriverCallback).driveToCardVault(ReflectionArgumentMatchers.reflectionEquals(card));
         verifyNoMoreInteractions(paymentMethodDriverCallback);
     }
 }

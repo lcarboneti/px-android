@@ -5,7 +5,7 @@ import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
-import com.mercadopago.android.px.internal.datasource.MercadoPagoESC;
+import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
@@ -43,8 +43,8 @@ import java.util.Set;
         @NonNull final DiscountRepository discountRepository,
         @NonNull final PaymentSettingRepository paymentSettings,
         @NonNull final UserSelectionRepository userSelectionRepository,
-        @NonNull final MercadoPagoESC mercadoPagoESC) {
-        final Set<String> escCardIds = mercadoPagoESC.getESCCardIds();
+        @NonNull final IESCManager IESCManager) {
+        final Set<String> escCardIds = IESCManager.getESCCardIds();
         this.paymentRepository = paymentRepository;
         this.businessModelMapper = businessModelMapper;
         this.paymentSettings = paymentSettings;
@@ -206,8 +206,13 @@ import java.util.Set;
     public void executePostPaymentAction(@NonNull final PostPaymentAction postPaymentAction) {
         postPaymentAction.execute(new PostPaymentAction.ActionController() {
             @Override
-            public void recoverFromReviewAndConfirm(@NonNull final PostPaymentAction postPaymentAction) {
+            public void recoverPayment(@NonNull final PostPaymentAction postPaymentAction) {
                 getView().startPaymentRecoveryFlow(paymentRepository.createPaymentRecovery());
+            }
+
+            @Override
+            public void onChangePaymentMethod() {
+                // Do nothing, It is handled before.
             }
         });
     }

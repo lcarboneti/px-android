@@ -56,6 +56,7 @@ public class ExplodingFragment extends Fragment {
     private String buttonText;
     //TODO add loading time payment processor
     private int maxLoadingTime;
+    private int previousOrientation;
 
     /* default */ ExplodingAnimationListener listener;
 
@@ -345,15 +346,13 @@ public class ExplodingFragment extends Fragment {
         configureListener(context);
 
         // lock the orientation during the loading
+        previousOrientation = getResources().getConfiguration().orientation;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        } else {
-            getActivity().setRequestedOrientation(getResources().getConfiguration().orientation);
         }
     }
 
     private void configureListener(final Context context) {
-
         if (context instanceof ExplodingAnimationListener) {
             listener = (ExplodingAnimationListener) context;
         } else if (getParentFragment() != null) {
@@ -365,7 +364,7 @@ public class ExplodingFragment extends Fragment {
     @Override
     public void onDetach() {
         listener = null;
-        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        getActivity().setRequestedOrientation(previousOrientation);
         super.onDetach();
     }
 }

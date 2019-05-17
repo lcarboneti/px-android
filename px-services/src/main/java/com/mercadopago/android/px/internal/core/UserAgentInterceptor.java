@@ -8,6 +8,7 @@ import okhttp3.Response;
 
 public final class UserAgentInterceptor implements Interceptor {
 
+    private static final String HEADER_KEY = "User-Agent";
     private final String userAgent;
 
     public UserAgentInterceptor(@NonNull final String userAgent) {
@@ -18,7 +19,7 @@ public final class UserAgentInterceptor implements Interceptor {
     public Response intercept(@NonNull final Chain chain) throws IOException {
         final Request originalRequest = chain.request();
         final Request requestWithUserAgent = originalRequest.newBuilder()
-            .header("User-Agent", userAgent)
+            .header(HEADER_KEY, userAgent)
             .build();
         return chain.proceed(requestWithUserAgent);
     }

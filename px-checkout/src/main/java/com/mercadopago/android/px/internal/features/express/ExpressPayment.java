@@ -28,6 +28,8 @@ public interface ExpressPayment {
 
         void showCardFlow(@NonNull final Card card);
 
+        void showCardFlow(@NonNull PaymentRecovery paymentRecovery);
+
         void showPaymentProcessor();
 
         void finishLoading(@NonNull final ExplodeDecorator params);
@@ -41,8 +43,6 @@ public interface ExpressPayment {
         void showErrorScreen(@NonNull final MercadoPagoError error);
 
         void showPaymentResult(@NonNull final IPaymentDescriptor paymentResult);
-
-        void onRecoverPaymentEscInvalid(final PaymentRecovery recovery);
 
         void startPayment();
 

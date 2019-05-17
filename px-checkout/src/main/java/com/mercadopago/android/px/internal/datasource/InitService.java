@@ -24,13 +24,13 @@ import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 public class InitService implements InitRepository {
 
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
-    @NonNull private final MercadoPagoESC mercadoPagoESC;
+    @NonNull private final IESCManager mercadoPagoESC;
     @NonNull private final CheckoutService checkoutService;
     @NonNull private final String language;
     @NonNull /* default */ final InitCache initCache;
 
     public InitService(@NonNull final PaymentSettingRepository paymentSettingRepository,
-        @NonNull final MercadoPagoESC mercadoPagoESC,
+        @NonNull final IESCManager mercadoPagoESC,
         @NonNull final CheckoutService checkoutService,
         @NonNull final String language, @NonNull final InitCache initCache) {
         this.paymentSettingRepository = paymentSettingRepository;
