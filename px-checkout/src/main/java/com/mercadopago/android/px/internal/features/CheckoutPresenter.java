@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.base.MvpPresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
-import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
 import com.mercadopago.android.px.internal.configuration.InternalConfiguration;
 import com.mercadopago.android.px.internal.features.providers.CheckoutProvider;
 import com.mercadopago.android.px.internal.navigation.DefaultPaymentMethodDriver;
@@ -32,7 +31,6 @@ import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.CheckoutPreferenceException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.InitResponse;
-import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
 import java.util.List;
 
@@ -81,13 +79,46 @@ public class CheckoutPresenter extends MvpPresenter<CheckoutView, CheckoutProvid
     }
 
     public void initialize() {
+
+        try {
+            // TODO move validation to backend - all cases.
+            // Open preference check
+            if (paymentSettingRepository.getCheckoutPreference() != null) {
+                paymentSettingRepository.getCheckoutPreference().validate();
+            }
+            startInit();
+
+        } catch (final CheckoutPreferenceException e) {
+            final String message = getResourcesProvider().getCheckoutExceptionMessage(e);
+            getView().showError(new MercadoPagoError(message, false));
+        }
+    }
+
+    private void startInit() {
         getView().showProgress();
-        configurePreference();
+        if (isViewAttached()) {
+            initRepository.getInit().enqueue(new Callback<InitResponse>() {
+                @Override
+                public void success(final InitResponse initResponse) {
+                    if (isViewAttached()) {
+                        startFlow(initResponse);
+                    }
+                }
+
+                @Override
+                public void failure(final ApiException apiException) {
+                    if (isViewAttached()) {
+                        getView().showError(new MercadoPagoError(apiException, ApiUtil.RequestOrigin.POST_INIT));
+                    }
+                }
+            });
+        }
     }
 
     @Override
     public void attachView(final CheckoutView view) {
         super.attachView(view);
+        getResourcesProvider().fetchFonts();
     }
 
     @Override
@@ -95,50 +126,6 @@ public class CheckoutPresenter extends MvpPresenter<CheckoutView, CheckoutProvid
         super.detachView();
     }
 
-    private void configurePreference() {
-        if (paymentSettingRepository.getCheckoutPreference() != null) {
-            startCheckoutForPreference();
-        } else {
-            retrieveCheckoutPreference(paymentSettingRepository.getCheckoutPreferenceId());
-        }
-    }
-
-    /* default */ void startCheckoutForPreference() {
-        try {
-            getCheckoutPreference().validate();
-            getView().trackScreen();
-            startCheckout();
-        } catch (final CheckoutPreferenceException e) {
-            final String message = getResourcesProvider().getCheckoutExceptionMessage(e);
-            getView().showError(new MercadoPagoError(message, false));
-        }
-    }
-
-    private void startCheckout() {
-        getResourcesProvider().fetchFonts();
-        retrievePaymentMethodSearch();
-    }
-
-    public void retrievePaymentMethodSearch() {
-        if (isViewAttached()) {
-            initRepository.getInit().enqueue(new Callback<InitResponse>() {
-                @Override
-                public void success(final InitResponse paymentMethodSearch) {
-                    if (isViewAttached()) {
-                        startFlow(paymentMethodSearch);
-                    }
-                }
-
-                @Override
-                public void failure(final ApiException apiException) {
-                    if (isViewAttached()) {
-                        getView().showError(
-                            new MercadoPagoError(apiException, ApiUtil.RequestOrigin.GET_PAYMENT_METHODS));
-                    }
-                }
-            });
-        }
-    }
 
     /* default */ void startFlow(final PaymentMethodSearch paymentMethodSearch) {
 
@@ -178,27 +165,6 @@ public class CheckoutPresenter extends MvpPresenter<CheckoutView, CheckoutProvid
 
     public boolean isESCEnabled() {
         return paymentSettingRepository.getAdvancedConfiguration().isEscEnabled();
-    }
-
-    /* default */ void retrieveCheckoutPreference(final String checkoutPreferenceId) {
-        getResourcesProvider().getCheckoutPreference(checkoutPreferenceId,
-            new TaggedCallback<CheckoutPreference>(ApiUtil.RequestOrigin.GET_PREFERENCE) {
-                @Override
-                public void onSuccess(final CheckoutPreference checkoutPreference) {
-                    paymentSettingRepository.configure(checkoutPreference);
-                    if (isViewAttached()) {
-                        startCheckoutForPreference();
-                    }
-                }
-
-                @Override
-                public void onFailure(final MercadoPagoError error) {
-                    if (isViewAttached()) {
-                        getView().showError(error);
-                        setFailureRecovery(() -> retrieveCheckoutPreference(checkoutPreferenceId));
-                    }
-                }
-            });
     }
 
     public void onErrorCancel(@Nullable final MercadoPagoError mercadoPagoError) {
@@ -363,10 +329,6 @@ public class CheckoutPresenter extends MvpPresenter<CheckoutView, CheckoutProvid
 
     private boolean isRecoverableTokenProcess() {
         return paymentRepository.hasPayment() && paymentRepository.createPaymentRecovery().isTokenRecoverable();
-    }
-
-    public CheckoutPreference getCheckoutPreference() {
-        return paymentSettingRepository.getCheckoutPreference();
     }
 
     private void finishCheckout() {

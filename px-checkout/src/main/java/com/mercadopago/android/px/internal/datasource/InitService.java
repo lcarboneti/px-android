@@ -23,16 +23,17 @@ import static com.mercadopago.android.px.services.BuildConfig.API_VERSION;
 
 public class InitService implements InitRepository {
 
-    @NonNull private final PaymentSettingRepository paymentSettingRepository;
     @NonNull private final IESCManager mercadoPagoESC;
     @NonNull private final CheckoutService checkoutService;
     @NonNull private final String language;
+    @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
     @NonNull /* default */ final InitCache initCache;
 
     public InitService(@NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final IESCManager mercadoPagoESC,
         @NonNull final CheckoutService checkoutService,
-        @NonNull final String language, @NonNull final InitCache initCache) {
+        @NonNull final String language,
+        @NonNull final InitCache initCache) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.mercadoPagoESC = mercadoPagoESC;
         this.checkoutService = checkoutService;
@@ -68,9 +69,10 @@ public class InitService implements InitRepository {
                 final Callback<InitResponse> callback) {
                 return new Callback<InitResponse>() {
                     @Override
-                    public void success(final InitResponse paymentMethodSearch) {
-                        initCache.put(paymentMethodSearch);
-                        callback.success(paymentMethodSearch);
+                    public void success(final InitResponse initResponse) {
+                        paymentSettingRepository.configure(initResponse.getCheckoutPreference());
+                        initCache.put(initResponse);
+                        callback.success(initResponse);
                     }
 
                     @Override
@@ -86,6 +88,7 @@ public class InitService implements InitRepository {
     @NonNull
     MPCall<InitResponse> newRequest() {
 
+        // nullable value
         final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
         final PaymentConfiguration paymentConfiguration = paymentSettingRepository.getPaymentConfiguration();
 

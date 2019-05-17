@@ -71,12 +71,10 @@ public class CheckoutPresenterTest {
     @Mock private BusinessModelMapper businessModelMapper;
 
     private MockedView stubView;
-    private MockedProvider stubProvider;
 
     @Before
     public void setUp() {
         stubView = new MockedView();
-        stubProvider = new MockedProvider();
     }
 
     @NonNull
@@ -88,11 +86,9 @@ public class CheckoutPresenterTest {
     private CheckoutPresenter getPaymentPresenterWithDefaultAdvancedConfigurationMla() {
         final CheckoutPreference preference = stubPreferenceOneItem();
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(preference);
-
-        stubProvider.setCheckoutPreferenceResponse(preference);
         when(initRepository.getInit())
             .thenReturn(new StubSuccessMpCall<>(PaymentMethodSearchs.getCompletePaymentMethodSearchMLA()));
-        return getBasePresenter(stubView, stubProvider);
+        return getBasePresenter(stubView, checkoutProvider);
     }
 
     @NonNull
@@ -120,6 +116,7 @@ public class CheckoutPresenterTest {
             );
         presenter.attachResourcesProvider(provider);
         presenter.attachView(view);
+        verify(provider).fetchFonts();
         return presenter;
     }
 
@@ -140,16 +137,6 @@ public class CheckoutPresenterTest {
         presenter.attachResourcesProvider(checkoutProvider);
         presenter.attachView(checkoutView);
         return presenter;
-    }
-
-    @Test
-    public void whenChoHasPrefIdSetRetrievePreferenceFromMercadoPago() {
-        when(paymentSettingRepository.getCheckoutPreference()).thenReturn(null);
-        when(paymentSettingRepository.getCheckoutPreferenceId()).thenReturn("some_pref_id");
-        final CheckoutPresenter presenter = getPresenter();
-        presenter.initialize();
-        verify(checkoutProvider).getCheckoutPreference(any(String.class), any(TaggedCallback.class));
-        verifyNoMoreInteractions(checkoutProvider);
     }
 
     @Test
@@ -185,7 +172,6 @@ public class CheckoutPresenterTest {
 
         verify(initRepository).getInit();
         verify(checkoutView).showProgress();
-        verify(checkoutView).trackScreen();
         verify(checkoutView).showPaymentMethodSelection();
         verifyNoMoreInteractions(checkoutView);
     }
@@ -223,7 +209,7 @@ public class CheckoutPresenterTest {
 
     @Test
     public void whenDefaultCardIdValidSelectedThenShowSecurityCode() {
-        final CheckoutPresenter presenter = getBasePresenter(stubView, stubProvider);
+        final CheckoutPresenter presenter = getBasePresenter(stubView, checkoutProvider);
         PaymentMethodSearch search = mockPaymentMethodSearchForDriver(true);
         presenter.startFlow(search);
         assertTrue(stubView.showingSavedCardFlow);
@@ -231,7 +217,7 @@ public class CheckoutPresenterTest {
 
     @Test
     public void whenDefaultCardIdInvalidSelectedThenShowPaymentVault() {
-        final CheckoutPresenter presenter = getBasePresenter(stubView, stubProvider);
+        final CheckoutPresenter presenter = getBasePresenter(stubView, checkoutProvider);
         PaymentMethodSearch search = mockPaymentMethodSearchForDriver(false);
         presenter.startFlow(search);
         assertTrue(stubView.showingPaymentMethodSelection);
@@ -239,7 +225,7 @@ public class CheckoutPresenterTest {
 
     @Test
     public void whenDefaultCardIdIsNullAndDefaultPaymentTypeIsValidThenShowNewCardFlow() {
-        final CheckoutPresenter presenter = getBasePresenter(stubView, stubProvider);
+        final CheckoutPresenter presenter = getBasePresenter(stubView, checkoutProvider);
         final PaymentMethodSearch search = mockPaymentMethodSearchForNewCardDriver();
         presenter.startFlow(search);
         assertTrue(stubView.showingNewCardFlow);
@@ -557,13 +543,6 @@ public class CheckoutPresenterTest {
     }
 
     @Test
-    public void ifNewFlowThenDoTrackInit() {
-        final CheckoutPresenter presenter = getPaymentPresenterWithDefaultAdvancedConfigurationMla();
-        presenter.initialize();
-        assertTrue(stubView.initTracked);
-    }
-
-    @Test
     public void whenNoDefaultPaymentMethodsAndIsExpressCheckoutThenShowExpressCheckout() {
         final CheckoutPresenter presenter = getPresenter();
         final PaymentMethodSearch search = mock(PaymentMethodSearch.class);
@@ -760,11 +739,6 @@ public class CheckoutPresenterTest {
         }
 
         @Override
-        public void trackScreen() {
-            initTracked = true;
-        }
-
-        @Override
         public void showPaymentProcessor() {
             // do nothing
         }
@@ -777,35 +751,6 @@ public class CheckoutPresenterTest {
         @Override
         public boolean isActive() {
             return true;
-        }
-    }
-
-    public class MockedProvider implements CheckoutProvider {
-
-        private CheckoutPreference preference;
-
-        @Override
-        public void fetchFonts() {
-            //TODO
-        }
-
-        @Override
-        public void getCheckoutPreference(String checkoutPreferenceId,
-            TaggedCallback<CheckoutPreference> taggedCallback) {
-        }
-
-        @Override
-        public String getCheckoutExceptionMessage(CheckoutPreferenceException exception) {
-            return null;
-        }
-
-        @Override
-        public String getCheckoutExceptionMessage(final Exception exception) {
-            return null;
-        }
-
-        public void setCheckoutPreferenceResponse(CheckoutPreference preference) {
-            this.preference = preference;
         }
     }
 }

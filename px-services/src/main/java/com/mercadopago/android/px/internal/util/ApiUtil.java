@@ -93,10 +93,7 @@ public final class ApiUtil {
 
     public static final class RequestOrigin {
 
-        private RequestOrigin() {
-
-        }
-
+        public static final String POST_INIT = "POST_INIT";
         public static final String GET_PREFERENCE = "GET_PREFERENCE";
         public static final String POST_SUMMARY_AMOUNT = "POST_SUMMARY_AMOUNT";
         public static final String GET_ISSUERS = "GET_ISSUERS";
@@ -108,5 +105,9 @@ public final class ApiUtil {
         public static final String GET_IDENTIFICATION_TYPES = "GET_IDENTIFICATION_TYPES";
         public static final String GET_BANK_DEALS = "GET_BANK_DEALS";
         public static final String GET_INSTRUCTIONS = "GET_INSTRUCTIONS";
+
+        private RequestOrigin() {
+
+        }
     }
 }

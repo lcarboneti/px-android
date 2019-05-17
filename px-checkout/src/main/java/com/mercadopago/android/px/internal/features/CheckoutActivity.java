@@ -132,8 +132,9 @@ public class CheckoutActivity extends PXActivity implements CheckoutView, Expres
                 configurePresenter();
 
                 if (presenter.getState().isExpressCheckout) {
-                    presenter.retrievePaymentMethodSearch();
+                    presenter.initialize();
                 }
+
             } catch (final Exception e) {
                 FrictionEventTracker.with(FinishCheckoutEventTracker.PATH,
                     FrictionEventTracker.Id.SILENT, FrictionEventTracker.Style.NON_SCREEN,
@@ -219,10 +220,6 @@ public class CheckoutActivity extends PXActivity implements CheckoutView, Expres
         ViewUtils.showRegularLayout(this);
     }
 
-    @Override
-    public void trackScreen() {
-        //TODO Implement when Events definition is done.
-    }
 
     @Override
     public void showReviewAndConfirmAndRecoverPayment(final boolean isUniquePaymentMethod,

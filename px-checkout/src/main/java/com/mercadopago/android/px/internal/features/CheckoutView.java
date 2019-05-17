@@ -40,8 +40,6 @@ public interface CheckoutView extends MvpView {
 
     void startPaymentRecoveryFlow(PaymentRecovery paymentRecovery);
 
-    void trackScreen();
-
     void showPaymentProcessor();
 
     void showPaymentProcessorWithAnimation();
