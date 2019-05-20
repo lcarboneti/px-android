@@ -152,16 +152,6 @@ public class CheckoutPresenterTest {
     }
 
     @Test
-    public void whenPreferenceIsExpiredThenShowErrorInView() {
-        final CheckoutPreference preference = stubExpiredPreference();
-        when(paymentSettingRepository.getCheckoutPreference()).thenReturn(preference);
-        final CheckoutPresenter presenter = getPresenter();
-        presenter.initialize();
-        verify(checkoutProvider).getCheckoutExceptionMessage(any(CheckoutPreferenceException.class));
-        verify(checkoutView).showError(any(MercadoPagoError.class));
-    }
-
-    @Test
     public void whenChoHasPreferenceAndPaymentMethodRetrivedShowPaymentMethodSelection() {
         final CheckoutPreference preference = stubPreferenceOneItemAndPayer();
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(preference);

@@ -28,7 +28,6 @@ import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.model.exceptions.ApiException;
-import com.mercadopago.android.px.model.exceptions.CheckoutPreferenceException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.services.Callback;
@@ -55,7 +54,7 @@ public class CheckoutPresenter extends MvpPresenter<CheckoutView, CheckoutProvid
 
     private transient FailureRecovery failureRecovery;
 
-    public CheckoutPresenter(@NonNull final CheckoutStateModel persistentData,
+    /* default */ CheckoutPresenter(@NonNull final CheckoutStateModel persistentData,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final UserSelectionRepository userSelectionRepository,
         @NonNull final InitRepository initRepository,
@@ -79,22 +78,6 @@ public class CheckoutPresenter extends MvpPresenter<CheckoutView, CheckoutProvid
     }
 
     public void initialize() {
-
-        try {
-            // TODO move validation to backend - all cases.
-            // Open preference check
-            if (paymentSettingRepository.getCheckoutPreference() != null) {
-                paymentSettingRepository.getCheckoutPreference().validate();
-            }
-            startInit();
-
-        } catch (final CheckoutPreferenceException e) {
-            final String message = getResourcesProvider().getCheckoutExceptionMessage(e);
-            getView().showError(new MercadoPagoError(message, false));
-        }
-    }
-
-    private void startInit() {
         getView().showProgress();
         if (isViewAttached()) {
             initRepository.getInit().enqueue(new Callback<InitResponse>() {

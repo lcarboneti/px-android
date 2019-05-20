@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.util.ParcelableUtil;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Collection;
 
 /**
  * Model that represents the item which will be paid.
@@ -95,23 +94,6 @@ public class Item implements Serializable, Parcelable {
 
     public boolean hasCardinality() {
         return quantity > 1;
-    }
-
-    public static boolean areItemsValid(@NonNull final Collection<Item> items) {
-        return !items.isEmpty() && isEachItemValid(items);
-    }
-
-    private static boolean isEachItemValid(@NonNull final Iterable<Item> items) {
-        boolean areAllValid = true;
-        for (final Item item : items) {
-            areAllValid = areAllValid && item.isItemValid();
-        }
-        return areAllValid;
-    }
-
-    private boolean isItemValid() {
-        return BigDecimal.ZERO.compareTo(getUnitPrice()) < 0
-            && getQuantity() > 0;
     }
 
     public static BigDecimal getTotalAmountWith(@NonNull final Iterable<Item> items) {
