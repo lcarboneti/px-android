@@ -49,14 +49,6 @@ public class PaymentMethodComponentTest {
     }
 
     @Test
-    public void whenPaymentTypeIsPluginThenResolveComponentReturnsAMethodPluginInstance() {
-        when(model.getPaymentType()).thenReturn(PaymentTypes.PLUGIN);
-        final CompactComponent instance = component.resolveComponent();
-        assertTrue(instance instanceof MethodPlugin);
-    }
-
-
-    @Test
     public void whenPaymentMethodIsOnlyAvailableAndIsNotCreditCardShouldNotShowPaymentMethodButton() {
         when(model.getPaymentType()).thenReturn(PaymentTypes.BANK_TRANSFER);
         when(model.hasMoreThanOnePaymentMethod()).thenReturn(false);

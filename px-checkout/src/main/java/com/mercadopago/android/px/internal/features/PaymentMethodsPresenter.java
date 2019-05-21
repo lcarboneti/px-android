@@ -20,21 +20,21 @@ public class PaymentMethodsPresenter extends MvpPresenter<PaymentMethodsView, Pa
     private PaymentPreference paymentPreference;
     private List<String> supportedPaymentTypes;
     private FailureRecovery failureRecovery;
-    @NonNull private UserSelectionRepository userSelectionRepository;
+    @NonNull private final UserSelectionRepository userSelectionRepository;
 
     public PaymentMethodsPresenter(@NonNull final UserSelectionRepository userSelectionRepository) {
         this.userSelectionRepository = userSelectionRepository;
     }
 
-    public void setShowBankDeals(boolean showBankDeals) {
+    public void setShowBankDeals(final boolean showBankDeals) {
         this.showBankDeals = showBankDeals;
     }
 
-    public void setPaymentPreference(PaymentPreference paymentPreference) {
+    public void setPaymentPreference(final PaymentPreference paymentPreference) {
         this.paymentPreference = paymentPreference;
     }
 
-    public void setSupportedPaymentTypes(List<String> supportedPaymentTypes) {
+    public void setSupportedPaymentTypes(final List<String> supportedPaymentTypes) {
         this.supportedPaymentTypes = supportedPaymentTypes;
     }
 
@@ -51,7 +51,7 @@ public class PaymentMethodsPresenter extends MvpPresenter<PaymentMethodsView, Pa
         getResourcesProvider()
             .getPaymentMethods(new TaggedCallback<List<PaymentMethod>>(ApiUtil.RequestOrigin.GET_PAYMENT_METHODS) {
                 @Override
-                public void onSuccess(List<PaymentMethod> paymentMethods) {
+                public void onSuccess(final List<PaymentMethod> paymentMethods) {
                     if (isViewAttached()) {
                         getView().showPaymentMethods(getSupportedPaymentMethods(paymentMethods));
                         getView().hideProgress();
@@ -61,12 +61,7 @@ public class PaymentMethodsPresenter extends MvpPresenter<PaymentMethodsView, Pa
                 @Override
                 public void onFailure(MercadoPagoError exception) {
                     if (isViewAttached()) {
-                        setFailureRecovery(new FailureRecovery() {
-                            @Override
-                            public void recover() {
-                                retrievePaymentMethods();
-                            }
-                        });
+                        setFailureRecovery(() -> retrievePaymentMethods());
                         getView().showError(exception);
                         getView().hideProgress();
                     }
@@ -75,10 +70,10 @@ public class PaymentMethodsPresenter extends MvpPresenter<PaymentMethodsView, Pa
     }
 
     private void definePaymentMethodsExclusions() {
-        //Give priority to PaymentPreference over supported payment types
+        // Give priority to PaymentPreference over supported payment types
         if (!isPaymentPreferenceSet() && supportedPaymentTypesSet()) {
-            List<String> excludedPaymentTypes = new ArrayList<>();
-            for (String type : PaymentTypes.getAllPaymentTypes()) {
+            final List<String> excludedPaymentTypes = new ArrayList<>();
+            for (final String type : PaymentTypes.getAllPaymentTypes()) {
                 if (!supportedPaymentTypes.contains(type)) {
                     excludedPaymentTypes.add(type);
                 }
@@ -109,11 +104,11 @@ public class PaymentMethodsPresenter extends MvpPresenter<PaymentMethodsView, Pa
         return supportedPaymentMethods;
     }
 
-    private List<PaymentMethod> getPaymentMethodsOfType(String paymentTypeId, List<PaymentMethod> paymentMethodList) {
+    private List<PaymentMethod> getPaymentMethodsOfType(final String paymentTypeId, final List<PaymentMethod> paymentMethodList) {
 
         List<PaymentMethod> validPaymentMethods = new ArrayList<>();
         if (paymentMethodList != null && paymentTypeId != null && !paymentTypeId.isEmpty()) {
-            for (PaymentMethod currentPaymentMethod : paymentMethodList) {
+            for (final PaymentMethod currentPaymentMethod : paymentMethodList) {
                 if (currentPaymentMethod.getPaymentTypeId().equals(paymentTypeId)) {
                     validPaymentMethods.add(currentPaymentMethod);
                 }
@@ -124,7 +119,7 @@ public class PaymentMethodsPresenter extends MvpPresenter<PaymentMethodsView, Pa
         return validPaymentMethods;
     }
 
-    public void setFailureRecovery(FailureRecovery failureRecovery) {
+    public void setFailureRecovery(final FailureRecovery failureRecovery) {
         this.failureRecovery = failureRecovery;
     }
 

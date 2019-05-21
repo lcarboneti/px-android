@@ -27,8 +27,8 @@ public class PaymentMethodSearch implements Serializable {
      * amount management
      **/
     private String defaultAmountConfiguration;
+
     private Map<String, DiscountConfigurationModel> discountsConfigurations;
-    //region deprecated
 
     /**
      * @deprecated use new {{@link #express}} we will delete this method on px v5
@@ -42,7 +42,7 @@ public class PaymentMethodSearch implements Serializable {
      */
     @Deprecated
     public boolean hasOneTapMetadata() {
-        return oneTapMetadata != null && getOneTapMetadata().isValidOneTapType();
+        return false;
     }
 
     /**
@@ -306,8 +306,7 @@ public class PaymentMethodSearch implements Serializable {
 
     @NonNull
     public Map<String, DiscountConfigurationModel> getDiscountsConfigurations() {
-        return discountsConfigurations == null ? new HashMap<String, DiscountConfigurationModel>()
-            : discountsConfigurations;
+        return discountsConfigurations == null ? new HashMap<>() : discountsConfigurations;
     }
 
     /**

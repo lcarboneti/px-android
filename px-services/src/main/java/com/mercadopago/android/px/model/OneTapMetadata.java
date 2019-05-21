@@ -12,6 +12,7 @@ public class OneTapMetadata implements Parcelable, Serializable {
     private String paymentMethodId;
     @SerializedName("payment_type_id")
     private String paymentTypeId;
+
     private CardPaymentMetadata card;
 
     protected OneTapMetadata(final Parcel in) {
@@ -60,9 +61,9 @@ public class OneTapMetadata implements Parcelable, Serializable {
         return card != null;
     }
 
+    @Deprecated
     public boolean isValidOneTapType() {
-        return PaymentTypes.isPlugin(paymentTypeId) ||
-            (PaymentTypes.isCardPaymentType(paymentTypeId) && card != null);
+        return false;
     }
 
 }

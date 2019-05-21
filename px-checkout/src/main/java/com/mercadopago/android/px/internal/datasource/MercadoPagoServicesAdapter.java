@@ -13,6 +13,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
+@Deprecated
 public class MercadoPagoServicesAdapter extends MercadoPagoServices {
 
     public MercadoPagoServicesAdapter(@NonNull final Context mContext, @NonNull final String mPublicKey) {
@@ -35,7 +36,7 @@ public class MercadoPagoServicesAdapter extends MercadoPagoServices {
 
         createPayment(paymentBody.getTransactionId(),
             payload,
-            new HashMap<String, String>(),
+            new HashMap<>(),
             callback);
     }
 
@@ -47,5 +48,4 @@ public class MercadoPagoServicesAdapter extends MercadoPagoServices {
             .getGson()
             .fromJson(JsonUtil.getInstance().toJson(paymentBody), type);
     }
-
 }

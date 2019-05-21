@@ -37,7 +37,7 @@ public final class PaymentTypes {
     }
 
     /**
-     *  We don't support account money plugin since 4.5.0
+     *  We don't support plugins since 4.5.0
      */
     @Deprecated
     public static boolean isPlugin(final String type) {
