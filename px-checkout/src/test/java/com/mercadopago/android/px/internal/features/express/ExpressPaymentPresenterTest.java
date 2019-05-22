@@ -18,7 +18,6 @@ import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.Item;
 import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.Site;
-import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.model.internal.InitResponse;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
@@ -81,11 +80,14 @@ public class ExpressPaymentPresenterTest {
     @Mock
     private DiscountConfigurationModel discountConfigurationModel;
 
+    @Mock private Site site;
+
     private ExpressPaymentPresenter expressPaymentPresenter;
 
     @Before
     public void setUp() {
         //This is needed for the presenter constructor
+        when(configuration.getSite()).thenReturn(site);
         final CheckoutPreference preference = mock(CheckoutPreference.class);
         when(preference.getItems()).thenReturn(Collections.singletonList(mock(Item.class)));
         when(configuration.getCheckoutPreference()).thenReturn(preference);

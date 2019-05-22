@@ -74,6 +74,7 @@ public class PaymentVaultPresenterTest {
 
     @Before
     public void setUp() {
+        when(paymentSettingRepository.getSite()).thenReturn(mockSite);
         when(checkoutPreference.getTotalAmount()).thenReturn(new BigDecimal(100));
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(checkoutPreference);
         when(checkoutPreference.getPaymentPreference()).thenReturn(new PaymentPreference());

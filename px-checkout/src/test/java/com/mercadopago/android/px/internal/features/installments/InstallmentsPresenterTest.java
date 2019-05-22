@@ -12,6 +12,7 @@ import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.mocks.StubSummaryAmount;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.PayerCost;
+import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.SummaryAmount;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
@@ -39,7 +40,6 @@ public class InstallmentsPresenterTest {
 
     @Mock private AmountRepository amountRepository;
     @Mock private PaymentSettingRepository configuration;
-    @Mock private CheckoutPreference checkoutPreference;
     @Mock private UserSelectionRepository userSelectionRepository;
     @Mock private DiscountRepository discountRepository;
     @Mock private SummaryAmountRepository summaryAmountRepository;
@@ -48,10 +48,11 @@ public class InstallmentsPresenterTest {
     @Mock private AdvancedConfiguration advancedConfiguration;
 
     @Mock private InstallmentsView view;
+    @Mock private Site site;
 
     @Before
     public void setUp() {
-        when(configuration.getCheckoutPreference()).thenReturn(checkoutPreference);
+        when(configuration.getSite()).thenReturn(site);
         when(configuration.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
         when(advancedConfiguration.isAmountRowEnabled()).thenReturn(true);
         presenter = new InstallmentsPresenter(amountRepository, configuration, userSelectionRepository,
@@ -98,6 +99,7 @@ public class InstallmentsPresenterTest {
 
     @Test
     public void whenMCOThenShowBankInterestsNotCoveredWarning() {
+        when(site.shouldWarnAboutBankInterests()).thenReturn(true);
         when(userSelectionRepository.hasCardSelected()).thenReturn(false);
         final SummaryAmount response = StubSummaryAmount.getSummaryAmountTwoPayerCosts();
         when(summaryAmountRepository.getSummaryAmount(anyString())).thenReturn(new StubSuccessMpCall<>(response));
@@ -194,7 +196,7 @@ public class InstallmentsPresenterTest {
         presenter.initialize();
 
         verify(view).showAmount(discountRepository.getCurrentConfiguration(),
-                itemPlusCharges, null);
+            itemPlusCharges, site);
     }
 
     @Test
@@ -226,7 +228,7 @@ public class InstallmentsPresenterTest {
         presenter.initialize();
 
         verify(view).showAmount(discountRepository.getCurrentConfiguration(),
-                itemPlusCharges, null);
+            itemPlusCharges, site);
         verify(view).hideLoadingView();
     }
 
