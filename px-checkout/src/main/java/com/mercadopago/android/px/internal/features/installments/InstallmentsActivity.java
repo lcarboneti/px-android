@@ -13,10 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.controllers.CheckoutTimer;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
-import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentsAdapter;
 import com.mercadopago.android.px.internal.features.uicontrollers.FontCache;
 import com.mercadopago.android.px.internal.features.uicontrollers.card.CardRepresentationModes;
@@ -259,7 +259,7 @@ public class InstallmentsActivity extends PXActivity<InstallmentsPresenter> impl
     public void showInstallments(final List<PayerCost> payerCostList) {
         showHeader();
         final InstallmentsAdapter installmentsAdapter =
-            new InstallmentsAdapter(configuration.getCheckoutPreference().getSite(),
+            new InstallmentsAdapter(configuration.getSite(),
                 payerCostList, presenter);
         installmentsRecyclerView.setAdapter(installmentsAdapter);
     }

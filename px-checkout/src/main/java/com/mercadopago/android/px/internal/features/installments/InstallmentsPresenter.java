@@ -2,15 +2,14 @@ package com.mercadopago.android.px.internal.features.installments;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.controllers.PaymentMethodGuessingController;
-import com.mercadopago.android.px.internal.features.uicontrollers.AmountRowController;
 import com.mercadopago.android.px.internal.features.express.installments.InstallmentsAdapter;
+import com.mercadopago.android.px.internal.features.uicontrollers.AmountRowController;
+import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
-import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.SummaryAmountRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
@@ -69,7 +68,7 @@ public class InstallmentsPresenter extends BasePresenter<InstallmentsView> imple
     }
 
     private void showSiteRelatedInformation() {
-        if (configuration.getCheckoutPreference().getSite().shouldWarnAboutBankInterests()) {
+        if (configuration.getSite().shouldWarnAboutBankInterests()) {
             getView().warnAboutBankInterests();
         }
     }
@@ -123,7 +122,7 @@ public class InstallmentsPresenter extends BasePresenter<InstallmentsView> imple
     @Override
     public void showAmountRow() {
         getView().showAmount(discountRepository.getCurrentConfiguration(),
-                amountRepository.getItemsPlusCharges(), configuration.getCheckoutPreference().getSite());
+            amountRepository.getItemsPlusCharges(), configuration.getSite());
     }
 
     @Override

@@ -140,6 +140,11 @@ public class CheckoutPreference implements Serializable {
         return Item.getTotalAmountWith(items);
     }
 
+    /**
+     * @return site
+     * @deprecated preference should not have site in it's model
+     */
+    @Deprecated
     @NonNull
     public Site getSite() {
         return Sites.getById(siteId);

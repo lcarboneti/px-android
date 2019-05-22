@@ -40,8 +40,8 @@ import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.PaymentRecovery;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
-import com.mercadopago.android.px.model.internal.SummaryInfo;
 import com.mercadopago.android.px.model.internal.InitResponse;
+import com.mercadopago.android.px.model.internal.SummaryInfo;
 import com.mercadopago.android.px.services.Callback;
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
 import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
@@ -127,7 +127,7 @@ import java.util.Set;
             new ElementDescriptorMapper().map(summaryInfo);
 
         final List<SummaryView.Model> summaryModels =
-            new SummaryViewModelMapper(paymentConfiguration.getCheckoutPreference(), discountRepository,
+            new SummaryViewModelMapper(paymentConfiguration, discountRepository,
                 amountRepository, elementDescriptorModel, this, summaryInfo).map(expressMetadataList);
 
         final List<PaymentMethodDescriptorView.Model> paymentModels =
@@ -135,7 +135,7 @@ import java.util.Set;
                 disabledPaymentMethodRepository).map(expressMetadataList);
 
         final List<SplitPaymentHeaderAdapter.Model> splitHeaderModels =
-            new SplitHeaderMapper(paymentConfiguration.getCheckoutPreference().getSite().getCurrencyId(),
+            new SplitHeaderMapper(paymentConfiguration.getSite().getCurrencyId(),
                 amountConfigurationRepository)
                 .map(expressMetadataList);
 
@@ -148,7 +148,7 @@ import java.util.Set;
         getView().showToolbarElementDescriptor(elementDescriptorModel);
 
         getView().configureAdapters(paymentMethodDrawableItemMapper.map(expressMetadataList),
-            paymentConfiguration.getCheckoutPreference().getSite(), model);
+            paymentConfiguration.getSite(), model);
     }
 
     @Override

@@ -128,7 +128,7 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
     public void showAmountRow() {
         getView().showAmount(discountRepository.getCurrentConfiguration(),
             paymentSettingRepository.getCheckoutPreference().getTotalAmount(),
-            paymentSettingRepository.getCheckoutPreference().getSite());
+            paymentSettingRepository.getSite());
     }
 
     @Override

@@ -50,12 +50,12 @@ public class PaymentMethodDescriptorMapper
         if (PaymentTypes.isCreditCardPaymentType(paymentTypeId)) {
             //This model is useful for Credit Card only
             return CreditCardDescriptorModel
-                .createFrom(paymentConfiguration.getCheckoutPreference().getSite().getCurrencyId(),
+                .createFrom(paymentConfiguration.getSite().getCurrencyId(),
                     amountConfigurationRepository.getConfigurationFor(cardMetadata.getId()),
                     disabledPaymentMethodRepository.hasPaymentMethodId(cardMetadata.getId()));
         } else if (PaymentTypes.isCardPaymentType(paymentTypeId)) {
             return DebitCardDescriptorModel
-                .createFrom(paymentConfiguration.getCheckoutPreference().getSite().getCurrencyId(),
+                .createFrom(paymentConfiguration.getSite().getCurrencyId(),
                     amountConfigurationRepository.getConfigurationFor(cardMetadata.getId()),
                     disabledPaymentMethodRepository.hasPaymentMethodId(cardMetadata.getId()));
         } else if (PaymentTypes.isAccountMoney(expressMetadata.getPaymentMethodId())) {

@@ -46,7 +46,7 @@ public class SummaryAmountService implements SummaryAmountRepository {
         final Issuer issuer = userSelectionRepository.getIssuer();
 
         final Map<String, Object> body = new HashMap<>();
-        body.put("site_id", checkoutPreference.getSite().getId());
+        body.put("site_id", paymentSettingRepository.getSite().getId());
         body.put("transaction_amount", checkoutPreference.getTotalAmount());
         body.put("marketplace", checkoutPreference.getMarketplace());
         body.put("email", checkoutPreference.getPayer().getEmail());

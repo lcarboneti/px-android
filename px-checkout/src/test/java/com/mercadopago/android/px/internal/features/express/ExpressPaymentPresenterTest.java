@@ -87,7 +87,6 @@ public class ExpressPaymentPresenterTest {
     public void setUp() {
         //This is needed for the presenter constructor
         final CheckoutPreference preference = mock(CheckoutPreference.class);
-        when(preference.getSite()).thenReturn(Sites.ARGENTINA);
         when(preference.getItems()).thenReturn(Collections.singletonList(mock(Item.class)));
         when(configuration.getCheckoutPreference()).thenReturn(preference);
         when(initRepository.getInit())

@@ -51,6 +51,7 @@ public class ReviewAndConfirmBuilder {
         final Issuer issuer = userSelectionRepository.getIssuer();
 
         final PaymentSettingRepository paymentSettings = configurationModule.getPaymentSettings();
+        final Site site = paymentSettings.getSite();
         final String publicKey = paymentSettings.getPublicKey();
         final Token token = paymentSettings.getToken();
         final AmountRepository amountRepository = session.getAmountRepository();
@@ -62,8 +63,6 @@ public class ReviewAndConfirmBuilder {
 
         final List<Item> items = checkoutPreference.getItems();
 
-        final Site site = checkoutPreference.getSite();
-
         final String title = SummaryModel.resolveTitle(items,
             resources.getString(R.string.px_review_summary_product),
             resources.getString(R.string.px_review_summary_products));
@@ -72,7 +71,8 @@ public class ReviewAndConfirmBuilder {
             TextUtil.isEmpty(paymentSettings.getPrivateKey());
 
         final TermsAndConditionsModel mercadoPagoTermsAndConditions =
-            termsAndConditionsEnabled ? new TermsAndConditionsModel(site.getTermsAndConditionsUrl(),
+            termsAndConditionsEnabled ? new TermsAndConditionsModel(
+                site.getTermsAndConditionsUrl(),
                 resources.getString(R.string.px_terms_and_conditions_message),
                 resources.getString(R.string.px_terms_and_conditions_linked_message),
                 LineSeparatorType.TOP_LINE_SEPARATOR) : null;

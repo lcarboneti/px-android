@@ -1,25 +1,22 @@
 package com.mercadopago.android.px.internal.features.installments;
 
 import android.support.annotation.NonNull;
-
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
+import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
-import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.SummaryAmountRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
 import com.mercadopago.android.px.mocks.StubSummaryAmount;
-import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.AmountConfiguration;
-import com.mercadopago.android.px.model.Sites;
+import com.mercadopago.android.px.model.PayerCost;
 import com.mercadopago.android.px.model.SummaryAmount;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.utils.StubFailMpCall;
 import com.mercadopago.android.px.utils.StubSuccessMpCall;
-
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +51,6 @@ public class InstallmentsPresenterTest {
 
     @Before
     public void setUp() {
-        when(checkoutPreference.getSite()).thenReturn(Sites.ARGENTINA);
         when(configuration.getCheckoutPreference()).thenReturn(checkoutPreference);
         when(configuration.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
         when(advancedConfiguration.isAmountRowEnabled()).thenReturn(true);
@@ -102,7 +98,6 @@ public class InstallmentsPresenterTest {
 
     @Test
     public void whenMCOThenShowBankInterestsNotCoveredWarning() {
-        when(checkoutPreference.getSite()).thenReturn(Sites.COLOMBIA);
         when(userSelectionRepository.hasCardSelected()).thenReturn(false);
         final SummaryAmount response = StubSummaryAmount.getSummaryAmountTwoPayerCosts();
         when(summaryAmountRepository.getSummaryAmount(anyString())).thenReturn(new StubSuccessMpCall<>(response));
@@ -199,7 +194,7 @@ public class InstallmentsPresenterTest {
         presenter.initialize();
 
         verify(view).showAmount(discountRepository.getCurrentConfiguration(),
-                itemPlusCharges, checkoutPreference.getSite());
+                itemPlusCharges, null);
     }
 
     @Test
@@ -225,13 +220,13 @@ public class InstallmentsPresenterTest {
 
         when(advancedConfiguration.isAmountRowEnabled()).thenReturn(true);
 
-        BigDecimal itemPlusCharges = new BigDecimal(100);
+        final BigDecimal itemPlusCharges = new BigDecimal(100);
         when(amountRepository.getItemsPlusCharges()).thenReturn(itemPlusCharges);
 
         presenter.initialize();
 
         verify(view).showAmount(discountRepository.getCurrentConfiguration(),
-                itemPlusCharges, checkoutPreference.getSite());
+                itemPlusCharges, null);
         verify(view).hideLoadingView();
     }
 
@@ -239,7 +234,7 @@ public class InstallmentsPresenterTest {
     private ApiException presetApiError() {
         final ApiException apiException = new ApiException();
         when(summaryAmountRepository.getSummaryAmount(anyString()))
-            .thenReturn(new StubFailMpCall<SummaryAmount>(apiException));
+            .thenReturn(new StubFailMpCall<>(apiException));
         return apiException;
     }
 }

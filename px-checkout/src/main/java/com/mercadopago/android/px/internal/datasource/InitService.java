@@ -71,6 +71,7 @@ public class InitService implements InitRepository {
                     @Override
                     public void success(final InitResponse initResponse) {
                         paymentSettingRepository.configure(initResponse.getCheckoutPreference());
+                        paymentSettingRepository.configureSite(initResponse.getSite().getId());
                         initCache.put(initResponse);
                         callback.success(initResponse);
                     }

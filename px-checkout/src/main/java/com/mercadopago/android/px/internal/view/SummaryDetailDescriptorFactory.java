@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.view;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.viewmodel.AmountLocalized;
 import com.mercadopago.android.px.internal.viewmodel.DiscountAmountLocalized;
 import com.mercadopago.android.px.internal.viewmodel.DiscountDescriptionLocalized;
@@ -18,34 +19,36 @@ import java.util.List;
 
 public class SummaryDetailDescriptorFactory {
 
+    @NonNull private final PaymentSettingRepository paymentSettingRepository;
     @NonNull private final DiscountConfigurationModel discountModel;
-    @NonNull private final CheckoutPreference checkoutPreference;
     @NonNull private final SummaryInfo summaryInfo;
 
-    public SummaryDetailDescriptorFactory(@NonNull final DiscountConfigurationModel discountModel,
-        @NonNull final CheckoutPreference checkoutPreference, @NonNull final SummaryInfo summaryInfo) {
+    public SummaryDetailDescriptorFactory(@NonNull final PaymentSettingRepository paymentSettingRepository,
+        @NonNull final DiscountConfigurationModel discountModel,
+        @NonNull final SummaryInfo summaryInfo) {
+        this.paymentSettingRepository = paymentSettingRepository;
         this.discountModel = discountModel;
-        this.checkoutPreference = checkoutPreference;
         this.summaryInfo = summaryInfo;
     }
 
     public List<AmountDescriptorView.Model> create() {
+        final String currencyId = paymentSettingRepository.getSite().getCurrencyId();
+        final CheckoutPreference checkoutPreference = paymentSettingRepository.getCheckoutPreference();
+
         final List<AmountDescriptorView.Model> list = new ArrayList<>();
 
         if (discountModel.getDiscount() != null) {
             list.add(new AmountDescriptorView.Model(new ItemLocalized(summaryInfo),
-                new AmountLocalized(checkoutPreference.getTotalAmount(),
-                    checkoutPreference.getSite().getCurrencyId()), new ItemDetailColor()));
+                new AmountLocalized(checkoutPreference.getTotalAmount(), currencyId), new ItemDetailColor()));
             list.add(new AmountDescriptorView.Model(new DiscountDescriptionLocalized(discountModel.getDiscount()),
-                new DiscountAmountLocalized(discountModel.getDiscount().getCouponAmount(),
-                    checkoutPreference.getSite().getCurrencyId()), new DiscountDetailColor())
+                new DiscountAmountLocalized(discountModel.getDiscount().getCouponAmount(), currencyId),
+                new DiscountDetailColor())
                 .setDetailDrawable(new DiscountDetailDrawable()).enableListener());
         }
 
         if (!discountModel.isAvailable()) {
             list.add(new AmountDescriptorView.Model(new ItemLocalized(summaryInfo),
-                new AmountLocalized(checkoutPreference.getTotalAmount(),
-                    checkoutPreference.getSite().getCurrencyId()), new ItemDetailColor()));
+                new AmountLocalized(checkoutPreference.getTotalAmount(), currencyId), new ItemDetailColor()));
             list.add(new AmountDescriptorView.Model(new SoldOutDiscountLocalized(), new SoldOutDiscountDetailColor())
                 .setDetailDrawable(new DiscountDetailDrawable(), new SoldOutDiscountDetailColor())
                 .enableListener());

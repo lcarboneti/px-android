@@ -77,7 +77,6 @@ public class PaymentVaultPresenterTest {
         when(checkoutPreference.getTotalAmount()).thenReturn(new BigDecimal(100));
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(checkoutPreference);
         when(checkoutPreference.getPaymentPreference()).thenReturn(new PaymentPreference());
-        when(checkoutPreference.getSite()).thenReturn(mockSite);
         when(paymentSettingRepository.getAdvancedConfiguration()).thenReturn(advancedConfiguration);
 
         presenter = getPresenter();
@@ -436,7 +435,7 @@ public class PaymentVaultPresenterTest {
     private void verifyInitializeWithGroups() {
         verify(view, atLeastOnce()).showAmount(discountRepository.getCurrentConfiguration(),
             paymentSettingRepository.getCheckoutPreference().getTotalAmount(),
-            paymentSettingRepository.getCheckoutPreference().getSite());
+            paymentSettingRepository.getSite());
         verify(view, atLeastOnce()).hideProgress();
     }
 

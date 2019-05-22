@@ -1,8 +1,10 @@
 package com.mercadopago.android.px.tracking.internal.views;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.PaymentDataHelper;
 import com.mercadopago.android.px.model.PaymentResult;
+import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.mapper.FromPaymentMethodToAvailableMethods;
 import com.mercadopago.android.px.tracking.internal.model.AvailableMethod;
@@ -35,9 +37,10 @@ public class ResultViewTrack extends ViewTracker {
     }
 
     public ResultViewTrack(@NonNull final Style style, @NonNull final PaymentResult payment,
-        @NonNull final CheckoutPreference checkoutPreference) {
+        @NonNull final PaymentSettingRepository paymentSettingRepository) {
         resultViewTrackModel =
-            new ResultViewTrackModel(style, payment, checkoutPreference);
+            new ResultViewTrackModel(style, payment, paymentSettingRepository.getCheckoutPreference(),
+                paymentSettingRepository.getSite());
         this.payment = payment;
     }
 
@@ -80,13 +83,13 @@ public class ResultViewTrack extends ViewTracker {
         private final BigDecimal discountCouponAmount;
         private AvailableMethod availableMethod;
 
-        ResultViewTrackModel(@NonNull final Style style, @NonNull final PaymentResult payment,
-            @NonNull final CheckoutPreference checkoutPreference) {
+        /* default */ ResultViewTrackModel(@NonNull final Style style, @NonNull final PaymentResult payment,
+            @NonNull final CheckoutPreference checkoutPreference, final Site site) {
             this.style = style.value;
             paymentId = payment.getPaymentId();
             paymentStatus = payment.getPaymentStatus();
             paymentStatusDetail = payment.getPaymentStatusDetail();
-            currencyId = checkoutPreference.getSite().getCurrencyId();
+            currencyId = site.getCurrencyId();
             hasSplitPayment = PaymentDataHelper.isSplitPayment(payment.getPaymentDataList());
             preferenceAmount = checkoutPreference.getTotalAmount();
             discountCouponAmount = PaymentDataHelper.getTotalDiscountAmount(payment.getPaymentDataList());

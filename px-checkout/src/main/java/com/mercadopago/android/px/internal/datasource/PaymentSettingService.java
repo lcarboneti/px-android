@@ -8,6 +8,8 @@ import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.JsonUtil;
+import com.mercadopago.android.px.model.Site;
+import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.model.commission.PaymentTypeChargeRule;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
@@ -19,6 +21,7 @@ import java.util.Locale;
 public class PaymentSettingService implements PaymentSettingRepository {
 
     private static final String PREF_CHECKOUT_PREF = "PREF_CHECKOUT_PREFERENCE";
+    private static final String PREF_SITE_ID = "PREF_SITE_ID";
     private static final String PREF_CHECKOUT_PREF_ID = "PREF_CHECKOUT_PREFERENCE_ID";
     private static final String PREF_PUBLIC_KEY = "PREF_PUBLIC_KEY";
     private static final String PREF_PRIVATE_KEY = "PREF_PRIVATE_KEY";
@@ -85,6 +88,13 @@ public class PaymentSettingService implements PaymentSettingRepository {
     }
 
     @Override
+    public void configureSite(@NonNull final String siteId) {
+        final SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putString(PREF_SITE_ID, siteId);
+        edit.apply();
+    }
+
+    @Override
     public void configurePrivateKey(@Nullable final String privateKey) {
         final SharedPreferences.Editor edit = sharedPreferences.edit();
         edit.putString(PREF_PRIVATE_KEY, privateKey);
@@ -146,6 +156,12 @@ public class PaymentSettingService implements PaymentSettingRepository {
     @Override
     public Token getToken() {
         return jsonUtil.fromJson(sharedPreferences.getString(PREF_TOKEN, ""), Token.class);
+    }
+
+    @NonNull
+    @Override
+    public Site getSite() {
+        return Sites.getById(sharedPreferences.getString(PREF_SITE_ID, Sites.ARGENTINA.getId()));
     }
 
     @Override
