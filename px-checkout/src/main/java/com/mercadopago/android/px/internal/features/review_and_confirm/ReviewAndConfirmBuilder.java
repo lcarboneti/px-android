@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
+
+import com.mercadolibre.android.device.sdk.DeviceSDK;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.di.ConfigurationModule;
 import com.mercadopago.android.px.internal.di.Session;
@@ -25,6 +27,7 @@ import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.Site;
 import com.mercadopago.android.px.model.Token;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+
 import java.util.List;
 
 public class ReviewAndConfirmBuilder {
@@ -105,6 +108,20 @@ public class ReviewAndConfirmBuilder {
                 discountTermsAndConditions,
                 postPaymentAction);
         }
+
+        DeviceSDK.getInstance()
+                .withCustomAttribute("payment_method_id", paymentModel.paymentMethodId)
+                .withCustomAttribute("payment_method_name", paymentModel.paymentMethodName)
+                .withCustomAttribute("card_token", token != null ? token.getId() : null)
+                .withCustomAttribute("preference_id", checkoutPreference.getId())
+                .withCustomAttribute("marketplace", checkoutPreference.getMarketplace())
+                .withCustomAttribute("operation_type", checkoutPreference.getOperationType())
+                .withCustomAttribute("site_id", site.getId())
+                .withCustomAttribute("public_key", publicKey)
+                .withCustomAttribute("transaction_id", paymentSettings.getTransactionId())
+                .withCustomAttribute("session_id", session.getSessionIdProvider().getSessionId())
+                .execute(context);
+
         return ReviewAndConfirmActivity.getIntent(context,
             publicKey,
             mercadoPagoTermsAndConditions,

@@ -28,6 +28,9 @@ subprojects {
         mavenLocal()
         google()
         jcenter()
+        maven {
+            url "https://dl.bintray.com/mercadolibre/android-public"
+        }
     }
 }
 

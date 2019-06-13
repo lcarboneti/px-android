@@ -37,4 +37,5 @@ dependencies {
     implementation "com.google.code.gson:gson:$gson"
     implementation "com.squareup.picasso:picasso:$picasso"
     implementation "com.mercadolibre.android:ui:$meli_ui_lib"
+    implementation "com.mercadolibre.android.device:sdk:$device_sdk"
 }
