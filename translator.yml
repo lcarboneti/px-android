@@ -1,0 +1,11 @@
+app_name: px-android
+project_name: px
+
+source_directories:
+  - module: px-checkout
+    base_translation: px-checkout/src/main/res/values/strings.xml
+    translations:
+      - px-checkout/src/main/res/values-es-rAR/strings.xml
+      - px-checkout/src/main/res/values-es-rMX/strings.xml
+      - px-checkout/src/main/res/values-pt-rBR/strings.xml
+      - px-checkout/src/main/res/values-zh-rCN/strings.xml
