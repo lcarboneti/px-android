@@ -5,7 +5,6 @@ source_directories:
   - module: px-checkout
     base_translation: px-checkout/src/main/res/values/strings.xml
     translations:
-      - px-checkout/src/main/res/values/strings.xml
       - px-checkout/src/main/res/values-es/strings.xml
       - px-checkout/src/main/res/values-es-rAR/strings.xml
       - px-checkout/src/main/res/values-es-rCL/strings.xml
