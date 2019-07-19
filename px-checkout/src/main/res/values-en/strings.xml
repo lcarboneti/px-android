@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Card association -->
+    <string name="px_card_association_result_success_text">Done! Your card has been saved</string>
+    <string name="px_card_association_result_go_back_button_text">Go to My Cards</string>
+    <string name="px_card_association_result_error_icon_text">Something went wrong…</string>
+    <string name="px_card_association_result_error_text">We couldn\'t load your card details</string>
+    <string name="px_card_association_result_error_retry_button_text">Try again</string>
+
+    <!-- One tap -->
+
+    <string name="px_processing_payment_button">Processing your payment</string>
+    <string name="px_summary_detail_item_description">Your purchase</string>
+    <string name="px_pay">Pay</string>
+
+    <!-- Banks deals -->
+    <string name="px_empty_bank_deals">No promotions available for you</string>
+    <string name="px_bank">bank</string>
+    <string name="px_title_activity_bank_deals">Promotions</string>
+    <string name="bank_deal_details_title">Conditions</string>
+    <string name="bank_deal_details_date_format">Up to %s</string>
+
+    <!-- Payment Methods -->
+    <string name="px_title_activity_payment_methods">How do you want to %1$s?</string>
+    <string name="px_main_verb">pay</string>
+
+    <!-- Vault -->
+    <string name="px_last_digits_label">Ending in</string>
+    <string name="px_title_activity_payment_vault">How do you want to %1$s?</string>
+    <string name="px_no_payment_methods_found">There are no available payment methods</string>
+
+    <!-- Issuers -->
+    <string name="px_card_issuers_title">Which is your bank?</string>
+
+    <!-- Installments -->
+    <string name="px_card_installments_title">How many installments?</string>
+    <string name="px_select_installments_title">Select the installment plan</string>
+
+
+
+    <!-- Payer Information -->
+
+    <string name="px_payer_information_modify">Modify</string>
+
+    <!-- Terms And Conditions -->
+    <string name="px_terms_and_conditions_message">By paying, I claim to be an adult and that I accept the</string>
+    <string name="px_terms_and_conditions_linked_message">Terms and conditions.</string>
+    <string name="px_terms_and_conditions">Terms and conditions</string>
+    <string name="px_discount_terms_and_conditions_message">Mercado Libre and Mercado Pago\'s exclusive discount.</string>
+    <string name="px_discount_terms_and_conditions_linked_message">See conditions</string>
+
+    <!-- Card token and guessing -->
+    <string name="px_invalid_card_number_incomplete">Enter all the numbers of the card</string>
+    <string name="px_invalid_empty_name">Enter the name and last name printed on the card</string>
+    <string name="px_invalid_expiry_date">The date you entered is not valid</string>
+    <string name="px_invalid_identification_number">Enter all numbers</string>
+    <string name="px_invalid_identification_name">Enter your name</string>
+    <string name="px_invalid_identification_last_name">Enter your last name</string>
+    <string name="px_invalid_identification_business_name">Enter your business name</string>
+    <string name="px_invalid_payment_method">You can\'t pay with this payment method</string>
+    <string name="px_card_number_label">Card number</string>
+    <string name="px_card_expire_date_label">Expiration date</string>
+    <string name="px_cardholder_name">Name and surname</string>
+    <string name="px_name">Name</string>
+    <string name="px_lastname">Surname</string>
+    <string name="px_business_name">Business Name</string>
+    <string name="px_bank_deals_action">See deals</string>
+    <string name="px_security_code">Security code</string>
+
+    <string name="px_invalid_card_bin">The card number you entered does not match with the card type</string>
+    <string name="px_invalid_card_luhn">The card number you entered is incorrect</string>
+    <string name="px_invalid_card_length">Enter the %1$s card numbers</string>
+    <string name="px_invalid_cvv_length">Enter the %1$s security code numbers</string>
+    <string name="px_invalid_field">Check this information</string>
+    <string name="px_invalid_empty_card">Enter the credit card number</string>
+    <string name="px_card_expiry_month_hint">MM</string>
+    <string name="px_card_expiry_divider_hint">/</string>
+    <string name="px_card_expiry_year_hint">YY</string>
+    <string name="px_card_identification_label">CARD HOLDER DOCUMENT</string>
+    <string name="px_ticket_identification_label">DATA TO VALIDATE YOUR PAYMENT</string>
+    <string name="px_name_and_lastname_identification_label">NAME AND SURNAME</string>
+    <string name="px_business_name_identification_label">BUSINESS NAME</string>
+    <string name="px_card_identification_number">Number</string>
+    <string name="px_card_identification_type">Type</string>
+    <string name="px_cardholder_name_short">NAME SURNAME</string>
+
+    <string name="px_more_info">MORE INFO</string>
+    <string name="px_try_other_card">Enter card</string>
+    <string name="px_you_can_finish_your_payment_with_cards">Don\'t worry, you can still pay with:</string>
+    <string name="px_invalid_card_payment_method">Credit card not supported</string>
+    <string name="px_exclusion_one_element">You can only pay with %1$s</string>
+
+    <!-- Congrats -->
+    <string name="px_title_approved_payment">Done! Your payment was accredited</string>
+    <string name="px_text_state_account_activity_congrats">On your statement you will see the charge as\n %s</string>
+    <string name="px_ending_in">ending in</string>
+    <string name="px_receipt">Transaction number %1$s</string>
+    <string name="px_date_divider">of</string>
+    <string name="px_copied_to_clipboard_ack">Done! Copied.</string>
+
+    <!-- CallForAuthorize -->
+    <string name="px_title_activity_call_for_authorize">Your card did not authorize the payment</string>
+    <string name="px_text_authorized_call_for_authorize">I already authorized the payment</string>
+
+    <!-- Pending -->
+    <string name="px_title_pending_payment">We are processing the payment</string>
+    <string name="px_error_description_contingency">Don\'t worry, in a few hours we will notify you via e-mail if it is accredited.</string>
+    <string name="px_error_description_review_manual">Don\'t worry, within the next 24 hours we will notify you via e-mail if it was accredited.</string>
+    <string name="px_pending_label">Hurry to pay!</string>
+
+    <!-- Rejection -->
+    <string name="px_text_pay_with_other_method">Pay using a different method</string>
+    <string name="px_title_other_reason_rejection">We could not process your payment</string>
+    <string name="px_title_duplicated_reason_rejection">We are sorry, the payment was made twice, therefore we rejected the second one.</string>
+    <string name="px_title_bad_filled_other">One of the card\'s details is invalid</string>
+    <string name="px_text_how_can_authorize">How do I authorize it?</string>
+    <string name="px_text_some_card_data_is_incorrect">One of the card\'s details is invalid</string>
+    <string name="px_text_insufficient_amount">Your card rejected the payment</string>
+    <string name="px_text_insufficient_amount_title_description">Your funds are insufficient or you exceeded the purchase limit.</string>
+    <string name="px_text_active_card">Your card is not activated</string>
+    <string name="px_title_rejection_high_risk">We rejected your payment</string>
+    <string name="px_title_rejection_account_high_risk">You cannot use your money in Mercado Pago for this payment</string>
+    <string name="px_title_rejection_max_attempts">We rejected this payment because you reached the limit of attempts</string>
+    <string name="px_title_rejection_blacklist">We rejected the payment with this card</string>
+    <string name="px_title_rejection_fraud">You are suspended for payments</string>
+    <string name="px_rejection_label">Something went wrong…</string>
+    <string name="px_error_description_call">1- Call the phone number on the back of your card to authorize the payment of %1$s to Mercado Pago. \n 2- Please let us know so that we can credit it.</string>
+    <string name="px_error_bad_filled_action">Enter the card details again</string>
+    <string name="px_error_description_card_disabled">Call %1$s to activate your card or use a different payment method</string>
+    <string name="px_error_description_other_reason">Use another card or other payment method.</string>
+    <string name="px_error_description_by_bank">Please try to pay with other payment method.</string>
+    <string name="px_error_description_insufficient_data">Please try to pay with other payment method.</string>
+    <string name="px_error_description_duplicated_payment">Don\'t worry, we only charged you for the first payment.</string>
+    <string name="px_error_description_max_attempts">Because you have reached the limit of attempts, please use a different payment method.</string>
+    <string name="px_error_description_high_risk">Try paying with a different payment method.</string>
+    <string name="px_error_description_rejected_by_regulations">To pay with account money you must complete the missing details.</string>
+    <string name="px_text_card_data_invalid">Review card data</string>
+    <string name="px_text_card_enabled">I already enabled my card</string>
+    <string name="px_error_description_rejected_by_insufficient_amount">Try paying with a different payment method.</string>
+
+    <!-- Error messages -->
+    <string name="px_error_message_invalid_item">Invalid item</string>
+    <string name="px_error_message_expired_preference">Expired preference</string>
+    <string name="px_error_message_inactive_preference">Inactive preference</string>
+    <string name="px_error_message_excluded_all_payment_type">All payments types excluded</string>
+    <string name="px_error_message_invalid_installments">Your card does not accept this number of installments</string>
+    <string name="px_error_title">Something went wrong…</string>
+    <string name="px_standard_error_message">We are going to fix it. Try later.</string>
+    <string name="px_error_message_email_required">Email is required</string>
+    <string name="px_error_message_missing_payer_cost">No installments found</string>
+    <string name="px_error_message_missing_identification_types">No identification type found</string>
+    <string name="px_error_message_missing_setting_for_bin">No setting found for that bin</string>
+    <string name="px_error_failure_recovery_not_defined">Failure recovery not defined</string>
+
+
+    <!-- API exception messages -->
+    <string name="px_empty_card_expiration_month">The month of the card\'s expiration date is not entered</string>
+    <string name="px_empty_card_expiration_year">The year of the card\'s expiration date is not entered</string>
+    <string name="px_empty_card_holder_name">The card holder name is not entered</string>
+    <string name="px_empty_document_number">The card holder document number is not entered</string>
+    <string name="px_empty_document_type">The card holder document type is not entered</string>
+    <string name="px_invalid_payment_type_id">Invalid payment method type</string>
+    <string name="px_invalid_card_expiration_month">Invalid card expiration month</string>
+    <string name="px_invalid_card_expiration_year">Invalid card expiration year</string>
+    <string name="px_invalid_payer_email">Invalid customer email</string>
+    <string name="px_customer_not_allowed_to_operate">You are not allowed to operate</string>
+    <string name="px_collector_not_allowed_to_operate">The seller is not allowed to operate</string>
+    <string name="px_invalid_users_involved">Invalid users</string>
+    <string name="px_customer_equal_to_collector">Same user customer and seller</string>
+    <string name="px_invalid_card_holder_name">Invalid card holder name</string>
+    <string name="px_unauthorized_client">Unauthorized client</string>
+    <string name="px_payment_method_not_found">Selected payment method not found</string>
+    <string name="px_invalid_security_code">Invalid security code</string>
+    <string name="px_security_code_required">Required security code</string>
+    <string name="px_invalid_card_number">Invalid card number</string>
+    <string name="px_api_invalid_identification_number">Invalid identification number</string>
+
+    <!-- Low Res -->
+    <string name="px_form_card_title">Card</string>
+    <string name="px_form_identification_title">Card holder document</string>
+    <string name="px_bank_deals_lowres">Promotions</string>
+
+    <!-- PaymentTypes -->
+    <string name="px_form_card_title_payment_type">Card of %1$s</string>
+    <string name="px_credit_payment_type">Credit</string>
+    <string name="px_form_card_title_payment_type_prepaid">Prepaid card</string>
+    <string name="px_payment_types_title">Which type of card is it?</string>
+    <string name="px_debit_payment_type">Debit</string>
+
+    <!-- Utils -->
+    <string name="px_continue_shopping">Continue</string>
+    <string name="px_zero_rate">Interest free</string>
+    <string name="px_exit_label">Exit</string>
+    <string name="px_input_button_back">Previous</string>
+    <string name="px_input_button_next">Continue</string>
+    <string name="px_hour">hour</string>
+    <string name="px_working_day">business day</string>
+    <string name="px_working_days">business days</string>
+    <string name="px_refresh_message">Retry</string>
+    <string name="px_title_activity_terms_and_conditions">Terms and conditions</string>
+    <string name="px_no_connection_message">No connection</string>
+    <string name="px_instant_accreditation_time">Will be accredited instantly</string>
+    <string name="px_accreditation_time">Will be accredited in</string>
+    <string name="px_what_can_do">What can I do?</string>
+    <string name="px_got_it">Got it</string>
+
+    <!-- Review and Confirm -->
+    <string name="px_change_payment">Pay using a different method</string>
+    <string name="px_add_new_card">Add new card</string>
+    <string name="px_your_atm">ATM of</string>
+    <string name="px_review_off_text_default">You will pay %1$s\n%2$s</string>
+    <string name="px_review_off_text">You will pay %1$s in a\n%2$s</string>
+    <string name="px_review_off_text_2">You will pay %1$s in\n%2$s</string>
+    <string name="px_review_off_text_3">You will pay %1$s in your\n%2$s</string>
+    <string name="px_review_off_text_4">You will pay %1$s with\n%2$s</string>
+    <string name="px_review_off_text_5">You will pay %1$s through\n%2$s</string>
+    <string name="px_review_off_text_6">You will pay %1$s at\n%2$s</string>
+    <string name="px_homebanking">Home Banking of</string>
+    <string name="px_review_summary_total">Total</string>
+    <string name="px_review_item_quantity">Quantity:</string>
+    <string name="px_review_summary_subtotal">Subtotal</string>
+    <string name="px_review_summary_pay">You will pay</string>
+    <string name="px_review_product_price">Unit price: %1$s</string>
+    <string name="px_activity_checkout_title">Check your payment</string>
+    <string name="px_review_summary_products">Products</string>
+    <string name="px_review_summary_product">Product</string>
+    <string name="px_review_summary_charges">Charges</string>
+    <string name="px_review_summary_taxes">Taxes</string>
+    <string name="px_review_summary_shipping">Shipping</string>
+    <string name="px_review_summary_arrear">Arrear</string>
+    <string name="px_review_summary_discount">Discount</string>
+    <string name="px_ryc_account_money_description">With your account money</string>
+
+    <!-- Discount -->
+    <string name="px_we_apply_the_best_available_discount">Discounts are not cumulative. We apply the best available discount</string>
+    <string name="px_max_coupon_amount">Discount limit: %1$s</string>
+    <string name="px_with_max_coupon_amount">With max coupon amount</string>
+    <string name="px_total_to_pay">Total to %1$s</string>
+    <string name="px_always_on_discount_detail">With each payment to this brand you will consume the discounts until you reach the limit.</string>
+    <string name="px_one_shot_discount_detail">The limit is available for one single payment.</string>
+    <string name="px_discount_detail_end_date">Valid until %s.</string>
+    <string name="px_used_up_discount_row">You reached the discount limit</string>
+    <string name="px_used_up_discount_title">You reached the limit</string>
+    <string name="px_used_up_discount_detail">This discount is not applicable, because you have reached the limit.</string>
+
+    <string name="px_interest_label">Does\'t include bank interest</string>
+
+    <!-- Unlock Card -->
+    <string name="px_text_unlock_card_start">Remember to</string>
+    <string name="px_text_unlock_card_linked">unlock your card</string>
+    <string name="px_text_unlock_card_end">before you confirm the payment.</string>
+
+    <string name="px_error_message_detail_no_payer_cost_found">No payer costs found at InstallmentsActivity</string>
+    <string name="px_error_message_detail_issuers">No issuers found at IssuersActivity</string>
+    <string name="px_error_message_detail_no_payment_method_list">No payment method list found at ReviewPaymentMethodsActivity</string>
+
+    <!-- Boleto -->
+    <string name="px_fill_your_data">Enter your data…</string>
+    <string name="px_bolbradesco_rejection">Payment could not be processed</string>
+
+    <!-- Disable payment method detail dialog -->
+    <string name="px_dialog_detail_payment_method_disable_card_title">This card is currently unavailable</string>
+    <string name="px_dialog_detail_payment_method_disable_account_money_title">Your money in Mercado Pago is currently unavailable</string>
+    <string name="px_dialog_detail_payment_method_disable_detail">Don’t worry, you can use another method to complete the payment.</string>
+    <string name="px_dialog_detail_payment_method_disable_link">Pay with a different method</string>
+
+    <!-- Disable payment method title pager -->
+    <string name="px_payment_method_disable_card_title">Card unavailable for this payment</string>
+    <string name="px_payment_method_disable_account_money_title">Method unavailable for this payment</string>
+</resources>
