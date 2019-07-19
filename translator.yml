@@ -1,5 +1,5 @@
 app_name: px-android
-project_name: mp-apps-px
+project_name: [mp-apps-px]
 
 source_directories:
   - module: px-checkout
@@ -12,4 +12,4 @@ source_directories:
       - px-checkout/src/main/res/values-es-rMX/strings.xml
       - px-checkout/src/main/res/values-es-rPE/strings.xml
       - px-checkout/src/main/res/values-es-rVE/strings.xml
-      - px-checkout/src/main/res/values-pt/strings.xml
+      - px-checkout/src/main/res/values-pt-rBR/strings.xml
