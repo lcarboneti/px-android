@@ -3,6 +3,11 @@ apply plugin:'spoon'
 apply from:"$rootDir/gradle/deploy_testlib.gradle"
 
 android {
+
+    buildTypes {
+        releaseBeta {
+        }
+    }
     lintOptions {
         abortOnError false
     }

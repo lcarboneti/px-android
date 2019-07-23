@@ -18,6 +18,10 @@ android {
             buildConfigField "String", "API_ENVIRONMENT", "\"v1\""
             buildConfigField "boolean", "HTTP_CLIENT_LOG", "false"
         }
+        releaseBeta {
+            buildConfigField "String", "API_ENVIRONMENT", "\"beta\""
+            buildConfigField "boolean", "HTTP_CLIENT_LOG", "true"
+        }
     }
 }
 

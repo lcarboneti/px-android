@@ -4,6 +4,11 @@ apply from:"$rootDir/gradle/static-analysis.gradle"
 apply from:"$rootDir/gradle/deploy_checkout.gradle"
 
 android {
+
+    buildTypes {
+        releaseBeta {
+        }
+    }
     defaultConfig {
         multiDexEnabled true //TODO remove
     }
