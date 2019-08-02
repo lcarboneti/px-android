@@ -1,5 +1,5 @@
 app_name: px-android
-project_name: [mp-apps-px]
+project_name: mp-apps-px
 
 source_directories:
   - module: px-checkout
