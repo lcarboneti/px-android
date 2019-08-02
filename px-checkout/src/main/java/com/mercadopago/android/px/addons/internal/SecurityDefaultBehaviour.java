@@ -10,6 +10,6 @@ class SecurityDefaultBehaviour implements SecurityBehaviour {
 
     @Override
     public void validateBiometrics(final Listener listener) {
-        listener.success();
+        listener.onSuccess();
     }
 }

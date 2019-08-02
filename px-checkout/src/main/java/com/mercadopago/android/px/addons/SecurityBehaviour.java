@@ -8,8 +8,8 @@ public interface SecurityBehaviour {
     void validateBiometrics(Listener listener);
 
     interface Listener {
-        void success();
+        void onSuccess();
 
-        void fail(@NonNull final String message);
+        void onFail(@NonNull final String message);
     }
 }
