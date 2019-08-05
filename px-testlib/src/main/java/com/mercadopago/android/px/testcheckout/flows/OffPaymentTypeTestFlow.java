@@ -20,7 +20,7 @@ public class OffPaymentTypeTestFlow extends TestFlow {
     }
 
     @NonNull
-    public CongratsPage runOffPaymentTypeFlow(@NonNull final String paymentMethodName,
+    public CongratsPage runCashOffPaymentTypeFlow(@NonNull final String paymentMethodName,
         final CheckoutValidator validator) {
 
         startCheckout();
@@ -44,8 +44,8 @@ public class OffPaymentTypeTestFlow extends TestFlow {
     }
 
     @NonNull
-    public CongratsPage runOffPaymentTypeFlow(@NonNull final String paymentMethodName) {
-        return runOffPaymentTypeFlow(paymentMethodName, null);
+    public CongratsPage runCashOffPaymentTypeFlow(@NonNull final String paymentMethodName) {
+        return runCashOffPaymentTypeFlow(paymentMethodName, null);
     }
 
     @NonNull
