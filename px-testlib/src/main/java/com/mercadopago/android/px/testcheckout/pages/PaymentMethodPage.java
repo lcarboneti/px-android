@@ -64,6 +64,11 @@ public class PaymentMethodPage extends PageObject<CheckoutValidator> {
         return new CashPage(validator);
     }
 
+    public CashPage selectATM() {
+        clickViewWithTag(PaymentTypes.ATM);
+        return new CashPage(validator);
+    }
+
     @Deprecated
     public ReviewAndConfirmPage selectTicketWithDefaultPayer(final int paymentMethodPosition) {
         return selectTicketWithDefaultPayer(paymentMethodPosition == 0 ? PaymentMethods.BRASIL.BOLBRADESCO :

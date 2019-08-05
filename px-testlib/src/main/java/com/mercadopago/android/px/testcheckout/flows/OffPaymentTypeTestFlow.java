@@ -32,6 +32,18 @@ public class OffPaymentTypeTestFlow extends TestFlow {
     }
 
     @NonNull
+    public CongratsPage runATMOffPaymentTypeFlow(@NonNull final String paymentMethodName,
+        final CheckoutValidator validator) {
+
+        startCheckout();
+
+        return new PaymentMethodPage(validator)
+            .selectATM()
+            .selectMethod(paymentMethodName)
+            .pressConfirmButton();
+    }
+
+    @NonNull
     public CongratsPage runOffPaymentTypeFlow(@NonNull final String paymentMethodName) {
         return runOffPaymentTypeFlow(paymentMethodName, null);
     }
