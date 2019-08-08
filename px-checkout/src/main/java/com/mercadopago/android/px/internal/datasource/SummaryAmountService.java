@@ -7,6 +7,7 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.SummaryAmountRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.services.InstallmentService;
+import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.DifferentialPricing;
 import com.mercadopago.android.px.model.Issuer;
 import com.mercadopago.android.px.model.PaymentMethod;
@@ -47,7 +48,9 @@ public class SummaryAmountService implements SummaryAmountRepository {
         body.put("site_id", checkoutPreference.getSite().getId());
         body.put("transaction_amount", checkoutPreference.getTotalAmount());
         body.put("marketplace", checkoutPreference.getMarketplace());
-        body.put("email", checkoutPreference.getPayer().getEmail());
+        if (TextUtil.isNotEmpty(checkoutPreference.getPayer().getEmail())) {
+            body.put("email", checkoutPreference.getPayer().getEmail());
+        }
         body.put("product_id", advancedConfiguration.getDiscountParamsConfiguration().getProductId());
         body.put("payment_method_id", paymentMethod.getId());
         body.put("payment_type", paymentMethod.getPaymentTypeId());

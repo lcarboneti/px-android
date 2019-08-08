@@ -93,7 +93,7 @@ public class CheckoutPresenterTest {
 
     @Test
     public void whenPreferenceIsRetrievedFromMercadoPagoThenStartCheckoutForPreference() {
-        final CheckoutPreference checkoutPreference = mock(CheckoutPreference.class);
+        final CheckoutPreference checkoutPreference = stubPreferenceOneItem();
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(checkoutPreference);
         when(checkoutPreferenceRepository.getCheckoutPreference(anyString()))
             .thenReturn(new StubSuccessMpCall<>(checkoutPreference));
@@ -109,7 +109,7 @@ public class CheckoutPresenterTest {
 
     @Test
     public void whenPreferenceIsNotRetrievedAndRecoverFromFailureThenStartCheckoutForPreference() {
-        final CheckoutPreference checkoutPreference = mock(CheckoutPreference.class);
+        final CheckoutPreference checkoutPreference = stubPreferenceOneItem();
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(checkoutPreference);
         when(checkoutPreferenceRepository.getCheckoutPreference(anyString()))
             .thenReturn(new StubFailMpCall<>(mock(ApiException.class)));
@@ -146,12 +146,10 @@ public class CheckoutPresenterTest {
 
     @Test
     public void whenChoHasCompletePrefSetDoNotCallRepositoryToGetPreference() {
-        final CheckoutPreference preference = mock(CheckoutPreference.class);
+        final CheckoutPreference preference = stubPreferenceOneItem();
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(preference);
         when(groupsRepository.getGroups())
             .thenReturn(new StubSuccessMpCall<>(PaymentMethodSearchs.getCompletePaymentMethodSearchMLA()));
-        when(preference.getPaymentPreference())
-            .thenReturn(mock(PaymentPreference.class));
 
         presenter.initialize();
 

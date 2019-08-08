@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.Toolbar;
@@ -80,6 +81,22 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     protected FrameLayout mCardContainer;
     protected CardView mCardView;
     protected MPTextView mTimerTextView;
+
+    public static void startForSavedCard(@NonNull final Card card, final Fragment fragment, final int reqCode) {
+        //noinspection ConstantConditions
+        final Intent intent = createIntent(fragment.getContext(), card);
+        fragment.startActivityForResult(intent, reqCode);
+    }
+
+    private static Intent createIntent(@NonNull final Context context, @NonNull final Card card) {
+        // TODO remove serialization as Json.
+        final Intent intent = new Intent(context, SecurityCodeActivity.class);
+        intent.putExtra(EXTRA_CARD_INFO, JsonUtil.getInstance().toJson(new CardInfo(card)));
+        intent.putExtra(EXTRA_CARD, JsonUtil.getInstance().toJson(card));
+        intent.putExtra(EXTRA_PAYMENT_METHOD, JsonUtil.getInstance().toJson(card.getPaymentMethod()));
+        intent.putExtra(EXTRA_REASON, Reason.SAVED_CARD.name());
+        return intent;
+    }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -455,6 +472,10 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
         finish();
     }
 
+    /**
+     * @deprecated Use static factory methods
+     */
+    @Deprecated
     public static final class Builder {
         private CardInfo cardInformation;
         private PaymentMethod paymentMethod;

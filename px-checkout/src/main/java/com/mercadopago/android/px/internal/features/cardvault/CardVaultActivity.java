@@ -48,7 +48,7 @@ public class CardVaultActivity extends PXActivity<CardVaultPresenter> implements
     private CardVaultPresenter presenter;
 
     @SuppressWarnings("TypeMayBeWeakened")
-    public static void startActivity(@NonNull final Activity context, final int reqCode,
+    public static void startActivityForRecovery(@NonNull final Activity context, final int reqCode,
         @NonNull final PaymentRecovery paymentRecovery) {
         final Intent intent = new Intent(context, CardVaultActivity.class);
         intent.putExtra(EXTRA_PAYMENT_RECOVERY, paymentRecovery);
@@ -56,7 +56,7 @@ public class CardVaultActivity extends PXActivity<CardVaultPresenter> implements
     }
 
     @SuppressWarnings("TypeMayBeWeakened")
-    public static void startActivity(final Fragment oneTapFragment, final int reqCode,
+    public static void startActivityForRecovery(final Fragment oneTapFragment, final int reqCode,
         @NonNull final PaymentRecovery paymentRecovery) {
         final Intent intent = new Intent(oneTapFragment.getActivity(), CardVaultActivity.class);
         intent.putExtra(EXTRA_PAYMENT_RECOVERY, paymentRecovery);
@@ -66,11 +66,6 @@ public class CardVaultActivity extends PXActivity<CardVaultPresenter> implements
     public static void startActivity(@NonNull final Activity context, final int reqCode) {
         final Intent intent = new Intent(context, CardVaultActivity.class);
         context.startActivityForResult(intent, reqCode);
-    }
-
-    public static void startActivity(final Fragment oneTapFragment, final int reqCode) {
-        final Intent intent = new Intent(oneTapFragment.getActivity(), CardVaultActivity.class);
-        oneTapFragment.startActivityForResult(intent, reqCode);
     }
 
     private void configure() {

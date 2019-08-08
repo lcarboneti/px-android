@@ -8,7 +8,7 @@ import com.mercadopago.android.px.internal.di.Session;
 public abstract class CheckoutLazyInit {
 
     private final MercadoPagoCheckout.Builder builder;
-    private PrefetchService prefetchService;
+    private static PrefetchService prefetchService;
 
     /**
      * CheckoutLazyInit allows you to prefetch {@link MercadoPagoCheckout} information. Using this Lazy Builder you can
@@ -26,8 +26,8 @@ public abstract class CheckoutLazyInit {
      * @param context your app context.
      */
     public final void fetch(final Context context) {
+        cancel();
         final MercadoPagoCheckout checkout = builder.build();
-        // Generates new session.
         prefetchService = new PrefetchService(checkout, Session.getInstance(), this);
         prefetchService.prefetch();
     }

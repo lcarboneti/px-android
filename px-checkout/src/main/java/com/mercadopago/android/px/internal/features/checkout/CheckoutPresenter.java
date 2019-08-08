@@ -16,6 +16,7 @@ import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.PluginRepository;
 import com.mercadopago.android.px.internal.repository.UserSelectionRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
+import com.mercadopago.android.px.internal.util.PreferenceValidator;
 import com.mercadopago.android.px.internal.viewmodel.CheckoutStateModel;
 import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.mappers.BusinessModelMapper;
@@ -101,7 +102,8 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements P
 
     /* default */ void startCheckoutForPreference() {
         try {
-            paymentSettingRepository.getCheckoutPreference().validate();
+            PreferenceValidator.validate(paymentSettingRepository.getCheckoutPreference(),
+                paymentSettingRepository.getPrivateKey());
             startCheckout();
         } catch (final CheckoutPreferenceException e) {
             getView().showCheckoutExceptionError(e);
@@ -181,8 +183,8 @@ public class CheckoutPresenter extends BasePresenter<Checkout.View> implements P
             .enqueue(new TaggedCallback<CheckoutPreference>(ApiUtil.RequestOrigin.GET_PREFERENCE) {
                 @Override
                 public void onSuccess(final CheckoutPreference checkoutPreference) {
-                    paymentSettingRepository.configure(checkoutPreference);
                     if (isViewAttached()) {
+                        paymentSettingRepository.configure(checkoutPreference);
                         startCheckoutForPreference();
                     }
                 }

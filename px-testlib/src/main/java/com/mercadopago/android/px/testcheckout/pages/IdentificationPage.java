@@ -46,6 +46,12 @@ public class IdentificationPage extends PageObject<CheckoutValidator> {
         return new CardAssociationResultSuccessPage(validator);
     }
 
+    public PaymentTypesPage enterIdentificationNumberToPaymentTypesPage(
+        final String idNumber) {
+        insertIdAndPressNext(idNumber);
+        return new PaymentTypesPage(validator);
+    }
+
     public NoCheckoutPage enterIdentificationNumberToNoCheckoutPage(
         final String idNumber) {
         insertIdAndPressNext(idNumber);

@@ -38,7 +38,6 @@ import com.mercadopago.android.px.internal.viewmodel.mappers.SummaryInfoMapper;
 import com.mercadopago.android.px.internal.viewmodel.mappers.SummaryViewModelMapper;
 import com.mercadopago.android.px.model.AmountConfiguration;
 import com.mercadopago.android.px.model.Card;
-import com.mercadopago.android.px.model.CardMetadata;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.ExpressMetadata;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
@@ -167,12 +166,6 @@ import java.util.Set;
 
     @Override
     public void onViewResumed() {
-        // If a payment was attempted, the exploding fragment is still visible when we go back to one tap fragment.
-        // Example: call for authorize, after asking for cvv and pressing back, we go back to one tap and need to
-        // remove the exploding fragment we had before.
-        if (paymentRepository.hasPayment()) {
-            cancelLoading();
-        }
         paymentRepository.attach(this);
         if (shouldReloadModel()) {
             loadViewModel();
@@ -249,7 +242,8 @@ import java.util.Set;
 
         if (expressMetadata.isCard() || expressMetadata.isConsumerCredits()) {
             payerCost = amountConfiguration
-               .getCurrentPayerCost(splitSelectionState.userWantsToSplit(), payerCostSelection.get(paymentMethodIndex));
+                .getCurrentPayerCost(splitSelectionState.userWantsToSplit(),
+                    payerCostSelection.get(paymentMethodIndex));
         }
 
         final boolean splitPayment = splitSelectionState.userWantsToSplit() && amountConfiguration.allowSplit();
@@ -309,7 +303,7 @@ import java.util.Set;
     @Override
     public void onCvvRequired(@NonNull final Card card) {
         cancelLoading();
-        getView().showCardFlow(card);
+        getView().showSecurityCodeScreen(card);
     }
 
     @Override
@@ -379,7 +373,8 @@ import java.util.Set;
     @Override
     public void onPayerCostSelected(final PayerCost payerCostSelected) {
         final ExpressMetadata expressMetadata = expressMetadataList.get(paymentMethodIndex);
-        final String customOptionId = expressMetadata.isCard() ? expressMetadata.getCard().getId() : expressMetadata.getPaymentMethodId();
+        final String customOptionId =
+            expressMetadata.isCard() ? expressMetadata.getCard().getId() : expressMetadata.getPaymentMethodId();
         final int selected = amountConfigurationRepository.getConfigurationFor(customOptionId)
             .getAppliedPayerCost(splitSelectionState.userWantsToSplit())
             .indexOf(payerCostSelected);
@@ -460,6 +455,7 @@ import java.util.Set;
 
     @Override
     public void onChangePaymentMethod() {
+        cancelLoading();
         getView().resetPagerIndex();
     }
 

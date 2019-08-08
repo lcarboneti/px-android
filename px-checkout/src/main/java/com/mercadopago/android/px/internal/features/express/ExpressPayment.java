@@ -28,7 +28,7 @@ public interface ExpressPayment {
 
         void cancel();
 
-        void showCardFlow(@NonNull final Card card);
+        void showSecurityCodeScreen(@NonNull final Card card);
 
         void showCardFlow(@NonNull PaymentRecovery paymentRecovery);
 

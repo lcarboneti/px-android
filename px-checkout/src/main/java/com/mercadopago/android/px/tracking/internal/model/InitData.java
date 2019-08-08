@@ -6,6 +6,7 @@ import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public final class InitData extends TrackingMapModel {
@@ -32,5 +33,15 @@ public final class InitData extends TrackingMapModel {
             paymentSettingRepository.getCheckoutPreference(),
             paymentSettingRepository.getPaymentConfiguration(),
             paymentSettingRepository.getAdvancedConfiguration());
+    }
+
+    @NonNull
+    @Override
+    protected Map<String, Object> sanitizeMap(@NonNull final Map<String, Object> map) {
+        final Map<String, Object> preference = (Map<String, Object>) map.get("checkout_preference");
+        if (preference != null) {
+            preference.remove("payer");
+        }
+        return map;
     }
 }

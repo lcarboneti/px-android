@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.testcheckout.pages;
 
 import android.support.test.espresso.action.ViewActions;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.testcheckout.assertions.CheckoutValidator;
 import com.mercadopago.android.testlib.pages.PageObject;
@@ -42,12 +43,13 @@ public class ExpressPaymentPage extends PageObject<CheckoutValidator> {
     }
 
     public ExpressPaymentPage openInstallments() {
-        // TODO
+        onView(withId(R.id.installments_header)).perform(click());
         return this;
     }
 
     public ExpressPaymentPage selectPayerCostAt(int position) {
-        // TODO
+        onView(withId(R.id.installments_recycler_view))
+            .perform(RecyclerViewActions.actionOnItemAtPosition(position, click()));
         return this;
     }
 

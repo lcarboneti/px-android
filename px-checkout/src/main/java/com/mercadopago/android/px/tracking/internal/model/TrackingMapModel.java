@@ -6,12 +6,17 @@ import java.util.Map;
 
 public class TrackingMapModel {
 
-    @NonNull
-    public Map<String, Object> toMap() {
-        return toMap(this);
-    }
-
     public static Map<String, Object> toMap(final Object object) {
         return JsonUtil.getInstance().getMapFromObject(object);
+    }
+
+    @NonNull
+    public Map<String, Object> toMap() {
+        return sanitizeMap(toMap(this));
+    }
+
+    @NonNull
+    protected Map<String, Object> sanitizeMap(@NonNull final Map<String, Object> map) {
+        return map;
     }
 }

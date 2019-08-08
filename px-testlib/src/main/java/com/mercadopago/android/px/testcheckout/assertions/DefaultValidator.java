@@ -5,6 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.view.View;
 import com.mercadopago.android.px.internal.util.TextUtil;
+import com.mercadopago.android.px.testcheckout.idleresources.WaitForBusinessResult;
+import com.mercadopago.android.px.testcheckout.idleresources.WaitForPaymentResult;
+import com.mercadopago.android.px.testcheckout.pages.BusinessCongratsPage;
 import com.mercadopago.android.px.testcheckout.pages.CallForAuthPage;
 import com.mercadopago.android.px.testcheckout.pages.CardAssociationResultErrorPage;
 import com.mercadopago.android.px.testcheckout.pages.CardAssociationResultSuccessPage;
@@ -28,6 +31,7 @@ import com.mercadopago.android.px.testcheckout.pages.PayerInformationIdentificat
 import com.mercadopago.android.px.testcheckout.pages.PayerInformationLastNamePage;
 import com.mercadopago.android.px.testcheckout.pages.PayerInformationPage;
 import com.mercadopago.android.px.testcheckout.pages.PaymentMethodPage;
+import com.mercadopago.android.px.testcheckout.pages.PaymentTypesPage;
 import com.mercadopago.android.px.testcheckout.pages.PendingPage;
 import com.mercadopago.android.px.testcheckout.pages.RejectedPage;
 import com.mercadopago.android.px.testcheckout.pages.ReviewAndConfirmPage;
@@ -39,14 +43,19 @@ import org.hamcrest.Matcher;
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.hasMinimumChildCount;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.mercadopago.android.testlib.matchers.CustomViewMatchers.withDigitsOnlyEqualsToTextView;
 import static com.mercadopago.android.testlib.matchers.CustomViewMatchers.withValueEqualToTextView;
 import static org.hamcrest.Matchers.anyOf;
+import static org.junit.Assert.assertTrue;
 
 public class DefaultValidator implements CheckoutValidator {
+
+    private final WaitForPaymentResult waitForPaymentResult = new WaitForPaymentResult();
+
     @Override
     public void validate(@NonNull final IssuerPage issuerPage) {
         //TODO implement default PX Validations
@@ -131,11 +140,6 @@ public class DefaultValidator implements CheckoutValidator {
     }
 
     @Override
-    public void validate(@NonNull final CongratsPage congratsPage) {
-        //TODO implement default PX Validations
-    }
-
-    @Override
     public void validate(@NonNull final CreditCardPage creditCardPage) {
         //TODO implement default PX Validations
     }
@@ -193,13 +197,31 @@ public class DefaultValidator implements CheckoutValidator {
     }
 
     @Override
-    public void validate(@NonNull final PendingPage pendingPage) {
-        //TODO implement default PX Validations
+    public void validate(@NonNull final CongratsPage congratsPage) {
+        waitForPaymentResult.start();
+        assertTrue(congratsPage.isSuccess());
+        waitForPaymentResult.stop();
+
+    }
+
+    public void validate(@NonNull final BusinessCongratsPage congratsPage) {
+        final WaitForBusinessResult result = new WaitForBusinessResult();
+        result.start();
+        assertTrue(congratsPage.isSuccess());
+        result.stop();
     }
 
     @Override
+    public void validate(@NonNull final PendingPage pendingPage) {
+        waitForPaymentResult.start();
+        assertTrue(pendingPage.isPending());
+        waitForPaymentResult.stop();    }
+
+    @Override
     public void validate(@NonNull final RejectedPage rejectedPage) {
-        //TODO implement default PX Validations
+        waitForPaymentResult.start();
+        assertTrue(rejectedPage.isError());
+        waitForPaymentResult.stop();
     }
 
     @Override
@@ -207,14 +229,23 @@ public class DefaultValidator implements CheckoutValidator {
         //TODO implement default PX Validations
     }
 
+    @CallSuper
     @Override
     public void validate(@NonNull final CardAssociationResultSuccessPage cardAssociationResultSuccessPage) {
-        //TODO implement default PX Validations
+        onView(ViewMatchers.withId(com.mercadopago.android.px.R.id.mpsdkCardAssociationResultSuccessBadge))
+            .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)));
     }
 
     @Override
-    public void validate(@NonNull final CardAssociationResultErrorPage cardAssociationResultSuccessPage) {
+    public void validate(@NonNull final CardAssociationResultErrorPage cardAssociationResultErrorPage) {
         //TODO implement default PX Validations
+    }
+
+    @CallSuper
+    @Override
+    public void validate(@NonNull final PaymentTypesPage paymentTypesPage) {
+        onView(withId(com.mercadopago.android.px.R.id.mpsdkActivityPaymentTypesRecyclerView))
+            .check(matches(hasMinimumChildCount(2)));
     }
 
     private void validateAmountView() {

@@ -14,18 +14,14 @@ import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.mercadopago.android.testlib.matchers.UtilityMatchers.withBackgroundColor;
 
-public class CongratsPage extends PageObject<CheckoutValidator> {
+public class BusinessCongratsPage extends PageObject<CheckoutValidator> {
 
-    public CongratsPage() {
-        // This constructor is intentionally empty. Nothing special is needed here.
-    }
-
-    public CongratsPage(final CheckoutValidator validator) {
+    public BusinessCongratsPage(final CheckoutValidator validator) {
         super(validator);
     }
 
     @Override
-    public CongratsPage validate(final CheckoutValidator validator) {
+    public BusinessCongratsPage validate(final CheckoutValidator validator) {
         validator.validate(this);
         return this;
     }

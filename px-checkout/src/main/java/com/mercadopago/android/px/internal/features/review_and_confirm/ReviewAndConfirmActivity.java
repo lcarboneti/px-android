@@ -439,7 +439,7 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
     // Opens Card vault with recovery info.
     @Override
     public void startPaymentRecoveryFlow(final PaymentRecovery recovery) {
-        CardVaultActivity.startActivity(this, REQ_CARD_VAULT, recovery);
+        CardVaultActivity.startActivityForRecovery(this, REQ_CARD_VAULT, recovery);
     }
 
     @Override

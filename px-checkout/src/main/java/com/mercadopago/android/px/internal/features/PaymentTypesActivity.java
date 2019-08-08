@@ -3,7 +3,6 @@ package com.mercadopago.android.px.internal.features;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -30,6 +29,7 @@ import com.mercadopago.android.px.model.CardInfo;
 import com.mercadopago.android.px.model.PaymentMethod;
 import com.mercadopago.android.px.model.PaymentType;
 import com.mercadopago.android.px.model.exceptions.ApiException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PaymentTypesActivity extends PXActivity implements PaymentTypesActivityView {
@@ -61,8 +61,8 @@ public class PaymentTypesActivity extends PXActivity implements PaymentTypesActi
         @NonNull final List<PaymentMethod> paymentMethods, @NonNull final List<PaymentType> paymentTypes,
         final CardInfo cardInfo) {
         final Intent intent = new Intent(activity, PaymentTypesActivity.class);
-        intent.putExtra(EXTRA_PAYMENT_METHODS, (Parcelable) paymentMethods);
-        intent.putExtra(EXTRA_PAYMENT_TYPES, (Parcelable) paymentTypes);
+        intent.putParcelableArrayListExtra(EXTRA_PAYMENT_METHODS, new ArrayList<>(paymentMethods));
+        intent.putParcelableArrayListExtra(EXTRA_PAYMENT_TYPES, new ArrayList<>(paymentTypes));
         intent.putExtra(EXTRA_CARD_INFO, JsonUtil.getInstance().toJson(cardInfo));
         activity.startActivityForResult(intent, requestCode);
         activity.overridePendingTransition(R.anim.px_slide_right_to_left_in, R.anim.px_slide_right_to_left_out);
@@ -84,8 +84,8 @@ public class PaymentTypesActivity extends PXActivity implements PaymentTypesActi
     }
 
     private void getActivityParameters() {
-        final List<PaymentMethod> paymentMethods = getIntent().getParcelableExtra(EXTRA_PAYMENT_METHODS);
-        final List<PaymentType> paymentTypes = getIntent().getParcelableExtra(EXTRA_PAYMENT_TYPES);
+        final List<PaymentMethod> paymentMethods = getIntent().getParcelableArrayListExtra(EXTRA_PAYMENT_METHODS);
+        final List<PaymentType> paymentTypes = getIntent().getParcelableArrayListExtra(EXTRA_PAYMENT_TYPES);
         final CardInfo cardInfo =
             JsonUtil.getInstance().fromJson(getIntent().getStringExtra(EXTRA_CARD_INFO), CardInfo.class);
         mPresenter.setPaymentMethodList(paymentMethods);

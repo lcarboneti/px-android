@@ -1,3 +1,33 @@
+## VERSION 4.18.0
+_01_08_2019_
+* FIX - Prevent double click on Confirm Payment.
+* FIX - Changed launch mode to singleTop to prevent double initialization.
+* ENHANCEMENT - Migrated deploying to Bitrise.
+* ENHANCEMENT - Updated Card Association ETEs.
+
+## VERSION 4.17.1
+_24_07_2019_
+* FIX - Cancel exploding button loading on cvv comeback after payment recover
+* FIX - Prevent double lazy initialization of PX.
+
+## VERSION 4.16.4
+_24_07_2019_
+* FIX - Cancel exploding button loading on cvv comeback after payment recover
+* FIX - Prevent double lazy initialization of PX.
+
+## VERSION 4.17.0
+_18_07_2019_
+* FEATURE - Changed preference mail validator to required if no private key is setted
+* ENHANCEMENT - Removed payer from init track for security reasons
+
+## VERSION 4.16.3
+_16_07_2019_
+* FIX - Prevent library double initialization
+
+## VERSION 4.15.2
+_15_07_2019_
+* FIX - Prevent library double initialization
+
 ## VERSION 4.16.2
 _11_07_2019_
 * FIX - Default marketplace to NONE

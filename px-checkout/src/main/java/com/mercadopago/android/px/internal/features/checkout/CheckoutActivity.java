@@ -78,7 +78,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
     private Intent customDataBundle;
 
     public static Intent getIntent(@NonNull final Context context) {
-        return new Intent(context, CheckoutActivity.class);
+        return new Intent(context, CheckoutActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
     @Override
@@ -86,10 +86,24 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
         super.onCreate(savedInstanceState);
         setContentView(R.layout.px_activity_checkout);
         if (savedInstanceState == null) {
-            presenter = getActivityParameters();
-            presenter.attachView(this);
-            presenter.initialize();
+            initPresenter();
         }
+    }
+
+    @Override
+    protected void onNewIntent(final Intent intent) {
+        super.onNewIntent(intent);
+        // if onNewIntent is called, means that we are initialized twice, so we need to detach previews presenter
+        if (presenter != null) {
+            presenter.detachView();
+        }
+        initPresenter();
+    }
+
+    private void initPresenter() {
+        presenter = getActivityParameters();
+        presenter.attachView(this);
+        presenter.initialize();
     }
 
     @Override
@@ -459,7 +473,7 @@ public class CheckoutActivity extends PXActivity<CheckoutPresenter>
 
     @Override
     public void startPaymentRecoveryFlow(final PaymentRecovery paymentRecovery) {
-        CardVaultActivity.startActivity(this, REQ_CARD_VAULT, paymentRecovery);
+        CardVaultActivity.startActivityForRecovery(this, REQ_CARD_VAULT, paymentRecovery);
         overrideTransitionIn();
     }
 

@@ -2,6 +2,7 @@ package com.mercadopago.android.px.core;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.util.TextUtil;
@@ -9,48 +10,43 @@ import com.mercadopago.android.px.model.PaymentMethodSearch;
 import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /* default */ class PrefetchService {
 
+    private static final ExecutorService EXECUTOR_QUEUE = Executors.newSingleThreadExecutor();
+
     private final Handler mainHandler;
 
-    /* default */ final Session session;
-    /* default */ final CheckoutLazyInit checkoutLazyInitCallback;
-    /* default */ final MercadoPagoCheckout checkout;
-    private Thread currentFetch;
+    /* default */ @NonNull final Session session;
+    /* default */ @NonNull CheckoutLazyInit internalCallback;
+    /* default */ @NonNull final MercadoPagoCheckout checkout;
 
-    /* default */ PrefetchService(final MercadoPagoCheckout checkout, final Session session,
-        final CheckoutLazyInit checkoutLazyInitCallback) {
-        session.init(checkout);
+    /* default */ PrefetchService(@NonNull final MercadoPagoCheckout checkout, @NonNull final Session session,
+        @NonNull final CheckoutLazyInit internalCallback) {
         this.checkout = checkout;
         this.session = session;
-        this.checkoutLazyInitCallback = checkoutLazyInitCallback;
+        this.internalCallback = internalCallback;
         mainHandler = new Handler(Looper.getMainLooper());
     }
 
     public void prefetch() {
-        final PaymentSettingRepository paymentSettings =
-            session.getConfigurationModule().getPaymentSettings();
-
-        // TODO: use executor service
-        currentFetch = new Thread(() -> {
-
+        EXECUTOR_QUEUE.execute(() -> {
+            session.init(checkout);
             final String checkoutPreferenceId =
-                paymentSettings.getCheckoutPreferenceId();
+                session.getConfigurationModule().getPaymentSettings().getCheckoutPreferenceId();
             if (!TextUtil.isEmpty(checkoutPreferenceId)) {
                 fetchPreference();
             } else {
                 fetchGroups();
             }
         });
-        currentFetch.start();
     }
 
     /* default */ void fetchPreference() {
-        //TODO ADD PREFERENCE SERVICE.
         final PaymentSettingRepository paymentSettings =
             session.getConfigurationModule().getPaymentSettings();
-
         session.getCheckoutPreferenceRepository().getCheckoutPreference(paymentSettings.getCheckoutPreferenceId())
             .execute(
                 new Callback<CheckoutPreference>() {
@@ -86,17 +82,25 @@ import com.mercadopago.android.px.services.Callback;
     /* default */ void postSuccess() {
         mainHandler.post(() -> {
             checkout.prefetch = true;
-            checkoutLazyInitCallback.success(checkout);
+            internalCallback.success(checkout);
         });
     }
 
     /* default */ void postError() {
-        mainHandler.post(() -> checkoutLazyInitCallback.failure());
+        mainHandler.post(() -> internalCallback.failure());
     }
 
     public void cancel() {
-        if (currentFetch != null && currentFetch.isAlive() && !currentFetch.isInterrupted()) {
-            currentFetch.interrupt();
-        }
+        internalCallback = new CheckoutLazyInit(new MercadoPagoCheckout.Builder("", "")) {
+            @Override
+            public void fail(@NonNull final MercadoPagoCheckout mercadoPagoCheckout) {
+                // do nothing
+            }
+
+            @Override
+            public void success(@NonNull final MercadoPagoCheckout mercadoPagoCheckout) {
+                // do nothing
+            }
+        };
     }
 }

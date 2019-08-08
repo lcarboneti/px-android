@@ -30,6 +30,7 @@ import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.Constants;
+import com.mercadopago.android.px.internal.features.SecurityCodeActivity;
 import com.mercadopago.android.px.internal.features.cardvault.CardVaultActivity;
 import com.mercadopago.android.px.internal.features.checkout.CheckoutActivity;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator;
@@ -94,6 +95,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private static final String EXTRA_RENDER_MODE = "render_mode";
     private static final int REQ_CODE_CARD_VAULT = 0x999;
     private static final int REQ_CODE_PAYMENT_PROCESSOR = 0x123;
+    private static final int REQ_CODE_SECURITY_CODE = 18;
     private static final float PAGER_NEGATIVE_MARGIN_MULTIPLIER = -1.5f;
 
     // Width / Height
@@ -396,6 +398,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (requestCode == REQ_CODE_CARD_VAULT && resultCode == RESULT_OK) {
             presenter.onTokenResolved();
+        } else if (requestCode == REQ_CODE_SECURITY_CODE && resultCode == RESULT_OK) {
+            presenter.onTokenResolved();
         } else if (requestCode == REQ_CODE_CARD_VAULT && resultCode == RESULT_CANCELED) {
             presenter.trackExpressView();
             super.onActivityResult(requestCode, resultCode, data);
@@ -515,6 +519,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     private void hideConfirmButton() {
+        confirmButton.setClickable(false);
         confirmButton.clearAnimation();
         confirmButton.setVisibility(INVISIBLE);
     }
@@ -531,8 +536,8 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void startLoadingButton(final int paymentTimeout, @NonNull final PayButtonViewModel payButtonViewModel) {
+        hideConfirmButton();
         ViewUtils.runWhenViewIsFullyMeasured(getView(), () -> {
-            hideConfirmButton();
             final ExplodeParams explodeParams = ExplodingFragment.getParams(confirmButton,
                 payButtonViewModel.getButtonProgressText(confirmButton.getContext()), paymentTimeout);
             final FragmentManager childFragmentManager = getChildFragmentManager();
@@ -544,13 +549,13 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     }
 
     @Override
-    public void showCardFlow(@NonNull final Card card) {
-        CardVaultActivity.startActivity(this, REQ_CODE_CARD_VAULT);
+    public void showSecurityCodeScreen(@NonNull final Card card) {
+        SecurityCodeActivity.startForSavedCard(card, this, REQ_CODE_SECURITY_CODE);
     }
 
     @Override
     public void showCardFlow(@NonNull final PaymentRecovery paymentRecovery) {
-        CardVaultActivity.startActivity(this, REQ_CODE_CARD_VAULT, paymentRecovery);
+        CardVaultActivity.startActivityForRecovery(this, REQ_CODE_CARD_VAULT, paymentRecovery);
     }
 
     @Override

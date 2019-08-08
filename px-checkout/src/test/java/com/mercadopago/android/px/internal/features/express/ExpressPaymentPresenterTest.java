@@ -159,18 +159,6 @@ public class ExpressPaymentPresenterTest {
     }
 
     @Test
-    public void whenViewIsResumedAndPaymentRepositoryHasPaymentThenCancelLoading() {
-        when(paymentRepository.hasPayment()).thenReturn(true);
-
-        verifyOnViewResumed();
-        verify(view).enableToolbarBack();
-        verify(view).cancelLoading();
-        verifyNoMoreInteractions(paymentRepository);
-        verifyNoMoreInteractions(view);
-        verifyNoMoreInteractions(dynamicDialogConfiguration);
-    }
-
-    @Test
     public void whenElementDescriptorViewClickedAndHasCreatorThenShowDynamicDialog() {
         final DynamicDialogCreator dynamicDialogCreatorMock = mock(DynamicDialogCreator.class);
         when(dynamicDialogConfiguration.hasCreatorFor(DynamicDialogConfiguration.DialogLocation.TAP_ONE_TAP_HEADER))
@@ -238,7 +226,6 @@ public class ExpressPaymentPresenterTest {
     private void verifyOnViewResumed() {
         expressPaymentPresenter.onViewResumed();
 
-        verify(paymentRepository).hasPayment();
         verify(paymentRepository).attach(expressPaymentPresenter);
         verify(view).updateViewForPosition(eq(0), eq(PayerCost.NO_SELECTED), any(SplitSelectionState.class));
     }

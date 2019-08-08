@@ -101,6 +101,7 @@ public class CheckoutPreference implements Serializable {
         paymentPreference.setDefaultInstallments(builder.defaultInstallments);
     }
 
+    @Deprecated
     public void validate() throws CheckoutPreferenceException {
         if (!Item.areItemsValid(items)) {
             throw new CheckoutPreferenceException(CheckoutPreferenceException.INVALID_ITEM);

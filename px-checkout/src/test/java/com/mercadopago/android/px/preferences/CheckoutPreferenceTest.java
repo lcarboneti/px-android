@@ -1,5 +1,6 @@
 package com.mercadopago.android.px.preferences;
 
+import com.mercadopago.android.px.internal.util.PreferenceValidator;
 import com.mercadopago.android.px.model.exceptions.CheckoutPreferenceException;
 import org.junit.Test;
 
@@ -16,48 +17,49 @@ import static com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils.stubP
 import static com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils.stubPreferenceWithPositiveInstallmentsNumber;
 import static com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils.stubPreferenceWithPositiveMaxInstallmentsNumberAndNegativeDefaultInstallmentsNumber;
 import static com.mercadopago.android.px.utils.StubCheckoutPreferenceUtils.stubPreferenceWithSomePaymentTypesExcluded;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 public class CheckoutPreferenceTest {
 
     ///////////////////PAYMENTS_TYPES tests///////////////////
     @Test
     public void testWhenValidatePreferenceWithAllPaymentsTypesExcludedReturnFalse() {
-        CheckoutPreference preference = stubPreferenceWithAllPaymentTypesExcluded();
+        final CheckoutPreference preference = stubPreferenceWithAllPaymentTypesExcluded();
         assertFalse(preference.validPaymentTypeExclusion());
     }
 
     @Test
     public void testWhenValidatePreferenceWithSomePaymentsTypesExcludedReturnTrue() {
-        CheckoutPreference preference = stubPreferenceWithSomePaymentTypesExcluded();
+        final CheckoutPreference preference = stubPreferenceWithSomePaymentTypesExcluded();
         assertTrue(preference.validPaymentTypeExclusion());
     }
 
     ///////////////////INSTALLMENTS tests///////////////////
     @Test
     public void testWhenValidatePreferenceWithPositiveDefaultInstallmentsNumberAndNegativeMaxInstallmentsNumberReturnFalse() {
-        CheckoutPreference preference =
+        final CheckoutPreference preference =
             stubPreferenceWithPositiveDefaultInstallmentsNumberAndNegativeMaxInstallmentsNumber();
         assertFalse(preference.validInstallmentsPreference());
     }
 
     @Test
     public void testWhenValidatePreferenceWithPositiveMaxInstallmentsNumberAndNegativeDefaultInstallmentsNumberReturnFalse() {
-        CheckoutPreference preference =
+        final CheckoutPreference preference =
             stubPreferenceWithPositiveMaxInstallmentsNumberAndNegativeDefaultInstallmentsNumber();
         assertFalse(preference.validInstallmentsPreference());
     }
 
     @Test
     public void testWhenValidatePreferenceWithMaxInstallmentsNumberPositiveReturnTrue() {
-        CheckoutPreference preference = stubPreferenceWithPositiveInstallmentsNumber();
+        final CheckoutPreference preference = stubPreferenceWithPositiveInstallmentsNumber();
         assertTrue(preference.validInstallmentsPreference());
     }
 
     @Test
     public void testWhenValidatePreferenceWithNegativeMaxInstallmentsNumberReturnFalse() {
-        CheckoutPreference preference = stubPreferenceWithNegativeInstallmentsNumbers();
+        final CheckoutPreference preference = stubPreferenceWithNegativeInstallmentsNumbers();
         assertFalse(preference.validInstallmentsPreference());
     }
 
@@ -65,12 +67,12 @@ public class CheckoutPreferenceTest {
 
     @Test
     public void testWhenValidatePreferenceValidNoThrowExceptionReturnTrue() {
-        CheckoutPreference preference = stubPreferenceWithOneItemValidActiveAndSomePaymentTypesExcluded();
-        Boolean valid = true;
+        final CheckoutPreference preference = stubPreferenceWithOneItemValidActiveAndSomePaymentTypesExcluded();
+        boolean valid = true;
 
         try {
-            preference.validate();
-        } catch (CheckoutPreferenceException e) {
+            PreferenceValidator.validate(preference, null);
+        } catch (final CheckoutPreferenceException e) {
             valid = false;
         } finally {
             assertTrue(valid);
@@ -79,65 +81,65 @@ public class CheckoutPreferenceTest {
 
     @Test
     public void testWhenValidatePreferenceWithAllPaymentTypesExcludedThrowExceptionReturnTrue() {
-        CheckoutPreference preference = stubPreferenceWithOneItemValidActiveButAllPaymentTypesExcluded();
+        final CheckoutPreference preference = stubPreferenceWithOneItemValidActiveButAllPaymentTypesExcluded();
 
         try {
-            preference.validate();
-        } catch (CheckoutPreferenceException e) {
-            assertTrue(e.getErrorCode() == CheckoutPreferenceException.EXCLUDED_ALL_PAYMENT_TYPES);
+            PreferenceValidator.validate(preference, null);
+        } catch (final CheckoutPreferenceException e) {
+            assertEquals(CheckoutPreferenceException.EXCLUDED_ALL_PAYMENT_TYPES, e.getErrorCode());
         }
     }
 
     @Test
     public void testWhenValidatePreferenceWithInstallmentsDefaultNumberAndInstallmentsNumberNegativeThrowExceptionReturnTrue() {
-        CheckoutPreference preference =
+        final CheckoutPreference preference =
             stubPreferenceWithOneItemValidButInstallmentsDefaultNumberAndInstallmentsNumberNegative();
 
         try {
-            preference.validate();
-        } catch (CheckoutPreferenceException e) {
-            assertTrue(e.getErrorCode() == CheckoutPreferenceException.INVALID_INSTALLMENTS);
+            PreferenceValidator.validate(preference, null);
+        } catch (final CheckoutPreferenceException e) {
+            assertEquals(CheckoutPreferenceException.INVALID_INSTALLMENTS, e.getErrorCode());
         }
     }
 
     @Test
     public void testWhenValidatePreferenceWithPreferenceExpiredThrowExceptionReturnTrue() {
-        CheckoutPreference preference = stubExpiredPreference();
+        final CheckoutPreference preference = stubExpiredPreference();
 
         try {
-            preference.validate();
-        } catch (CheckoutPreferenceException e) {
-            assertTrue(e.getErrorCode() == CheckoutPreferenceException.EXPIRED_PREFERENCE);
+            PreferenceValidator.validate(preference, null);
+        } catch (final CheckoutPreferenceException e) {
+            assertEquals(CheckoutPreferenceException.EXPIRED_PREFERENCE, e.getErrorCode());
         }
     }
 
     @Test
     public void testWhenPreferenceIsActiveReturnTrue() {
-        CheckoutPreference preference = stubActivePreferenceAndPayer();
+        final CheckoutPreference preference = stubActivePreferenceAndPayer();
         assertTrue(preference.isActive());
     }
 
     @Test
     public void testWhenPreferenceIsNotActiveReturnFalse() {
-        CheckoutPreference preference = stubInactivePreferenceAndPayer();
+        final CheckoutPreference preference = stubInactivePreferenceAndPayer();
         assertFalse(preference.isActive());
     }
 
     @Test
     public void testWhenPreferenceIsNotExpiredReturnFalse() {
-        CheckoutPreference preference = stubActivePreferenceAndPayer();
+        final CheckoutPreference preference = stubActivePreferenceAndPayer();
         assertFalse(preference.isExpired());
     }
 
     @Test
     public void testWhenPreferenceIsExpiredReturnTrue() {
-        CheckoutPreference preference = stubExpiredPreference();
+        final CheckoutPreference preference = stubExpiredPreference();
         assertTrue(preference.isExpired());
     }
 
     @Test
     public void testWhenValidatePreferenceWithNullExpirationDateToReturnFalse() {
-        CheckoutPreference preference = stubBuilderOneItemAndPayer().setExpirationDate(null).build();
+        final CheckoutPreference preference = stubBuilderOneItemAndPayer().setExpirationDate(null).build();
         assertFalse(preference.isExpired());
     }
 }

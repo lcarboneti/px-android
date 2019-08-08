@@ -13,10 +13,13 @@ import com.mercadopago.android.px.model.ExitAction;
 import com.mercadopago.android.px.model.Item;
 import com.mercadopago.android.px.model.Sites;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import com.mercadopago.android.px.testcheckout.assertions.DefaultValidator;
 import com.mercadopago.android.px.testcheckout.input.Card;
+import com.mercadopago.android.px.testcheckout.pages.BusinessCongratsPage;
 import com.mercadopago.android.px.testcheckout.pages.CongratsPage;
 import com.mercadopago.android.px.testcheckout.pages.DebitCardPage;
 import com.mercadopago.android.px.testcheckout.pages.PaymentMethodPage;
+import com.mercadopago.android.px.testcheckout.pages.RejectedPage;
 import com.mercadopago.android.px.testcheckout.pages.ReviewAndConfirmPage;
 import com.mercadopago.android.px.testcheckout.pages.SecurityCodePage;
 import java.math.BigDecimal;
@@ -51,7 +54,7 @@ public class SavedCardTestFlow extends TestFlow {
     }
 
     public SavedCardTestFlow(@NonNull final MercadoPagoCheckout mercadoPagoCheckout,
-         @NonNull final Context context) {
+        @NonNull final Context context) {
         payerWithCardAccessToken = null;
         this.context = context;
         this.checkout = mercadoPagoCheckout;
@@ -59,7 +62,7 @@ public class SavedCardTestFlow extends TestFlow {
 
     public CongratsPage runDefaultCardIdPaymentFlow() {
         startCheckout();
-        new SecurityCodePage(null)
+        new SecurityCodePage(new DefaultValidator())
             .enterSecurityCodeForNewCard(CVV_NUMBER);
         return new ReviewAndConfirmPage().pressConfirmButton();
     }
@@ -78,24 +81,49 @@ public class SavedCardTestFlow extends TestFlow {
     public CongratsPage runSavedCardFlowWithoutEsc(@NonNull final String lastFourDigits) {
         startCheckout();
 
-        return new PaymentMethodPage(null).selectVisaCreditCardWithoutEsc(lastFourDigits)
+        return new PaymentMethodPage(new DefaultValidator()).selectVisaCreditCardWithoutEsc(lastFourDigits)
             .selectInstallmentsForSavedCard(1)
             .enterSecurityCodeForSavedCard(CVV_NUMBER)
             .pressConfirmButton();
     }
 
-    public CongratsPage runSavedCardFlowWithEsc(@NonNull final String lastFourDigits) {
+    public BusinessCongratsPage runBusinessSavedCardFlowWithoutEsc(@NonNull final String lastFourDigits) {
         startCheckout();
 
-        return new PaymentMethodPage(null).selectVisaCreditCardWithoutEsc(lastFourDigits)
+        return new PaymentMethodPage(new DefaultValidator()).selectVisaCreditCardWithoutEsc(lastFourDigits)
+            .selectInstallmentsForSavedCard(1)
+            .enterSecurityCodeForSavedCard(CVV_NUMBER)
+            .pressConfirmButtonforBusiness();
+    }
+
+    public BusinessCongratsPage runBusinessSavedCardFlowWithEscAccepted(@NonNull final String lastFourDigits) {
+        startCheckout();
+
+        return new PaymentMethodPage(new DefaultValidator()).selectVisaCreditCardWithoutEsc(lastFourDigits)
+            .selectInstallmentsForSavedCardWithEsc(1)
+            .pressConfirmButtonforBusiness();
+    }
+
+    public CongratsPage runSavedCardFlowWithEscAccepted(@NonNull final String lastFourDigits) {
+        startCheckout();
+
+        return new PaymentMethodPage(new DefaultValidator()).selectVisaCreditCardWithoutEsc(lastFourDigits)
             .selectInstallmentsForSavedCardWithEsc(1)
             .pressConfirmButton();
+    }
+
+    public RejectedPage runSavedCardFlowWithEscRejected(@NonNull final String lastFourDigits) {
+        startCheckout();
+
+        return new PaymentMethodPage(new DefaultValidator()).selectVisaCreditCardWithoutEsc(lastFourDigits)
+            .selectInstallmentsForSavedCardWithEsc(1)
+            .pressConfirmButtonAndReject();
     }
 
     public CongratsPage runSavedCardFlowWithInvalidEsc(@NonNull final String lastFourDigits) {
         startCheckout();
 
-        return new PaymentMethodPage(null)
+        return new PaymentMethodPage(new DefaultValidator())
             .selectVisaCreditCardWithoutEsc(lastFourDigits)
             .selectInstallmentsForSavedCardWithEsc(1)
             .pressConfirmButtonWithInvalidEsc()

@@ -27,9 +27,24 @@ public class ReviewAndConfirmPage extends PageObject<CheckoutValidator> {
         return new CongratsPage(validator);
     }
 
+    public BusinessCongratsPage pressConfirmButtonforBusiness() {
+        onView(withId(R.id.floating_confirm)).perform(click());
+        return new BusinessCongratsPage(validator);
+    }
+
     public SecurityCodePage pressConfirmButtonWithInvalidEsc() {
         onView(withId(R.id.floating_confirm)).perform(click());
         return new SecurityCodePage(validator);
+    }
+
+    public RejectedPage pressConfirmButtonAndReject() {
+        onView(withId(R.id.floating_confirm)).perform(click());
+        return new RejectedPage(validator);
+    }
+
+    public PendingPage pressConfirmButtonAndPending() {
+        onView(withId(R.id.floating_confirm)).perform(click());
+        return new PendingPage(validator);
     }
 
     @Override
