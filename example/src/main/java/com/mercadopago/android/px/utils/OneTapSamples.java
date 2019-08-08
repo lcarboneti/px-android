@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.DiscountConfiguration;
+import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
 import com.mercadopago.android.px.core.PaymentProcessor;
@@ -24,7 +25,7 @@ import static com.mercadopago.android.px.utils.PaymentUtils.getGenericPaymentApp
 public final class OneTapSamples {
 
     private static final String ONE_TAP_PAYER_1_ACCESS_TOKEN =
-        "APP_USR-6519316523937252-070516-964fafa7e2c91a2c740155fcb5474280__LA_LD__-261748045";
+        "TEST-7169122440478352-062213-d23fa9fb38e4b3e94feee29864f0fae2-443064294";
     private static final String ONE_TAP_PAYER_2_ACCESS_TOKEN =
         "APP_USR-3456261032857473-073011-c49291f53879f65accfaf28764e55f3e-340764447";
     private static final String ONE_TAP_PAYER_3_ACCESS_TOKEN =
@@ -41,7 +42,7 @@ public final class OneTapSamples {
         "TEST-1458038826212807-062020-ff9273c67bc567320eae1a07d1c2d5b5-246046416";
     private static final String ONE_TAP_PAYER_9_ACCESS_TOKEN =
         "APP_USR-1031243024729642-070215-4ce0d8f4d71d238fa10c33ac79428e85-332848643";
-    private static final String ONE_TAP_MERCHANT_PUBLIC_KEY = "APP_USR-648a260d-6fd9-4ad7-9284-90f22262c18d";
+    private static final String ONE_TAP_MERCHANT_PUBLIC_KEY = "APP_USR-306aa86f-a3e7-40cf-b27b-64bb7cd9b1e7";
     private static final String ONE_TAP_DIRECT_DISCOUNT_MERCHANT_PUBLIC_KEY =
         "APP_USR-ef65214d-59a2-4c82-be23-6cf6eb945d4c";
     private static final String PAYER_EMAIL_DUMMY = "prueba@gmail.com";
@@ -121,13 +122,16 @@ public final class OneTapSamples {
         final GenericPayment payment = getGenericPaymentApproved();
 
         final CheckoutPreference preference =
-            getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 120);
+            getCheckoutPreferenceWithPayerEmail(new ArrayList<>(), 500);
         final PaymentConfiguration paymentConfiguration =
             PaymentConfigurationUtils.create(new SamplePaymentProcessorNoView(payment));
 
         return new MercadoPagoCheckout.Builder(ONE_TAP_MERCHANT_PUBLIC_KEY, preference, paymentConfiguration)
             .setPrivateKey(ONE_TAP_PAYER_1_ACCESS_TOKEN)
-            .setAdvancedConfiguration(new AdvancedConfiguration.Builder().setExpressPaymentEnable(true).build());
+            .setAdvancedConfiguration(
+                new AdvancedConfiguration.Builder().setDiscountParamsConfiguration(
+                    new DiscountParamsConfiguration.Builder().setProductId("bh31umv10flg01nmhg60").build())
+                    .setExpressPaymentEnable(true).build());
     }
 
     // It should suggest one tap with account money
