@@ -21,12 +21,6 @@ public class SampleApplication extends Application {
         LeakCanary.install(this);
         Stetho.initializeWithDefaults(this);
 
-        // Get default client
-        final OkHttpClient client = HttpClientUtil.getClient(this, 10, 10, 10)
-            .newBuilder()
-            .addNetworkInterceptor(new StethoInterceptor())
-            .build();
-
-        HttpClientUtil.setCustomClient(client);
+        HttpClientUtil.getClient(this);
     }
 }
