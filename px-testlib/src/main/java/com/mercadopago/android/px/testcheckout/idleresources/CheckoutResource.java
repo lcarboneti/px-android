@@ -8,6 +8,6 @@ import okhttp3.OkHttpClient;
 public class CheckoutResource extends HttpResource {
     @Override
     protected OkHttpClient getClient() {
-        return HttpClientUtil.getClient(InstrumentationRegistry.getTargetContext(), 10, 10, 10);
+        return HttpClientUtil.getClient(InstrumentationRegistry.getTargetContext());
     }
 }
