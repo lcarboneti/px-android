@@ -18,6 +18,7 @@ import com.mercadopago.android.px.internal.features.uicontrollers.FontCache;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.PaymentResult;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import com.mercadopago.android.px.tracking.internal.events.InitEvent;
 
 /**
@@ -88,8 +89,8 @@ public final class MercadoPagoCheckout {
             session.init(this);
         }
 
-        new InitEvent(session.getConfigurationModule().getPaymentSettings())
-            .track();
+        MPTracker.getInstance().initializeSessionTime();
+        new InitEvent(session.getConfigurationModule().getPaymentSettings()).track();
 
         if (context instanceof Activity) {
             ((Activity) context).startActivityForResult(checkoutIntent, requestCode);

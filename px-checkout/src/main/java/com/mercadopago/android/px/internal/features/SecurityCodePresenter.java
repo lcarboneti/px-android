@@ -2,6 +2,7 @@ package com.mercadopago.android.px.internal.features;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
@@ -30,9 +31,9 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
 
     private static final String BUNDLE_REASON = "BUNDLE_REASON";
 
-    @NonNull private final PaymentSettingRepository paymentSettingRepository;
+    @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
     @NonNull private final CardTokenRepository cardTokenRepository;
-    @NonNull private final IESCManager IESCManager;
+    @NonNull private final IESCManager escManager;
     private FailureRecovery mFailureRecovery;
 
     //Card Info
@@ -45,16 +46,16 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
     private PaymentMethod paymentMethod;
     private CardInfo cardInfo;
     private Card card;
-    private Token token;
+    /* default */ Token token;
     private PaymentRecovery paymentRecovery;
     private Reason reason;
 
     public SecurityCodePresenter(@NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final CardTokenRepository cardTokenRepository,
-        @NonNull final IESCManager IESCManager) {
+        @NonNull final IESCManager escManager) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.cardTokenRepository = cardTokenRepository;
-        this.IESCManager = IESCManager;
+        this.escManager = escManager;
     }
 
     public void setPaymentMethod(final PaymentMethod paymentMethod) {
@@ -85,7 +86,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
         return cardInfo;
     }
 
-    private void setFailureRecovery(final FailureRecovery failureRecovery) {
+    /* default */ void setFailureRecovery(final FailureRecovery failureRecovery) {
         mFailureRecovery = failureRecovery;
     }
 
@@ -174,7 +175,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
             cardInfo.getSecurityCodeLocation() != null;
     }
 
-    private void initializeSecurityCodeSettings(final Setting setting) {
+    private void initializeSecurityCodeSettings(@Nullable final Setting setting) {
         if (securityCodeSettingsAvailable()) {
             securityCodeLength = cardInfo.getSecurityCodeLength();
             securityCodeLocation = cardInfo.getSecurityCodeLocation();
@@ -187,7 +188,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
         }
     }
 
-    private void initializeCardNumberSettings(final Setting setting) {
+    private void initializeCardNumberSettings(@Nullable final Setting setting) {
         if (setting != null && setting.getCardNumber() != null) {
             cardNumberLength = setting.getCardNumber().getLength();
         } else {
@@ -209,7 +210,6 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
                 createTokenWithoutESC();
             }
         } catch (final CardTokenException exception) {
-
             FrictionEventTracker.with(FrictionEventTracker.Id.INVALID_CVV,
                 new CvvAskViewTracker(getCard(), getPaymentMethod().getPaymentTypeId(), reason),
                 FrictionEventTracker.Style.CUSTOM_COMPONENT,
@@ -233,7 +233,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
     }
 
     private void createTokenWithoutESC() throws CardTokenException {
-        SavedCardToken savedCardToken = new SavedCardToken(card.getId(), securityCode);
+        final SavedCardToken savedCardToken = new SavedCardToken(card.getId(), securityCode);
         savedCardToken.validateSecurityCode(card);
         createToken(savedCardToken);
     }
@@ -250,29 +250,24 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
     }
 
     private boolean isSavedCardWithESC() {
-        return card != null && IESCManager.isESCEnabled();
+        return card != null && escManager.isESCEnabled();
     }
 
     private boolean isSavedCardWithoutESC() {
-        return card != null && !IESCManager.isESCEnabled();
+        return card != null && !escManager.isESCEnabled();
     }
 
-    private boolean validateSecurityCodeFromToken() {
-        try {
-            if (!TextUtil.isEmpty(token.getFirstSixDigits())) {
-                CardToken.validateSecurityCode(securityCode, paymentMethod, token.getFirstSixDigits());
-            } else if (!CardToken.validateSecurityCode(securityCode)) {
-                throw new CardTokenException(CardTokenException.INVALID_FIELD);
-            }
-            getView().clearErrorView();
-            return true;
-        } catch (final CardTokenException exception) {
-            getView().setErrorView(exception);
-            return false;
+    private boolean validateSecurityCodeFromToken() throws CardTokenException {
+        if (!TextUtil.isEmpty(token.getFirstSixDigits())) {
+            CardToken.validateSecurityCode(securityCode, paymentMethod, token.getFirstSixDigits());
+        } else if (!CardToken.validateSecurityCode(securityCode)) {
+            throw new CardTokenException(CardTokenException.INVALID_FIELD);
         }
+        getView().clearErrorView();
+        return true;
     }
 
-    private void cloneToken() {
+    /* default */ void cloneToken() {
         getView().showLoadingView();
 
         cardTokenRepository.cloneToken(token.getId())
@@ -287,12 +282,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
                 @Override
                 public void onFailure(final MercadoPagoError error) {
                     if (isViewAttached()) {
-                        setFailureRecovery(new FailureRecovery() {
-                            @Override
-                            public void recover() {
-                                cloneToken();
-                            }
-                        });
+                        setFailureRecovery(() -> cloneToken());
                         getView().stopLoadingView();
                         getView().showError(error, ApiUtil.RequestOrigin.CREATE_TOKEN);
                     }
@@ -300,8 +290,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
             });
     }
 
-    public void putSecurityCode() {
-
+    /* default */ void putSecurityCode() {
         cardTokenRepository.putSecurityCode(securityCode, token.getId()).enqueue(
             new TaggedCallback<Token>(ApiUtil.RequestOrigin.CREATE_TOKEN) {
                 @Override
@@ -312,12 +301,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
                 @Override
                 public void onFailure(final MercadoPagoError error) {
                     if (isViewAttached()) {
-                        setFailureRecovery(new FailureRecovery() {
-                            @Override
-                            public void recover() {
-                                cloneToken();
-                            }
-                        });
+                        setFailureRecovery(() -> cloneToken());
                         getView().stopLoadingView();
                         getView().showError(error, ApiUtil.RequestOrigin.CREATE_TOKEN);
                     }
@@ -325,25 +309,20 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
             });
     }
 
-    private void createToken(final SavedCardToken savedCardToken) {
+    /* default */ void createToken(final SavedCardToken savedCardToken) {
         getView().showLoadingView();
 
         cardTokenRepository
             .createToken(savedCardToken).enqueue(new TaggedCallback<Token>(ApiUtil.RequestOrigin.CREATE_TOKEN) {
             @Override
-            public void onSuccess(Token token) {
+            public void onSuccess(final Token token) {
                 resolveTokenCreation(token);
             }
 
             @Override
-            public void onFailure(MercadoPagoError error) {
+            public void onFailure(final MercadoPagoError error) {
                 if (isViewAttached()) {
-                    setFailureRecovery(new FailureRecovery() {
-                        @Override
-                        public void recover() {
-                            createToken(savedCardToken);
-                        }
-                    });
+                    setFailureRecovery(() -> createToken(savedCardToken));
                     getView().stopLoadingView();
                     getView().showError(error, ApiUtil.RequestOrigin.CREATE_TOKEN);
                 }
@@ -351,7 +330,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
         });
     }
 
-    private void createESCToken(final SavedESCCardToken savedESCCardToken) {
+    /* default */ void createESCToken(final SavedESCCardToken savedESCCardToken) {
         getView().showLoadingView();
 
         cardTokenRepository
@@ -370,7 +349,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
         });
     }
 
-    private void resolveTokenCreation(final Token token) {
+    /* default */ void resolveTokenCreation(final Token token) {
         this.token = token;
         if (cardInfo != null) {
             this.token.setLastFourDigits(cardInfo.getLastFourDigits());

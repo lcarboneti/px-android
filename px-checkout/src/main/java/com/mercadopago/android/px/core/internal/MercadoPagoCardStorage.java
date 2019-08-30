@@ -81,6 +81,7 @@ public final class MercadoPagoCardStorage implements Parcelable {
         final SessionIdProvider sessionIdProvider = new ApplicationModule(context).newSessionProvider(
             new TrackingConfiguration.Builder().build().getSessionId());
         MPTracker.getInstance().setSessionId(sessionIdProvider.getSessionId());
+        MPTracker.getInstance().initializeSessionTime();
         GuessingCardActivity.startGuessingCardActivityForStorage(context, this);
     }
 

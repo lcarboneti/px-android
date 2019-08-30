@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import com.google.gson.annotations.SerializedName;
+import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.exceptions.CardTokenException;
 import java.util.Calendar;
 import java.util.Locale;
@@ -60,8 +61,7 @@ public class CardToken {
     }
 
     public static boolean validateSecurityCode(final CharSequence securityCode) {
-        return securityCode == null ||
-            (!TextUtils.isEmpty(securityCode) && securityCode.length() >= 3 && securityCode.length() <= 4);
+        return TextUtil.isNotEmpty(securityCode) && securityCode.length() >= 3 && securityCode.length() <= 4;
     }
 
     public static void validateSecurityCode(final String securityCode, final PaymentMethod paymentMethod,

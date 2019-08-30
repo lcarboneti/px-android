@@ -205,7 +205,7 @@ public class SecurityCodePresenterTest {
 
         presenter.validateSecurityCodeInput();
 
-        verify(view, atLeast(2)).setErrorView(any(CardTokenException.class));
+        verify(view).setErrorView(any(CardTokenException.class));
         verifyNoMoreInteractions(view);
     }
 

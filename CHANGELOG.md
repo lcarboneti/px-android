@@ -1,6 +1,12 @@
-## VERSION 4.19.1
-28_08_2019
-* Fix TLS 1.1 replacing with 1.2
+## VERSION 4.21.0
+05_09_2019
+* FIX - TLS 1.1 replacing with 1.2
+
+## VERSION 4.20.0
+_29_08_2019_
+* FEATURE - Added tracking of session time and checkout type.
+* FEATURE - Added card drawer on express payment.
+* FIX - CPF validation.
 
 ## VERSION 4.19.0
 _22_08_2019_

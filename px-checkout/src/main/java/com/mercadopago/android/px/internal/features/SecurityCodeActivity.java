@@ -8,19 +8,15 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.Toolbar;
 import android.text.InputFilter;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import com.mercadopago.android.px.R;
 import com.mercadopago.android.px.internal.base.PXActivity;
 import com.mercadopago.android.px.internal.callbacks.card.CardSecurityCodeEditTextCallback;
@@ -34,6 +30,7 @@ import com.mercadopago.android.px.internal.util.ErrorUtil;
 import com.mercadopago.android.px.internal.util.JsonUtil;
 import com.mercadopago.android.px.internal.util.ResourceUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
+import com.mercadopago.android.px.internal.util.ViewUtils;
 import com.mercadopago.android.px.internal.view.MPEditText;
 import com.mercadopago.android.px.internal.view.MPTextView;
 import com.mercadopago.android.px.model.Card;
@@ -102,13 +99,27 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        final Session session = Session.getInstance();
+        final PaymentSettingRepository paymentSettings = session.getConfigurationModule().getPaymentSettings();
+        presenter = new SecurityCodePresenter(paymentSettings, session.getCardTokenRepository(),
+            session.getMercadoPagoESC());
+
         if (savedInstanceState == null) {
-            createPresenter();
             getActivityParameters();
-            configurePresenter();
-            setContentView();
-            presenter.initialize();
+        } else {
+            presenter.setToken(paymentSettings.getToken());
+            presenter.setCard(session.getConfigurationModule().getUserSelectionRepository().getCard());
+            presenter
+                .setPaymentMethod(session.getConfigurationModule().getUserSelectionRepository().getPaymentMethod());
+            presenter.setCardInfo((CardInfo) savedInstanceState.getSerializable(CARD_INFO_BUNDLE));
+            presenter
+                .setPaymentRecovery((PaymentRecovery) savedInstanceState.getSerializable(PAYMENT_RECOVERY_BUNDLE));
+            presenter.recoverFromBundle(savedInstanceState);
         }
+
+        setContentView(R.layout.px_activity_security_code);
+        presenter.attachView(this);
+        presenter.initialize();
     }
 
     @Override
@@ -121,28 +132,9 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            final Session session = Session.getInstance();
-            final PaymentSettingRepository paymentSettings = session.getConfigurationModule().getPaymentSettings();
-            presenter = new SecurityCodePresenter(paymentSettings, session.getCardTokenRepository(),
-                session.getMercadoPagoESC());
-
-            presenter.setToken(paymentSettings.getToken());
-            presenter.setCard(session.getConfigurationModule().getUserSelectionRepository().getCard());
-            presenter
-                .setPaymentMethod(session.getConfigurationModule().getUserSelectionRepository().getPaymentMethod());
-            presenter.setCardInfo((CardInfo) savedInstanceState.getSerializable(CARD_INFO_BUNDLE));
-            presenter
-                .setPaymentRecovery((PaymentRecovery) savedInstanceState.getSerializable(PAYMENT_RECOVERY_BUNDLE));
-            presenter.recoverFromBundle(savedInstanceState);
-
-            configurePresenter();
-            setContentView();
-            presenter.initialize();
-        }
-
-        super.onRestoreInstanceState(savedInstanceState);
+    protected void onDestroy() {
+        super.onDestroy();
+        presenter.detachView();
     }
 
     @Override
@@ -150,22 +142,7 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
         ErrorUtil.showApiExceptionError(this, exception, requestOrigin);
     }
 
-    private void createPresenter() {
-        if (presenter == null) {
-            final Session session = Session.getInstance();
-            presenter = new SecurityCodePresenter(session.getConfigurationModule().getPaymentSettings(),
-                session.getCardTokenRepository(), session.getMercadoPagoESC());
-        }
-    }
-
-    private void configurePresenter() {
-        if (presenter != null) {
-            presenter.attachView(this);
-        }
-    }
-
     private void getActivityParameters() {
-
         final CardInfo cardInfo =
             JsonUtil.getInstance().fromJson(getIntent().getStringExtra(EXTRA_CARD_INFO), CardInfo.class);
         final Card card = JsonUtil.getInstance().fromJson(getIntent().getStringExtra(EXTRA_CARD), Card.class);
@@ -183,10 +160,6 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
         presenter.setCardInfo(cardInfo);
         presenter.setPaymentRecovery(paymentRecovery);
         presenter.setReason(reason);
-    }
-
-    public void setContentView() {
-        setContentView(R.layout.px_activity_security_code);
     }
 
     private void initializeControls() {
@@ -247,18 +220,10 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
 
     @Override
     public void showLoadingView() {
-        hideKeyboard();
+        ViewUtils.hideKeyboard(this);
         mProgressLayout.setVisibility(View.VISIBLE);
         mNextButton.setVisibility(View.INVISIBLE);
         mBackButton.setVisibility(View.INVISIBLE);
-    }
-
-    private void hideKeyboard() {
-        View view = getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
     }
 
     @Override
@@ -292,6 +257,7 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
         initializeControls();
         presenter.initializeSettings();
         loadViews();
+        ViewUtils.openKeyboard(mSecurityCodeEditText);
     }
 
     @Override
@@ -321,33 +287,26 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     }
 
     @Override
-    public void setSecurityCodeInputMaxLength(int length) {
+    public void setSecurityCodeInputMaxLength(final int length) {
         setInputMaxLength(mSecurityCodeEditText, length);
     }
 
-    private void setInputMaxLength(MPEditText text, int maxLength) {
-        InputFilter[] fArray = new InputFilter[1];
+    private void setInputMaxLength(final MPEditText text, final int maxLength) {
+        final InputFilter[] fArray = new InputFilter[1];
         fArray[0] = new InputFilter.LengthFilter(maxLength);
         text.setFilters(fArray);
     }
 
     private void setSecurityCodeListeners() {
-        mSecurityCodeEditText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                onTouchEditText(mSecurityCodeEditText, event);
-                return true;
-            }
-        });
         mSecurityCodeEditText
             .addTextChangedListener(new CardSecurityCodeTextWatcher(new CardSecurityCodeEditTextCallback() {
                 @Override
                 public void checkOpenKeyboard() {
-                    openKeyboard(mSecurityCodeEditText);
+                    ViewUtils.openKeyboard(mSecurityCodeEditText);
                 }
 
                 @Override
-                public void saveSecurityCode(CharSequence s) {
+                public void saveSecurityCode(final CharSequence s) {
                     presenter.saveSecurityCode(s.toString());
                     mCardView.setSecurityCodeLocation(presenter.getSecurityCodeLocation());
                     mCardView.drawEditingSecurityCode(s.toString());
@@ -359,19 +318,14 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
                 }
 
                 @Override
-                public void toggleLineColorOnError(boolean toggle) {
+                public void toggleLineColorOnError(final boolean toggle) {
                     mSecurityCodeEditText.toggleLineColorOnError(toggle);
                 }
             }));
-        mSecurityCodeEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                return onNextKey(actionId, event);
-            }
-        });
+        mSecurityCodeEditText.setOnEditorActionListener((v, actionId, event) -> onNextKey(actionId, event));
     }
 
-    private boolean onNextKey(int actionId, KeyEvent event) {
+    private boolean onNextKey(final int actionId, final KeyEvent event) {
         if (isNextKey(actionId, event)) {
             presenter.validateSecurityCodeInput();
             return true;
@@ -379,7 +333,7 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
         return false;
     }
 
-    private boolean isNextKey(int actionId, KeyEvent event) {
+    private boolean isNextKey(final int actionId, final KeyEvent event) {
         return actionId == EditorInfo.IME_ACTION_NEXT ||
             (event != null && event.getAction() == KeyEvent.ACTION_DOWN
                 && event.getKeyCode() == KeyEvent.KEYCODE_ENTER);
@@ -391,39 +345,29 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
     }
 
     private void setNextButtonListeners() {
-        mNextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                presenter.validateSecurityCodeInput();
-            }
-        });
+        mNextButton.setOnClickListener(v -> presenter.validateSecurityCodeInput());
     }
 
     public void setBackButtonListeners() {
-        mBackButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackButtonPressed();
-            }
-        });
+        mBackButton.setOnClickListener(v -> onBackButtonPressed());
     }
 
-    private void setErrorState(String mErrorState) {
+    private void setErrorState(final String mErrorState) {
         this.mErrorState = mErrorState;
     }
 
     @Override
-    public void setErrorView(CardTokenException exception) {
+    public void setErrorView(final CardTokenException exception) {
         mSecurityCodeEditText.toggleLineColorOnError(true);
         mButtonContainer.setVisibility(View.GONE);
         mErrorContainer.setVisibility(View.VISIBLE);
-        String errorText = ExceptionHandler.getErrorMessage(this, exception);
+        final String errorText = ExceptionHandler.getErrorMessage(this, exception);
         mErrorTextView.setText(errorText);
         setErrorState(ERROR_STATE);
     }
 
     @Override
-    public void showError(MercadoPagoError error, String requestOrigin) {
+    public void showError(final MercadoPagoError error, final String requestOrigin) {
         if (error.isApiException()) {
             showApiExceptionError(error.getApiException(), requestOrigin);
         } else {
@@ -438,19 +382,6 @@ public class SecurityCodeActivity extends PXActivity<SecurityCodePresenter> impl
         mErrorContainer.setVisibility(View.GONE);
         mErrorTextView.setText("");
         setErrorState(NORMAL_STATE);
-    }
-
-    private void onTouchEditText(MPEditText editText, MotionEvent event) {
-        int action = MotionEventCompat.getActionMasked(event);
-        if (action == MotionEvent.ACTION_DOWN) {
-            openKeyboard(editText);
-        }
-    }
-
-    private void openKeyboard(MPEditText ediText) {
-        ediText.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(ediText, InputMethodManager.SHOW_IMPLICIT);
     }
 
     @Override

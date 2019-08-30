@@ -5,7 +5,6 @@ import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.datasource.cache.GroupsCache;
-import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.repository.GroupsRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.services.CheckoutService;
@@ -18,6 +17,7 @@ import com.mercadopago.android.px.model.exceptions.ApiException;
 import com.mercadopago.android.px.model.internal.PaymentMethodSearchBody;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.services.Callback;
+import com.mercadopago.android.px.tracking.internal.MPTracker;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -78,6 +78,7 @@ public class GroupsService implements GroupsRepository {
                 return new Callback<PaymentMethodSearch>() {
                     @Override
                     public void success(final PaymentMethodSearch paymentMethodSearch) {
+                        MPTracker.getInstance().hasExpressCheckout(paymentMethodSearch.hasExpressCheckoutMetadata());
                         groupsCache.put(paymentMethodSearch);
                         callback.success(paymentMethodSearch);
                     }
