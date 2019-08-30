@@ -1,5 +1,6 @@
 package com.mercadopago.android.px.internal.core;
 
+import android.support.annotation.Keep;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -13,8 +14,9 @@ import javax.net.ssl.SSLSocketFactory;
  * Source: http://blog.dev-area.net/2015/08/13/android-4-1-enable-tls-1-2/
  */
 public class TLSSocketFactory extends SSLSocketFactory {
-    private static final String[] TLS_V12 = { "TLSv1.2" };
+    @SuppressWarnings("PMD.ImmutableField")
     private SSLSocketFactory delegate;
+    private static final String[] TLS_V12 = { "TLSv1.2" };
 
     public TLSSocketFactory(final SSLSocketFactory baseSSlSocketFactory) {
         this.delegate = baseSSlSocketFactory;

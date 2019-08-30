@@ -27,7 +27,5 @@
 -keep class com.mercadopago.android.px.model.** { *; } #dtos
 -keep class com.mercadopago.android.px.preferences.** { *; } #dtos
 
--keep class com.mercadopago.android.px.internal.core.TLSSocketFactory { *; } #socketCreator
-
 -dontnote com.mercadopago.android.px.model.**
 -dontnote com.mercadopago.android.px.preferences.**
