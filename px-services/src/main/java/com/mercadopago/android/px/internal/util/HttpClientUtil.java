@@ -155,14 +155,6 @@ public final class HttpClientUtil {
         client = internalEnableTLS12(builderClient).build();
     }
 
-    /**
-     * Intended for testing proposes.
-     */
-    @VisibleForTesting
-    public static void removeClient() {
-        client = null;
-    }
-
     private static boolean clientDontExist() {
         return client == null;
     }
