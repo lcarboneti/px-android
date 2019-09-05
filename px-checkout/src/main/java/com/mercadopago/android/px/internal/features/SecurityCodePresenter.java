@@ -3,10 +3,10 @@ package com.mercadopago.android.px.internal.features;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.features.uicontrollers.card.CardView;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -33,7 +33,7 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
 
     @NonNull /* default */ final PaymentSettingRepository paymentSettingRepository;
     @NonNull private final CardTokenRepository cardTokenRepository;
-    @NonNull private final IESCManager escManager;
+    @NonNull private final ESCManagerBehaviour escManagerBehaviour;
     private FailureRecovery mFailureRecovery;
 
     //Card Info
@@ -52,10 +52,10 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
 
     public SecurityCodePresenter(@NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final CardTokenRepository cardTokenRepository,
-        @NonNull final IESCManager escManager) {
+        @NonNull final ESCManagerBehaviour escManagerBehaviour) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.cardTokenRepository = cardTokenRepository;
-        this.escManager = escManager;
+        this.escManagerBehaviour = escManagerBehaviour;
     }
 
     public void setPaymentMethod(final PaymentMethod paymentMethod) {
@@ -250,11 +250,11 @@ public class SecurityCodePresenter extends BasePresenter<SecurityCodeActivityVie
     }
 
     private boolean isSavedCardWithESC() {
-        return card != null && escManager.isESCEnabled();
+        return card != null && escManagerBehaviour.isESCEnabled();
     }
 
     private boolean isSavedCardWithoutESC() {
-        return card != null && !escManager.isESCEnabled();
+        return card != null && !escManagerBehaviour.isESCEnabled();
     }
 
     private boolean validateSecurityCodeFromToken() throws CardTokenException {

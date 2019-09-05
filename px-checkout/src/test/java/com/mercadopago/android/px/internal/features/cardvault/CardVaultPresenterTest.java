@@ -1,7 +1,7 @@
 package com.mercadopago.android.px.internal.features.cardvault;
 
 import android.content.Intent;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -42,7 +42,7 @@ public class CardVaultPresenterTest {
     @Mock private UserSelectionRepository userSelectionRepository;
     @Mock private AmountConfigurationRepository amountConfigurationRepository;
     @Mock private CardTokenRepository cardTokenRepository;
-    @Mock private IESCManager iESCManager;
+    @Mock private ESCManagerBehaviour escManagerBehaviour;
     @Mock private AmountConfiguration amountConfiguration;
     @Mock private CardVault.View view;
 
@@ -50,7 +50,7 @@ public class CardVaultPresenterTest {
     public void setUp() {
         when(amountConfigurationRepository.getCurrentConfiguration()).thenReturn(amountConfiguration);
 
-        presenter = new CardVaultPresenter(userSelectionRepository, paymentSettingRepository, iESCManager,
+        presenter = new CardVaultPresenter(userSelectionRepository, paymentSettingRepository, escManagerBehaviour,
             amountConfigurationRepository, cardTokenRepository);
 
         presenter.setPaymentRecovery(null);
@@ -111,7 +111,7 @@ public class CardVaultPresenterTest {
     public void whenGuessingCardHasInstallmentSelectedAndWithoutTokenThenStartSecurityCodeFlow() {
         configureMockedCard();
         final Card card = userSelectionRepository.getCard();
-        when(iESCManager.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
+        when(escManagerBehaviour.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
             .thenReturn(TextUtil.EMPTY);
 
         presenter.resolveInstallmentsRequest();
@@ -167,7 +167,7 @@ public class CardVaultPresenterTest {
     public void verifyResolvesOnSelectedPayerCostPayerCostListWithoutESC() {
         configureMockedCard();
         final Card card = userSelectionRepository.getCard();
-        when(iESCManager.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
+        when(escManagerBehaviour.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
             .thenReturn(TextUtil.EMPTY);
         when(userSelectionRepository.getPayerCost()).thenReturn(mock(PayerCost.class));
 
@@ -185,7 +185,7 @@ public class CardVaultPresenterTest {
 
         when(cardTokenRepository.createToken(savedESCCardToken))
             .thenReturn(new StubSuccessMpCall<>(mock(Token.class)));
-        when(iESCManager.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
+        when(escManagerBehaviour.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
             .thenReturn("1");
         when(userSelectionRepository.getPayerCost()).thenReturn(mock(PayerCost.class));
 
@@ -200,7 +200,7 @@ public class CardVaultPresenterTest {
     public void whenOnlyOnePayerCostThenSelectsAndAsksForSecCode() {
         configureMockedCard();
         final Card card = userSelectionRepository.getCard();
-        when(iESCManager.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
+        when(escManagerBehaviour.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()))
             .thenReturn(TextUtil.EMPTY);
         final List<PayerCost> payerCosts = Collections.singletonList(mock(PayerCost.class));
         when(amountConfiguration.getPayerCosts()).thenReturn(payerCosts);

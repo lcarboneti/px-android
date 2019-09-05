@@ -1,10 +1,12 @@
 package com.mercadopago.android.px.internal.features.review_and_confirm;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
+import com.mercadopago.android.px.addons.SecurityBehaviour;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.CustomStringConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
+import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecorator;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
@@ -51,7 +53,7 @@ public class ReviewAndConfirmPresenterTest {
 
     private ReviewAndConfirmPresenter reviewAndConfirmPresenter;
 
-    @Mock private IESCManager IESCManager;
+    @Mock private ESCManagerBehaviour escManagerBehaviour;
 
     @Mock private PaymentSettingRepository paymentSettingRepository;
 
@@ -64,6 +66,12 @@ public class ReviewAndConfirmPresenterTest {
     @Mock private DynamicDialogConfiguration dynamicDialogConfiguration;
     @Mock private DiscountRepository discountRepository;
 
+    @Mock
+    private ProductIdProvider productIdProvider;
+
+    @Mock
+    private SecurityBehaviour securityBehaviour;
+
     @Before
     public void setUp() {
         when(paymentSettingRepository.getCheckoutPreference()).thenReturn(checkoutPreference);
@@ -72,10 +80,9 @@ public class ReviewAndConfirmPresenterTest {
         when(advancedConfiguration.getCustomStringConfiguration()).thenReturn(mock(CustomStringConfiguration.class));
         when(userSelectionRepository.getPaymentMethod()).thenReturn(paymentMethod);
         reviewAndConfirmPresenter =
-            new ReviewAndConfirmPresenter(paymentRepository, businessModelMapper,
-                discountRepository, paymentSettingRepository,
-                userSelectionRepository,
-                IESCManager);
+            new ReviewAndConfirmPresenter(paymentRepository, businessModelMapper, discountRepository,
+                paymentSettingRepository, userSelectionRepository, escManagerBehaviour, productIdProvider,
+                securityBehaviour);
 
         verifyAttachView();
     }
@@ -209,6 +216,15 @@ public class ReviewAndConfirmPresenterTest {
         verifyPaymentExplodingCompatible();
         verifyNoMoreInteractions(view);
         verifyNoMoreInteractions(paymentRepository);
+    }
+
+    @Test
+    public void whenSecuredPaymentWithSecurityThenStartValidationFlow() {
+        reviewAndConfirmPresenter.startSecuredPayment();
+        verify(productIdProvider).getProductId();
+        verify(view).startSecurityValidation(any());
+        verifyNoMoreInteractions(productIdProvider);
+        verifyNoMoreInteractions(view);
     }
 
     @Test

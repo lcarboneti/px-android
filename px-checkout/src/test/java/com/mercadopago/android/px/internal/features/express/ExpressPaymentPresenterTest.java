@@ -1,10 +1,12 @@
 package com.mercadopago.android.px.internal.features.express;
 
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
+import com.mercadopago.android.px.addons.SecurityBehaviour;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.CustomStringConfiguration;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
+import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.features.express.slider.HubAdapter;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.AmountRepository;
@@ -41,6 +43,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -100,7 +103,13 @@ public class ExpressPaymentPresenterTest {
     private ChargeRepository chargeRepository;
 
     @Mock
-    private IESCManager escManager;
+    private ESCManagerBehaviour escManagerBehaviour;
+
+    @Mock
+    private ProductIdProvider productIdProvider;
+
+    @Mock
+    private SecurityBehaviour securityBehaviour;
 
     private ExpressPaymentPresenter expressPaymentPresenter;
 
@@ -129,7 +138,7 @@ public class ExpressPaymentPresenterTest {
             new ExpressPaymentPresenter(paymentRepository, configuration, disabledPaymentMethodRepository,
                 discountRepository,
                 amountRepository, groupsRepository, amountConfigurationRepository, chargeRepository,
-                escManager);
+                escManagerBehaviour, productIdProvider, securityBehaviour);
 
         verifyAttachView();
     }
@@ -203,16 +212,28 @@ public class ExpressPaymentPresenterTest {
     @Test
     public void whenPayerCostSelectedThenItsReflectedOnView() {
         final int paymentMethodIndex = 0;
+        final int selectedPayerCostIndex = mockPayerCosts();
+
+        verify(view).updateViewForPosition(eq(paymentMethodIndex), eq(selectedPayerCostIndex), any());
+        verify(view).collapseInstallmentsSelection();
+        verifyNoMoreInteractions(view);
+    }
+
+    @Test
+    public void whenConfirmPaymentWithSecurityThenStartSecurityValidation() {
+        expressPaymentPresenter.startSecuredPayment();
+        verify(view).startSecurityValidation(any());
+        verifyNoMoreInteractions(view);
+    }
+
+    private int mockPayerCosts() {
         final int selectedPayerCostIndex = 1;
         final PayerCost firstPayerCost = mock(PayerCost.class);
         final List<PayerCost> payerCostList =
             Arrays.asList(mock(PayerCost.class), firstPayerCost, mock(PayerCost.class));
         when(amountConfiguration.getAppliedPayerCost(false)).thenReturn(payerCostList);
         expressPaymentPresenter.onPayerCostSelected(payerCostList.get(selectedPayerCostIndex));
-
-        verify(view).updateViewForPosition(eq(paymentMethodIndex), eq(selectedPayerCostIndex), any());
-        verify(view).collapseInstallmentsSelection();
-        verifyNoMoreInteractions(view);
+        return selectedPayerCostIndex;
     }
 
     private void verifyAttachView() {

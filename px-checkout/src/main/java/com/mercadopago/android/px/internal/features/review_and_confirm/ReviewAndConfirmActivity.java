@@ -21,6 +21,8 @@ import android.widget.LinearLayout;
 import com.mercadolibre.android.ui.widgets.MeliButton;
 import com.mercadolibre.android.ui.widgets.MeliSnackbar;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.addons.internal.PXApplicationBehaviourProvider;
+import com.mercadopago.android.px.addons.model.SecurityValidationData;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.ReviewAndConfirmConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
@@ -39,7 +41,6 @@ import com.mercadopago.android.px.internal.features.review_and_confirm.component
 import com.mercadopago.android.px.internal.features.review_and_confirm.components.actions.CancelPaymentAction;
 import com.mercadopago.android.px.internal.features.review_and_confirm.components.actions.ChangePayerInformationAction;
 import com.mercadopago.android.px.internal.features.review_and_confirm.components.actions.ChangePaymentMethodAction;
-import com.mercadopago.android.px.internal.features.review_and_confirm.components.actions.ConfirmPaymentAction;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.ItemsModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.PaymentModel;
 import com.mercadopago.android.px.internal.features.review_and_confirm.models.SummaryModel;
@@ -76,7 +77,8 @@ import static com.mercadopago.android.px.internal.features.Constants.RESULT_SILE
 public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmPresenter> implements
     ReviewAndConfirm.View, ActionDispatcher, ExplodingFragment.ExplodingAnimationListener {
 
-    private static final int REQ_CARD_VAULT = 0x01;
+    private static final int REQ_CODE_CARD_VAULT = 1;
+    private static final int REQ_CODE_BIOMETRICS = 2;
 
     private static final String EXTRA_TERMS_AND_CONDITIONS = "extra_terms_and_conditions";
     private static final String EXTRA_DISPLAY_INFO_LINKABLE_TEXT =
@@ -137,7 +139,9 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
                 session.getDiscountRepository(),
                 session.getConfigurationModule().getPaymentSettings(),
                 session.getConfigurationModule().getUserSelectionRepository(),
-                session.getMercadoPagoESC());
+                session.getMercadoPagoESC(),
+                session.getProductIdProvider(),
+                PXApplicationBehaviourProvider.getSecurityBehaviour());
             presenter.attachView(this);
         } catch (final Exception e) {
             FrictionEventTracker.with(ReviewAndConfirmViewTracker.PATH,
@@ -199,8 +203,11 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-        case REQ_CARD_VAULT:
+        case REQ_CODE_CARD_VAULT:
             getWindow().getDecorView().post(() -> resolveCardVaultRequest(resultCode, data));
+            break;
+        case REQ_CODE_BIOMETRICS:
+            handleBiometricsResult(resultCode);
             break;
         case ErrorUtil.ERROR_REQUEST_CODE:
             getWindow().getDecorView().post(() -> resolveErrorRequest(resultCode, data));
@@ -211,6 +218,14 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
         default:
             //Do nothing
             break;
+        }
+    }
+
+    private void handleBiometricsResult(final int resultCode) {
+        if (resultCode == RESULT_OK) {
+            presenter.onPaymentConfirm();
+        } else {
+            presenter.trackSecurityFriction();
         }
     }
 
@@ -258,7 +273,7 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
 
     private void initFloatingButton(final ViewGroup scrollView, @Nullable final LinkableText linkableText) {
         floatingLayout = findViewById(R.id.floating_layout);
-        confirmButton.setOnClickListener(v -> presenter.onPaymentConfirm());
+        confirmButton.setOnClickListener(v -> presenter.startSecuredPayment());
 
         if (linkableText != null) {
             final LinkableTextComponent linkableTextComponent = new LinkableTextComponent(linkableText);
@@ -266,6 +281,11 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
         }
 
         configureFloatingBehaviour(scrollView, floatingLayout);
+    }
+
+    @Override
+    public void startSecurityValidation(@NonNull final SecurityValidationData data) {
+        PXApplicationBehaviourProvider.getSecurityBehaviour().startValidation(this, data, REQ_CODE_BIOMETRICS);
     }
 
     private void configureFloatingBehaviour(final ViewGroup scrollView, final View floatingConfirmLayout) {
@@ -385,8 +405,6 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
             onBackPressed();
         } else if (action instanceof ChangePayerInformationAction) {
             changePayerInformation();
-        } else if (action instanceof ConfirmPaymentAction) {
-            presenter.onPaymentConfirm();
         } else if (action instanceof ExitAction) {
             processCustomExit((ExitAction) action);
         } else {
@@ -433,13 +451,13 @@ public final class ReviewAndConfirmActivity extends PXActivity<ReviewAndConfirmP
     // Opens CVV screen
     @Override
     public void showCardCVVRequired(@NonNull final Card card) {
-        CardVaultActivity.startActivity(this, REQ_CARD_VAULT);
+        CardVaultActivity.startActivity(this, REQ_CODE_CARD_VAULT);
     }
 
     // Opens Card vault with recovery info.
     @Override
     public void startPaymentRecoveryFlow(final PaymentRecovery recovery) {
-        CardVaultActivity.startActivityForRecovery(this, REQ_CARD_VAULT, recovery);
+        CardVaultActivity.startActivityForRecovery(this, REQ_CODE_CARD_VAULT, recovery);
     }
 
     @Override

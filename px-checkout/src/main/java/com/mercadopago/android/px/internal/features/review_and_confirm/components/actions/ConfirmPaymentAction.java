@@ -5,7 +5,7 @@ import com.mercadopago.android.px.model.Action;
 /**
  * Created by lbais on 2/3/18.
  */
-
+@Deprecated
 public class ConfirmPaymentAction extends Action {
 
 }

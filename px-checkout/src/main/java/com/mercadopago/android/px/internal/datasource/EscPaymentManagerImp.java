@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.datasource;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.repository.EscPaymentManager;
 import com.mercadopago.android.px.internal.util.EscUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
@@ -11,9 +12,9 @@ import java.util.List;
 
 public class EscPaymentManagerImp implements EscPaymentManager {
 
-    @NonNull private final IESCManager escManager;
+    @NonNull private final ESCManagerBehaviour escManager;
 
-    public EscPaymentManagerImp(@NonNull final IESCManager escManager) {
+    public EscPaymentManagerImp(@NonNull final ESCManagerBehaviour escManager) {
         this.escManager = escManager;
     }
 

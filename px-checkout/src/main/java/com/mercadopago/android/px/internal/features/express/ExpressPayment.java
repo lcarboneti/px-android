@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.features.express;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.model.SecurityValidationData;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
@@ -46,6 +47,8 @@ public interface ExpressPayment {
 
         void showPaymentResult(@NonNull final IPaymentDescriptor paymentResult);
 
+        void startSecurityValidation(@NonNull SecurityValidationData data);
+
         void startPayment();
 
         void enableToolbarBack();
@@ -80,7 +83,11 @@ public interface ExpressPayment {
 
         void trackExpressView();
 
+        void startSecuredPayment();
+
         void confirmPayment();
+
+        void trackSecurityFriction();
 
         void cancel();
 

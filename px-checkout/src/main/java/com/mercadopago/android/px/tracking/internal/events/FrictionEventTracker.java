@@ -71,6 +71,12 @@ public class FrictionEventTracker extends EventTracker {
         return new FrictionEventTracker(view.getViewPath(), id, style);
     }
 
+    public static EventTracker with(@NonNull final String path,
+        @NonNull final Id fId,
+        @NonNull final Style style) {
+        return new FrictionEventTracker(path, fId, style);
+    }
+
     public enum Id {
 
         GENERIC("px_generic_error"),

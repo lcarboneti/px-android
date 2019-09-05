@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.datasource;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
@@ -19,18 +20,18 @@ import com.mercadopago.android.px.services.Callback;
 public class CardTokenService implements CardTokenRepository {
 
     /* default */ @NonNull final PaymentSettingRepository paymentSettingRepository;
-    /* default */ @NonNull final IESCManager escManager;
+    /* default */ @NonNull final ESCManagerBehaviour escManagerBehaviour;
     @NonNull private final Device device;
     @NonNull private final GatewayService gatewayService;
 
     public CardTokenService(@NonNull final GatewayService gatewayService,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
         @NonNull final Device device,
-        @NonNull final IESCManager escManager) {
+        @NonNull final ESCManagerBehaviour escManagerBehaviour) {
         this.gatewayService = gatewayService;
         this.paymentSettingRepository = paymentSettingRepository;
         this.device = device;
-        this.escManager = escManager;
+        this.escManagerBehaviour = escManagerBehaviour;
     }
 
     /* default */ Callback<Token> wrap(@NonNull final CardToken card, final Callback<Token> callback) {
@@ -38,7 +39,7 @@ public class CardTokenService implements CardTokenRepository {
         return new Callback<Token>() {
             @Override
             public void success(final Token token) {
-                escManager.saveESCWith(cardInfo.getFirstSixDigits(), cardInfo.getLastFourDigits(), token.getEsc());
+                escManagerBehaviour.saveESCWith(cardInfo.getFirstSixDigits(), cardInfo.getLastFourDigits(), token.getEsc());
                 paymentSettingRepository.configure(token);
                 callback.success(token);
             }
@@ -47,7 +48,7 @@ public class CardTokenService implements CardTokenRepository {
             public void failure(final ApiException apiException) {
                 if (EscUtil.isInvalidEscForApiException(apiException)) {
                     paymentSettingRepository.configure((Token) null);
-                    escManager.deleteESCWith(cardInfo.getFirstSixDigits(), cardInfo.getLastFourDigits());
+                    escManagerBehaviour.deleteESCWith(cardInfo.getFirstSixDigits(), cardInfo.getLastFourDigits());
                 }
 
                 callback.failure(apiException);
@@ -59,7 +60,7 @@ public class CardTokenService implements CardTokenRepository {
     @Override
     public MPCall<Token> createTokenAsync(final CardToken cardToken) {
         cardToken.setDevice(device);
-        cardToken.setRequireEsc(escManager.isESCEnabled());
+        cardToken.setRequireEsc(escManagerBehaviour.isESCEnabled());
         return new MPCall<Token>() {
             @Override
             public void enqueue(final Callback<Token> callback) {

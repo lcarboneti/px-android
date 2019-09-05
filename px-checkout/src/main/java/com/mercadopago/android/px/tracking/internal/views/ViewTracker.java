@@ -17,9 +17,9 @@ public abstract class ViewTracker {
     public final void track() {
         final String viewPath = getViewPath();
         final Map<String, Object> data = getData();
+        MPTracker.getInstance().trackView(viewPath, data);
         Logger.debug(TAG, viewPath);
         Logger.debug(TAG, data.toString());
-        MPTracker.getInstance().trackView(viewPath, data);
     }
 
     @NonNull

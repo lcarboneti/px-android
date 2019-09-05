@@ -4,6 +4,10 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
+import com.mercadopago.android.px.addons.internal.ESCManagerBehaviourProvider;
+import com.mercadopago.android.px.addons.internal.PXApplicationBehaviourProvider;
+import com.mercadopago.android.px.addons.model.SecurityValidationData;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
 import com.mercadopago.android.px.configuration.PaymentConfiguration;
 import com.mercadopago.android.px.core.MercadoPagoCheckout;
@@ -19,14 +23,12 @@ import com.mercadopago.android.px.internal.datasource.CheckoutPreferenceService;
 import com.mercadopago.android.px.internal.datasource.DiscountServiceImp;
 import com.mercadopago.android.px.internal.datasource.EscPaymentManagerImp;
 import com.mercadopago.android.px.internal.datasource.GroupsService;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.datasource.IdentificationService;
 import com.mercadopago.android.px.internal.datasource.InstructionsService;
 import com.mercadopago.android.px.internal.datasource.IssuersServiceImp;
 import com.mercadopago.android.px.internal.datasource.PaymentMethodsService;
 import com.mercadopago.android.px.internal.datasource.PaymentService;
 import com.mercadopago.android.px.internal.datasource.PluginService;
-import com.mercadopago.android.px.internal.datasource.ReflectiveESCManager;
 import com.mercadopago.android.px.internal.datasource.SummaryAmountService;
 import com.mercadopago.android.px.internal.datasource.TokenizeService;
 import com.mercadopago.android.px.internal.datasource.cache.GroupsCache;
@@ -120,15 +122,17 @@ public final class Session extends ApplicationModule implements AmountComponent 
         // delete old data.
         clear();
 
-        final SessionIdProvider sessionIdProvider =
-            newSessionProvider(mercadoPagoCheckout.getTrackingConfiguration().getSessionId());
-        MPTracker.getInstance().setSessionId(sessionIdProvider.getSessionId());
-
         //Favoring product id in discount params because that one is surely custom if exists
         final String deprecatedProductId =
             mercadoPagoCheckout.getAdvancedConfiguration().getDiscountParamsConfiguration().getProductId();
-        newProductIdProvider(TextUtil.isNotEmpty(deprecatedProductId) ? deprecatedProductId :
-            mercadoPagoCheckout.getAdvancedConfiguration().getProductId());
+        final String productId = TextUtil.isNotEmpty(deprecatedProductId) ? deprecatedProductId
+            : mercadoPagoCheckout.getAdvancedConfiguration().getProductId();
+        final SessionIdProvider sessionIdProvider =
+            newSessionProvider(mercadoPagoCheckout.getTrackingConfiguration().getSessionId());
+        MPTracker.getInstance().setSessionId(sessionIdProvider.getSessionId());
+        MPTracker.getInstance().setSecurityEnabled(PXApplicationBehaviourProvider.getSecurityBehaviour()
+            .isSecurityEnabled(new SecurityValidationData.Builder().setFlowId(productId).build()));
+        newProductIdProvider(productId);
 
         // Store persistent paymentSetting
         final ConfigurationModule configurationModule = getConfigurationModule();
@@ -202,10 +206,10 @@ public final class Session extends ApplicationModule implements AmountComponent 
     }
 
     @NonNull
-    public IESCManager getMercadoPagoESC() {
+    public ESCManagerBehaviour getMercadoPagoESC() {
         final PaymentSettingRepository paymentSettings = getConfigurationModule().getPaymentSettings();
-        return new ReflectiveESCManager(getApplicationContext(), getSessionIdProvider().getSessionId(),
-            paymentSettings.getAdvancedConfiguration().isEscEnabled());
+        return ESCManagerBehaviourProvider
+            .get(getSessionIdProvider().getSessionId(), paymentSettings.getAdvancedConfiguration().isEscEnabled());
     }
 
     @NonNull

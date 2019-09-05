@@ -3,9 +3,9 @@ package com.mercadopago.android.px.internal.features.payment_vault;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.datasource.PaymentVaultTitleSolver;
 import com.mercadopago.android.px.internal.features.uicontrollers.AmountRowController;
 import com.mercadopago.android.px.internal.navigation.DefaultPayerInformationDriver;
@@ -49,7 +49,7 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
     private final DiscountRepository discountRepository;
     @NonNull
     private final GroupsRepository groupsRepository;
-    @NonNull private final IESCManager IESCManager;
+    @NonNull private final ESCManagerBehaviour escManagerBehaviour;
     @NonNull private final PaymentVaultTitleSolver titleSolver;
     /* default */ PaymentMethodSearch paymentMethodSearch;
     @NonNull private DisabledPaymentMethodRepository disabledPaymentMethodRepository;
@@ -62,14 +62,14 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
         @NonNull final DisabledPaymentMethodRepository disabledPaymentMethodRepository,
         @NonNull final DiscountRepository discountRepository,
         @NonNull final GroupsRepository groupsRepository,
-        @NonNull final IESCManager IESCManager,
+        @NonNull final ESCManagerBehaviour escManagerBehaviour,
         @NonNull final PaymentVaultTitleSolver titleSolver) {
         this.paymentSettingRepository = paymentSettingRepository;
         this.userSelectionRepository = userSelectionRepository;
         this.discountRepository = discountRepository;
         this.groupsRepository = groupsRepository;
         this.disabledPaymentMethodRepository = disabledPaymentMethodRepository;
-        this.IESCManager = IESCManager;
+        this.escManagerBehaviour = escManagerBehaviour;
         this.titleSolver = titleSolver;
     }
 
@@ -332,7 +332,7 @@ public class PaymentVaultPresenter extends BasePresenter<PaymentVaultView> imple
 
     private void trackInitialScreen() {
         final SelectMethodView selectMethodView =
-            new SelectMethodView(paymentMethodSearch, IESCManager.getESCCardIds(),
+            new SelectMethodView(paymentMethodSearch, escManagerBehaviour.getESCCardIds(),
                 paymentSettingRepository.getCheckoutPreference());
         setCurrentViewTracker(selectMethodView);
     }

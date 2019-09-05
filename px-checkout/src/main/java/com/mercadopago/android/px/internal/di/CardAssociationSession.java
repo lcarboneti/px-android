@@ -3,12 +3,12 @@ package com.mercadopago.android.px.internal.di;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
+import com.mercadopago.android.px.addons.internal.ESCManagerBehaviourProvider;
 import com.mercadopago.android.px.internal.core.ApplicationModule;
 import com.mercadopago.android.px.internal.datasource.CardAssociationGatewayService;
 import com.mercadopago.android.px.internal.datasource.CardAssociationService;
 import com.mercadopago.android.px.internal.datasource.CardPaymentMethodService;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
-import com.mercadopago.android.px.internal.datasource.ReflectiveESCManager;
 import com.mercadopago.android.px.internal.repository.CardPaymentMethodRepository;
 import com.mercadopago.android.px.internal.services.CardService;
 import com.mercadopago.android.px.internal.services.GatewayService;
@@ -46,13 +46,14 @@ public final class CardAssociationSession extends ApplicationModule {
     }
 
     @NonNull
-    public IESCManager getMercadoPagoESC() {
-        return new ReflectiveESCManager(getApplicationContext(), getSessionIdProvider().getSessionId(), true);
+    public ESCManagerBehaviour getMercadoPagoESC() {
+        return ESCManagerBehaviourProvider.get(getSessionIdProvider().getSessionId(), true);
     }
 
     @NonNull
     public CardAssociationGatewayService getGatewayService() {
         return new CardAssociationGatewayService(
-            RetrofitUtil.getRetrofitClient(getApplicationContext()).create(GatewayService.class), new Device(getApplicationContext()));
+            RetrofitUtil.getRetrofitClient(getApplicationContext()).create(GatewayService.class),
+            new Device(getApplicationContext()));
     }
 }

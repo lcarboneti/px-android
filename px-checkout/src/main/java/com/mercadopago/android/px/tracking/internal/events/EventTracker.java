@@ -14,9 +14,9 @@ public abstract class EventTracker {
     public final void track() {
         final String eventPath = getEventPath();
         final Map<String, Object> eventData = getEventData();
+        MPTracker.getInstance().trackEvent(eventPath, eventData);
         Logger.debug(TAG, eventPath);
         Logger.debug(TAG, eventData.toString());
-        MPTracker.getInstance().trackEvent(eventPath, eventData);
     }
 
     @NonNull

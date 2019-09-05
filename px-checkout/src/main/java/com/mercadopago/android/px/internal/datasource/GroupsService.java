@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.datasource;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.DiscountParamsConfiguration;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.internal.core.ProductIdProvider;
@@ -31,18 +32,18 @@ public class GroupsService implements GroupsRepository {
     private static final String SEPARATOR = ",";
 
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
-    @NonNull private final IESCManager escManager;
+    @NonNull private final ESCManagerBehaviour escManagerBehaviour;
     @NonNull private final CheckoutService checkoutService;
     @NonNull private final String language;
     @NonNull private final ProductIdProvider productIdProvider;
     @NonNull /* default */ final GroupsCache groupsCache;
 
     public GroupsService(@NonNull final PaymentSettingRepository paymentSettingRepository,
-        @NonNull final IESCManager escManager, @NonNull final CheckoutService checkoutService,
+        @NonNull final ESCManagerBehaviour escManagerBehaviour, @NonNull final CheckoutService checkoutService,
         @NonNull final String language, @NonNull final ProductIdProvider productIdProvider,
         @NonNull final GroupsCache groupsCache) {
         this.paymentSettingRepository = paymentSettingRepository;
-        this.escManager = escManager;
+        this.escManagerBehaviour = escManagerBehaviour;
         this.checkoutService = checkoutService;
         this.language = language;
         this.productIdProvider = productIdProvider;
@@ -114,7 +115,7 @@ public class GroupsService implements GroupsRepository {
 
         final String excludedPaymentMethodsAppended =
             getListAsString(checkoutPreference.getExcludedPaymentMethods());
-        final String cardsWithEscAppended = getListAsString(new ArrayList<>(escManager.getESCCardIds()));
+        final String cardsWithEscAppended = getListAsString(new ArrayList<>(escManagerBehaviour.getESCCardIds()));
 
         final Integer differentialPricingId =
             checkoutPreference.getDifferentialPricing() != null ? checkoutPreference.getDifferentialPricing()

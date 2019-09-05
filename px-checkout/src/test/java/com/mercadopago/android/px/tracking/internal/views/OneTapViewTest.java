@@ -64,6 +64,7 @@ public class OneTapViewTest {
         data.put("flow_detail", Collections.EMPTY_MAP);
         data.put("session_time", 0L);
         data.put("checkout_type", "one_tap");
+        data.put("security_enabled", false);
         return data;
     }
 }

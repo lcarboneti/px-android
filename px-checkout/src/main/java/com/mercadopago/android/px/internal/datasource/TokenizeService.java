@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.datasource;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.callbacks.MPCall;
 import com.mercadopago.android.px.internal.repository.PaymentSettingRepository;
 import com.mercadopago.android.px.internal.repository.TokenRepository;
@@ -18,23 +19,23 @@ public class TokenizeService implements TokenRepository {
 
     @NonNull private final GatewayService gatewayService;
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
-    @NonNull private final IESCManager escManager;
+    @NonNull private final ESCManagerBehaviour escManagerBehaviour;
     @NonNull private final Device device;
 
     public TokenizeService(@NonNull final GatewayService gatewayService,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
-        @NonNull final IESCManager escManager,
+        @NonNull final ESCManagerBehaviour escManagerBehaviour,
         @NonNull final Device device) {
         this.gatewayService = gatewayService;
         this.paymentSettingRepository = paymentSettingRepository;
-        this.escManager = escManager;
+        this.escManagerBehaviour = escManagerBehaviour;
         this.device = device;
     }
 
     @Override
     public MPCall<Token> createToken(@NonNull final Card card) {
         return new MPCall<Token>() {
-            private final String esc = escManager.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits());
+            private final String esc = escManagerBehaviour.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits());
 
             @Override
             public void enqueue(final Callback<Token> callback) {
@@ -54,7 +55,7 @@ public class TokenizeService implements TokenRepository {
             public void success(final Token token) {
                 //TODO move to esc manager  / Token repo
                 token.setLastFourDigits(card.getLastFourDigits());
-                escManager.saveESCWith(card.getId(), token.getEsc());
+                escManagerBehaviour.saveESCWith(card.getId(), token.getEsc());
                 paymentSettingRepository.configure(token);
                 callback.success(token);
             }
@@ -64,7 +65,7 @@ public class TokenizeService implements TokenRepository {
                 //TODO move to esc manager  / Token repo
                 if (EscUtil.isInvalidEscForApiException(apiException)) {
                     paymentSettingRepository.configure((Token) null);
-                    escManager.deleteESCWith(card.getId());
+                    escManagerBehaviour.deleteESCWith(card.getId());
                     EscFrictionEventTracker.create(card.getId(), esc, apiException).track();
                 }
 

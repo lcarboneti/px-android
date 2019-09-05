@@ -3,12 +3,12 @@ package com.mercadopago.android.px.internal.features.guessing_card;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.core.internal.MercadoPagoCardStorage;
 import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
 import com.mercadopago.android.px.internal.controllers.PaymentMethodGuessingController;
 import com.mercadopago.android.px.internal.datasource.CardAssociationGatewayService;
 import com.mercadopago.android.px.internal.datasource.CardAssociationService;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.repository.CardPaymentMethodRepository;
 import com.mercadopago.android.px.internal.repository.IdentificationRepository;
 import com.mercadopago.android.px.internal.util.ApiUtil;
@@ -29,7 +29,7 @@ import static com.mercadopago.android.px.internal.util.ApiUtil.RequestOrigin.GET
 
 public class GuessingCardStoragePresenter extends GuessingCardPresenter {
 
-    /* default */ final IESCManager IESCManager;
+    /* default */ final ESCManagerBehaviour escManagerBehaviour;
     private final MercadoPagoCardStorage mercadoPagoCardStorage;
     private final CardPaymentMethodRepository cardPaymentMethodRepository;
     private final IdentificationRepository identificationRepository;
@@ -43,14 +43,14 @@ public class GuessingCardStoragePresenter extends GuessingCardPresenter {
         final CardPaymentMethodRepository cardPaymentMethodRepository,
         final IdentificationRepository identificationRepository,
         final CardAssociationService cardAssociationService,
-        final IESCManager IESCManager,
+        final ESCManagerBehaviour escManagerBehaviour,
         final CardAssociationGatewayService gatewayService) {
         super();
         this.mercadoPagoCardStorage = mercadoPagoCardStorage;
         this.cardPaymentMethodRepository = cardPaymentMethodRepository;
         this.identificationRepository = identificationRepository;
         this.cardAssociationService = cardAssociationService;
-        this.IESCManager = IESCManager;
+        this.escManagerBehaviour = escManagerBehaviour;
         this.gatewayService = gatewayService;
     }
 
@@ -227,7 +227,7 @@ public class GuessingCardStoragePresenter extends GuessingCardPresenter {
                 @Override
                 public void onSuccess(final Token token) {
                     if (token != null) {
-                        IESCManager.saveESCWith(token.getCardId(), token.getEsc());
+                        escManagerBehaviour.saveESCWith(token.getCardId(), token.getEsc());
                     }
 
                     if (isViewAttached()) {

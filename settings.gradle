@@ -1,1 +1,1 @@
-include ':px-checkout', ':example', ':px-services', ':px-testlib', ':testlib'
+include ':px-checkout', ':example', ':px-services', ':px-testlib', ':testlib', ':px-addons'

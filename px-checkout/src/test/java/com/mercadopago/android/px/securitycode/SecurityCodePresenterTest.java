@@ -1,6 +1,6 @@
 package com.mercadopago.android.px.securitycode;
 
-import com.mercadopago.android.px.internal.datasource.IESCManager;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.features.SecurityCodeActivityView;
 import com.mercadopago.android.px.internal.features.SecurityCodePresenter;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
@@ -42,7 +42,7 @@ public class SecurityCodePresenterTest {
     @Mock private PaymentSettingRepository paymentSettingRepository;
     @Mock private CardTokenRepository cardTokenRepository;
     @Mock private SecurityCodeActivityView view;
-    @Mock private IESCManager IESCManager;
+    @Mock private ESCManagerBehaviour escManagerBehaviour;
     @Mock private Card card;
     @Mock private PaymentRecovery paymentRecovery;
     @Mock CardInfo cardInfo;
@@ -213,7 +213,7 @@ public class SecurityCodePresenterTest {
     public void whenSaveCardWithESCEnabledThenCreateESCToken() {
         final SecurityCode securityCode = mock(SecurityCode.class);
         when(securityCode.getLength()).thenReturn(DUMMY_CVV.length());
-        when(IESCManager.isESCEnabled()).thenReturn(true);
+        when(escManagerBehaviour.isESCEnabled()).thenReturn(true);
         when(card.getSecurityCode()).thenReturn(securityCode);
         when(cardTokenRepository.createToken(any(SavedESCCardToken.class)))
             .thenReturn(new StubSuccessMpCall<>(stubToken));
@@ -231,7 +231,7 @@ public class SecurityCodePresenterTest {
         final ApiException apiException = mock(ApiException.class);
         final SecurityCode securityCode = mock(SecurityCode.class);
         when(securityCode.getLength()).thenReturn(DUMMY_CVV.length());
-        when(IESCManager.isESCEnabled()).thenReturn(true);
+        when(escManagerBehaviour.isESCEnabled()).thenReturn(true);
         when(card.getSecurityCode()).thenReturn(securityCode);
         when(cardTokenRepository.createToken(any(SavedESCCardToken.class)))
             .thenReturn(new StubFailMpCall<>(apiException));
@@ -269,7 +269,7 @@ public class SecurityCodePresenterTest {
         when(securityCode.getLength()).thenReturn(DUMMY_CVV.length());
         when(card.getId()).thenReturn(DUMMY_CARD_ID);
         when(card.getSecurityCode()).thenReturn(securityCode);
-        when(IESCManager.isESCEnabled()).thenReturn(false);
+        when(escManagerBehaviour.isESCEnabled()).thenReturn(false);
         when(cardTokenRepository.createToken(any(SavedCardToken.class))).thenReturn(new StubSuccessMpCall<>(stubToken));
 
         presenter.saveSecurityCode(DUMMY_CVV);
@@ -287,7 +287,7 @@ public class SecurityCodePresenterTest {
         when(securityCode.getLength()).thenReturn(DUMMY_CVV.length());
         when(card.getId()).thenReturn(DUMMY_CARD_ID);
         when(card.getSecurityCode()).thenReturn(securityCode);
-        when(IESCManager.isESCEnabled()).thenReturn(false);
+        when(escManagerBehaviour.isESCEnabled()).thenReturn(false);
         when(cardTokenRepository.createToken(any(SavedCardToken.class))).thenReturn(new StubFailMpCall<>(apiException));
 
         presenter.saveSecurityCode(DUMMY_CVV);
@@ -330,7 +330,7 @@ public class SecurityCodePresenterTest {
 
     private SecurityCodePresenter getBasePresenter(final SecurityCodeActivityView view) {
         final SecurityCodePresenter presenter = new SecurityCodePresenter(paymentSettingRepository, cardTokenRepository,
-            IESCManager);
+            escManagerBehaviour);
         presenter.attachView(view);
         return presenter;
     }

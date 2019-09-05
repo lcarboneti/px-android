@@ -1,6 +1,7 @@
 package com.mercadopago.android.px.internal.features.review_and_confirm;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.model.SecurityValidationData;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.MvpView;
 import com.mercadopago.android.px.internal.callbacks.PaymentServiceHandler;
@@ -51,9 +52,15 @@ public interface ReviewAndConfirm {
         void finishAndChangePaymentMethod();
 
         void setPayButtonText(@NonNull final PayButtonViewModel payButtonViewModel);
+
+        void startSecurityValidation(@NonNull final SecurityValidationData data);
     }
 
     interface Action extends PaymentServiceHandler {
+
+        void startSecuredPayment();
+
+        void trackSecurityFriction();
 
         void onPaymentConfirm();
 

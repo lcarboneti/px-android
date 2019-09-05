@@ -3,8 +3,8 @@ package com.mercadopago.android.px.paymentvault;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.configuration.AdvancedConfiguration;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.datasource.PaymentVaultTitleSolver;
 import com.mercadopago.android.px.internal.features.payment_vault.PaymentVaultPresenter;
 import com.mercadopago.android.px.internal.features.payment_vault.PaymentVaultView;
@@ -90,7 +90,7 @@ public class PaymentVaultPresenterTest {
 
         final PaymentVaultPresenter presenter =
             new PaymentVaultPresenter(paymentSettingRepository, userSelectionRepository,
-                disabledPaymentMethodRepository, discountRepository, groupsRepository, mock(IESCManager.class),
+                disabledPaymentMethodRepository, discountRepository, groupsRepository, mock(ESCManagerBehaviour.class),
                 paymentVaultTitleSolver);
         presenter.attachView(view);
 

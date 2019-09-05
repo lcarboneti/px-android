@@ -21,6 +21,7 @@ public final class MPTracker {
     private static final String ATTR_SESSION_ID = "session_id";
     private static final String ATTR_SESSION_TIME = "session_time";
     private static final String ATTR_CHECKOUT_TYPE = "checkout_type";
+    private static final String ATTR_SECURITY_ENABLED = "security_enabled";
 
     private static MPTracker trackerInstance;
 
@@ -43,6 +44,8 @@ public final class MPTracker {
     @CheckoutType @Nullable private String checkoutType;
 
     private long initSessionTimestamp;
+
+    private boolean securityEnabled;
 
     private MPTracker() {
         // do nothing
@@ -104,6 +107,15 @@ public final class MPTracker {
     }
 
     /**
+     * Set if the user will be challenged with security validation or not
+     *
+     * @param securityEnabled indicates if the user will be challenged with fingerprint/pin/pattern when pays
+     */
+    public void setSecurityEnabled(final boolean securityEnabled) {
+        this.securityEnabled = securityEnabled;
+    }
+
+    /**
      * This method tracks a list of events in one request
      *
      * @param event Event to track
@@ -143,13 +155,13 @@ public final class MPTracker {
     }
 
     public void trackEvent(@NonNull final String path, @NonNull final Map<String, Object> data) {
+        // Event friction case needs to add flow detail in a different way. We ignore this case for now.
+        if (!FrictionEventTracker.PATH.equals(path)) {
+            addAdditionalFlowInfo(data);
+        } else {
+            addAdditionalFlowIntoExtraInfo(data);
+        }
         if (pxTrackingListener != null) {
-            // Event friction case needs to add flow detail in a different way. We ignore this case for now.
-            if (!FrictionEventTracker.PATH.equals(path)) {
-                addAdditionalFlowInfo(data);
-            } else {
-                addAdditionalFlowIntoExtraInfo(data);
-            }
             pxTrackingListener.onEvent(path, data);
         }
     }
@@ -163,6 +175,7 @@ public final class MPTracker {
                 value.put(ATTR_SESSION_ID, sessionId);
                 value.put(ATTR_SESSION_TIME, getSecondsAfterInit());
                 data.put(ATTR_CHECKOUT_TYPE, checkoutType);
+                value.put(ATTR_SECURITY_ENABLED, securityEnabled);
             } catch (final ClassCastException e) {
                 // do nothing.
             }
@@ -175,6 +188,7 @@ public final class MPTracker {
         data.put(ATTR_SESSION_ID, sessionId);
         data.put(ATTR_SESSION_TIME, getSecondsAfterInit());
         data.put(ATTR_CHECKOUT_TYPE, checkoutType);
+        data.put(ATTR_SECURITY_ENABLED, securityEnabled);
     }
 
     private long getSecondsAfterInit() {

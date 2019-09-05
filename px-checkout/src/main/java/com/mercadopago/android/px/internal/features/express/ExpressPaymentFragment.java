@@ -25,6 +25,8 @@ import android.view.animation.AnimationUtils;
 import com.mercadolibre.android.ui.widgets.MeliButton;
 import com.mercadolibre.android.ui.widgets.MeliSnackbar;
 import com.mercadopago.android.px.R;
+import com.mercadopago.android.px.addons.internal.PXApplicationBehaviourProvider;
+import com.mercadopago.android.px.addons.model.SecurityValidationData;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.features.Constants;
@@ -65,7 +67,6 @@ import com.mercadopago.android.px.internal.viewmodel.PostPaymentAction;
 import com.mercadopago.android.px.internal.viewmodel.RenderMode;
 import com.mercadopago.android.px.internal.viewmodel.SplitSelectionState;
 import com.mercadopago.android.px.internal.viewmodel.drawables.DrawableFragmentItem;
-import com.mercadopago.android.px.model.BusinessPayment;
 import com.mercadopago.android.px.model.Card;
 import com.mercadopago.android.px.model.DiscountConfigurationModel;
 import com.mercadopago.android.px.model.IPaymentDescriptor;
@@ -91,9 +92,10 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     private static final String TAG_EXPLODING_FRAGMENT = "TAG_EXPLODING_FRAGMENT";
     private static final String TAG_HEADER_DYNAMIC_DIALOG = "TAG_HEADER_DYNAMIC_DIALOG";
     private static final String EXTRA_RENDER_MODE = "render_mode";
-    private static final int REQ_CODE_CARD_VAULT = 0x999;
-    private static final int REQ_CODE_PAYMENT_PROCESSOR = 0x123;
-    private static final int REQ_CODE_SECURITY_CODE = 18;
+    private static final int REQ_CODE_PAYMENT_PROCESSOR = 101;
+    private static final int REQ_CODE_CARD_VAULT = 102;
+    private static final int REQ_CODE_SECURITY_CODE = 103;
+    private static final int REQ_CODE_BIOMETRICS = 104;
     private static final float PAGER_NEGATIVE_MARGIN_MULTIPLIER = -1.5f;
 
     @Nullable private CallBack callback;
@@ -179,7 +181,7 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
         confirmButton.setOnClickListener(v -> {
             if (ApiUtil.checkConnection(getContext())) {
-                presenter.confirmPayment();
+                presenter.startSecuredPayment();
             } else {
                 presenter.manageNoConnection();
             }
@@ -240,7 +242,9 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
             session.getGroupsRepository(),
             session.getAmountConfigurationRepository(),
             session.getConfigurationModule().getChargeSolver(),
-            session.getMercadoPagoESC());
+            session.getMercadoPagoESC(),
+            session.getProductIdProvider(),
+            PXApplicationBehaviourProvider.getSecurityBehaviour());
     }
 
     @Override
@@ -373,17 +377,32 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        if (requestCode == REQ_CODE_CARD_VAULT && resultCode == RESULT_OK) {
-            presenter.onTokenResolved();
+        if (requestCode == REQ_CODE_CARD_VAULT) {
+            handleCardVaultResult(resultCode);
         } else if (requestCode == REQ_CODE_SECURITY_CODE && resultCode == RESULT_OK) {
             presenter.onTokenResolved();
-        } else if (requestCode == REQ_CODE_CARD_VAULT && resultCode == RESULT_CANCELED) {
-            presenter.trackExpressView();
-            super.onActivityResult(requestCode, resultCode, data);
+        } else if (requestCode == REQ_CODE_BIOMETRICS) {
+            handleBiometricsResult(resultCode);
         } else if (resultCode == Constants.RESULT_ACTION) {
             handleAction(data);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    private void handleBiometricsResult(final int resultCode) {
+        if (resultCode == RESULT_OK) {
+            presenter.confirmPayment();
+        } else {
+            presenter.trackSecurityFriction();
+        }
+    }
+
+    private void handleCardVaultResult(final int resultCode) {
+        if (resultCode == RESULT_OK) {
+            presenter.onTokenResolved();
+        } else if (resultCode == RESULT_CANCELED) {
+            presenter.trackExpressView();
         }
     }
 
@@ -426,14 +445,16 @@ public class ExpressPaymentFragment extends Fragment implements ExpressPayment.V
     @Override
     public void showPaymentResult(@NonNull final IPaymentDescriptor paymentResult) {
         if (getActivity() != null) {
-            if (paymentResult instanceof BusinessPayment) {
-                ((CheckoutActivity) getActivity()).presenter.onPaymentFinished((BusinessPayment) paymentResult);
-            } else {
-                ((CheckoutActivity) getActivity()).presenter.onPaymentFinished(paymentResult);
-            }
+            ((CheckoutActivity) getActivity()).presenter.onPaymentFinished(paymentResult);
         }
     }
 
+    @Override
+    public void startSecurityValidation(@NonNull final SecurityValidationData data) {
+        PXApplicationBehaviourProvider.getSecurityBehaviour().startValidation(this, data, REQ_CODE_BIOMETRICS);
+    }
+
+    //FIXME Used to start payment from activity
     @Override
     public void startPayment() {
         presenter.confirmPayment();

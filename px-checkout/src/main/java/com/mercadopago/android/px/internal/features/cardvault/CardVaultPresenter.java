@@ -3,11 +3,11 @@ package com.mercadopago.android.px.internal.features.cardvault;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
 import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
 import com.mercadopago.android.px.internal.controllers.PaymentMethodGuessingController;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
 import com.mercadopago.android.px.internal.features.guessing_card.GuessingCardActivity;
 import com.mercadopago.android.px.internal.repository.AmountConfigurationRepository;
 import com.mercadopago.android.px.internal.repository.CardTokenRepository;
@@ -30,7 +30,7 @@ import java.util.List;
 
 /* default */ class CardVaultPresenter extends BasePresenter<CardVault.View> implements CardVault.Actions {
 
-    @NonNull private final IESCManager iESCManager;
+    @NonNull private final ESCManagerBehaviour escManagerBehaviour;
     @NonNull private final AmountConfigurationRepository amountConfigurationRepository;
     @NonNull private final UserSelectionRepository userSelectionRepository;
     @NonNull private final PaymentSettingRepository paymentSettingRepository;
@@ -57,12 +57,12 @@ import java.util.List;
 
     public CardVaultPresenter(@NonNull final UserSelectionRepository userSelectionRepository,
         @NonNull final PaymentSettingRepository paymentSettingRepository,
-        @NonNull final IESCManager iESCManager,
+        @NonNull final ESCManagerBehaviour escManagerBehaviour,
         @NonNull final AmountConfigurationRepository amountConfigurationRepository,
         @NonNull final CardTokenRepository cardTokenRepository) {
         this.userSelectionRepository = userSelectionRepository;
         this.paymentSettingRepository = paymentSettingRepository;
-        this.iESCManager = iESCManager;
+        this.escManagerBehaviour = escManagerBehaviour;
         this.amountConfigurationRepository = amountConfigurationRepository;
         this.cardTokenRepository = cardTokenRepository;
     }
@@ -260,7 +260,7 @@ import java.util.List;
         if (!TextUtil.isEmpty(esc)) {
             return true;
         } else {
-            setESC(iESCManager.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()));
+            setESC(escManagerBehaviour.getESC(card.getId(), card.getFirstSixDigits(), card.getLastFourDigits()));
             return !TextUtil.isEmpty(esc);
         }
     }
@@ -276,7 +276,7 @@ import java.util.List;
                 CardVaultPresenter.this.token = token;
                 CardVaultPresenter.this.token.setLastFourDigits(card.getLastFourDigits());
                 paymentSettingRepository.configure(CardVaultPresenter.this.token);
-                iESCManager.saveESCWith(token.getCardId(), token.getEsc());
+                escManagerBehaviour.saveESCWith(token.getCardId(), token.getEsc());
                 if (isViewAttached()) {
                     getView().finishWithResult();
                 }
@@ -286,7 +286,7 @@ import java.util.List;
             public void onFailure(final MercadoPagoError error) {
                 if (error.isApiException() && EscUtil.isInvalidEscForApiException(error.getApiException())) {
                     EscFrictionEventTracker.create(escCardToken.getCardId(), esc, error.getApiException()).track();
-                    iESCManager.deleteESCWith(escCardToken.getCardId());
+                    escManagerBehaviour.deleteESCWith(escCardToken.getCardId());
                     esc = null;
                     //Start CVV screen if fail
                     if (isViewAttached()) {

@@ -1,11 +1,14 @@
 package com.mercadopago.android.px.internal.features.review_and_confirm;
 
 import android.support.annotation.NonNull;
+import com.mercadopago.android.px.addons.ESCManagerBehaviour;
+import com.mercadopago.android.px.addons.SecurityBehaviour;
+import com.mercadopago.android.px.addons.model.SecurityValidationData;
 import com.mercadopago.android.px.configuration.DynamicDialogConfiguration;
 import com.mercadopago.android.px.core.DynamicDialogCreator;
 import com.mercadopago.android.px.internal.base.BasePresenter;
 import com.mercadopago.android.px.internal.callbacks.FailureRecovery;
-import com.mercadopago.android.px.internal.datasource.IESCManager;
+import com.mercadopago.android.px.internal.core.ProductIdProvider;
 import com.mercadopago.android.px.internal.features.explode.ExplodeDecoratorMapper;
 import com.mercadopago.android.px.internal.repository.DiscountRepository;
 import com.mercadopago.android.px.internal.repository.PaymentRepository;
@@ -25,34 +28,41 @@ import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
 import com.mercadopago.android.px.preferences.CheckoutPreference;
 import com.mercadopago.android.px.tracking.internal.events.ChangePaymentMethodEvent;
 import com.mercadopago.android.px.tracking.internal.events.ConfirmEvent;
+import com.mercadopago.android.px.tracking.internal.events.FrictionEventTracker;
 import com.mercadopago.android.px.tracking.internal.views.ReviewAndConfirmViewTracker;
 import java.util.Set;
 
 /* default */ final class ReviewAndConfirmPresenter extends BasePresenter<ReviewAndConfirm.View>
     implements ReviewAndConfirm.Action {
 
-    @NonNull /* default */ final PaymentRepository paymentRepository;
     @NonNull private final BusinessModelMapper businessModelMapper;
     @NonNull private final PaymentSettingRepository paymentSettings;
+    @NonNull private final UserSelectionRepository userSelectionRepository;
+    @NonNull private final ProductIdProvider productIdProvider;
+    @NonNull private final SecurityBehaviour securityBehaviour;
+    @NonNull /* default */ final PaymentRepository paymentRepository;
     private final ExplodeDecoratorMapper explodeDecoratorMapper;
     private final ReviewAndConfirmViewTracker reviewAndConfirmViewTracker;
     private final ConfirmEvent confirmEvent;
-    private final UserSelectionRepository userSelectionRepository;
-    private FailureRecovery recovery;
     private final PayButtonViewModel payButtonViewModel;
+    private FailureRecovery recovery;
 
     /* default */ ReviewAndConfirmPresenter(@NonNull final PaymentRepository paymentRepository,
         @NonNull final BusinessModelMapper businessModelMapper,
         @NonNull final DiscountRepository discountRepository,
         @NonNull final PaymentSettingRepository paymentSettings,
         @NonNull final UserSelectionRepository userSelectionRepository,
-        @NonNull final IESCManager IESCManager) {
-        final Set<String> escCardIds = IESCManager.getESCCardIds();
+        @NonNull final ESCManagerBehaviour escManagerBehaviour,
+        @NonNull final ProductIdProvider productIdProvider,
+        @NonNull final SecurityBehaviour securityBehaviour) {
         this.paymentRepository = paymentRepository;
         this.businessModelMapper = businessModelMapper;
         this.paymentSettings = paymentSettings;
         this.userSelectionRepository = userSelectionRepository;
+        this.productIdProvider = productIdProvider;
+        this.securityBehaviour = securityBehaviour;
 
+        final Set<String> escCardIds = escManagerBehaviour.getESCCardIds();
         explodeDecoratorMapper = new ExplodeDecoratorMapper();
         reviewAndConfirmViewTracker =
             new ReviewAndConfirmViewTracker(escCardIds, userSelectionRepository, paymentSettings,
@@ -111,9 +121,23 @@ import java.util.Set;
     }
 
     @Override
+    public void startSecuredPayment() {
+        final String productId = productIdProvider.getProductId();
+        getView().startSecurityValidation(new SecurityValidationData.Builder().setFlowId(productId).build());
+    }
+
+    @Override
     public void onPaymentConfirm() {
         confirmEvent.track();
         pay();
+    }
+
+    @Override
+    public void trackSecurityFriction() {
+        // TODO Review ID
+        FrictionEventTracker
+            .with(ReviewAndConfirmViewTracker.PATH, FrictionEventTracker.Id.GENERIC,
+                FrictionEventTracker.Style.CUSTOM_COMPONENT).track();
     }
 
     /* default */ void pay() {
