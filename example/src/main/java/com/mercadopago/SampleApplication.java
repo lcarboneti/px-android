@@ -25,8 +25,10 @@ public class SampleApplication extends Application {
         OkHttpClient.Builder baseClient = HttpClientUtil.createBaseClient(this, 10, 10, 10)
             .addNetworkInterceptor(new StethoInterceptor());
 
-        // return client with TLS protocol setted
-        final OkHttpClient client = HttpClientUtil.enableTLS12(baseClient)
+        // customClient: client with TLS protocol setted
+        final OkHttpClient customClient = HttpClientUtil.enableTLS12(baseClient)
             .build();
+
+        HttpClientUtil.setCustomClient(customClient);
     }
 }

@@ -66,7 +66,7 @@ public final class HttpClientUtil {
      * @param connectTimeout
      * @param readTimeout
      * @param writeTimeout
-     * @return am httpClient with TLS 1.1 support
+     * @return am httpClient with TLS 1.2 support
      */
     @NonNull
     public static OkHttpClient.Builder createBaseClient(@Nullable final Context context, final int connectTimeout,
@@ -172,10 +172,7 @@ public final class HttpClientUtil {
         return new File(cacheDir, CACHE_DIR_NAME);
     }
 
-    /**
-     * True if enabling TLS is needed on current device (SDK version  < 22)
-     */
-    private static boolean isTLSEnableNeeded() {
-        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP;
+    public static void setCustomClient(final OkHttpClient clientCustom) {
+        client = clientCustom;
     }
 }
