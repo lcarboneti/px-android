@@ -9,6 +9,7 @@ import com.mercadopago.android.px.core.SplitPaymentProcessor;
 import com.mercadopago.android.px.internal.callbacks.TaggedCallback;
 import com.mercadopago.android.px.internal.di.Session;
 import com.mercadopago.android.px.internal.util.ApiUtil;
+import com.mercadopago.android.px.internal.util.RetrofitUtil;
 import com.mercadopago.android.px.internal.util.TextUtil;
 import com.mercadopago.android.px.model.Payment;
 import com.mercadopago.android.px.model.exceptions.MercadoPagoError;
@@ -17,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class DefaultPaymentProcessor implements SplitPaymentProcessor {
-
-    private static final int DEFAULT_READ_TIMEOUT = 20000;
 
     /* default */ DefaultPaymentProcessor() {
     }
@@ -51,7 +50,7 @@ public final class DefaultPaymentProcessor implements SplitPaymentProcessor {
 
     @Override
     public int getPaymentTimeout(@NonNull final CheckoutPreference checkoutPreference) {
-        return DEFAULT_READ_TIMEOUT;
+        return RetrofitUtil.DEFAULT_READ_TIMEOUT * 1000;
     }
 
     @Override

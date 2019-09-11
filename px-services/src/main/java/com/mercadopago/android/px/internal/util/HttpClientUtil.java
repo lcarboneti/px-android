@@ -3,6 +3,7 @@ package com.mercadopago.android.px.internal.util;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import com.mercadopago.android.px.internal.core.ConnectivityStateInterceptor;
 import com.mercadopago.android.px.internal.core.ProductIdInterceptor;
@@ -36,61 +37,77 @@ import static com.mercadopago.android.px.services.BuildConfig.HTTP_CLIENT_LOG;
 public final class HttpClientUtil {
 
     private static OkHttpClient client;
-    private static final int DEFAULT_TIMEOUT = 20;
     private static final int CACHE_SIZE = 10 * 1024 * 1024; // 10 MB
     private static final String TLS_1_2 = "TLSv1.2";
     private static final String CACHE_DIR_NAME = "PX_OKHTTP_CACHE_SERVICES";
     private static final HttpLoggingInterceptor.Level LOGGING_INTERCEPTOR =
         HTTP_CLIENT_LOG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE;
 
-    public static synchronized OkHttpClient getClient(@NonNull final Context context) {
+    private HttpClientUtil() {
+    }
 
-        if (clientDontExist()) {
-            // Add Logging interceptor (should be last interceptor)
-            final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-            interceptor.setLevel(LOGGING_INTERCEPTOR);
-            final File cacheFile = getCacheDir(context);
+    public static synchronized OkHttpClient getClient(@NonNull final Context context,
+        final int connectTimeout,
+        final int readTimeout,
+        final int writeTimeout) {
 
-            OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder()
-                .connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-                .writeTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-                .readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
-                .cache(new Cache(cacheFile, CACHE_SIZE))
-                .addInterceptor(getConnectionInterceptor(context))
-                .addInterceptor(new SessionInterceptor(context))
-                .addInterceptor(new ProductIdInterceptor(context))
-                .addInterceptor(new RequestIdInterceptor())
-                .addInterceptor(new UserAgentInterceptor(BuildConfig.USER_AGENT))
-                .addInterceptor(interceptor);
-
-            clientBuilder = enableTLS12(clientBuilder);
-            client = clientBuilder.build();
+        OkHttpClient.Builder baseClient;
+        if (client == null) {
+            baseClient = createBaseClient(context, connectTimeout, readTimeout, writeTimeout);
+            client = enableTLS12(baseClient).build();
         }
         return client;
     }
 
-    private static OkHttpClient.Builder enableTLS12(@NonNull final OkHttpClient.Builder clientBuilder) {
-        if (isTLSEnableNeeded()) {
+    /**
+     * Intended public for client implementation.
+     *
+     * @param context
+     * @param connectTimeout
+     * @param readTimeout
+     * @param writeTimeout
+     * @return am httpClient with TLS 1.1 support
+     */
+    @NonNull
+    public static OkHttpClient.Builder createBaseClient(@Nullable final Context context, final int connectTimeout,
+        final int readTimeout, final int writeTimeout) {
+
+        final File cacheFile = getCacheDir(context);
+        final HttpLoggingInterceptor loginInterceptor = new HttpLoggingInterceptor();
+        loginInterceptor.setLevel(LOGGING_INTERCEPTOR);
+
+        OkHttpClient.Builder baseClient = new OkHttpClient.Builder()
+            .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+            .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+            .readTimeout(readTimeout, TimeUnit.SECONDS)
+            .cache(new Cache(cacheFile, CACHE_SIZE));
+
+        if (context != null) {
+            baseClient.addInterceptor(getConnectionInterceptor(context));
+            baseClient.addInterceptor(new SessionInterceptor(context));
+            baseClient.addInterceptor(new ProductIdInterceptor(context));
+        }
+
+        baseClient.addInterceptor(new RequestIdInterceptor());
+        baseClient.addInterceptor(new UserAgentInterceptor(BuildConfig.USER_AGENT));
+
+        // add logging interceptor (should be last interceptor)
+        baseClient.addInterceptor(loginInterceptor);
+
+        return baseClient;
+    }
+
+    public static OkHttpClient.Builder enableTLS12(@NonNull final OkHttpClient.Builder clientBuilder) {
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
             return internalEnableTLS12(clientBuilder);
         }
         return clientBuilder;
     }
 
-    /**
-     * True if enabling TLS is needed on current device (SDK version >= 16 and < 22)
-     */
-    private static boolean isTLSEnableNeeded() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-            Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP;
-    }
-
-    /**
-     * Enable TLS on the OKHttp builder by setting a custom SocketFactory
-     */
     private static OkHttpClient.Builder internalEnableTLS12(final OkHttpClient.Builder client) {
         final X509TrustManager certificate = certificateTrustManager();
         if (certificate != null) {
-            return getOkHttpClient(client, certificate);
+            return configureProtocol(client, certificate);
         }
         return client;
     }
@@ -108,16 +125,13 @@ public final class HttpClientUtil {
         return null;
     }
 
-    private static OkHttpClient.Builder getOkHttpClient(final OkHttpClient.Builder client,
+    private static OkHttpClient.Builder configureProtocol(final OkHttpClient.Builder client,
         final X509TrustManager trustManager) {
         try {
             SSLContext sslContext = SSLContext.getInstance(TLS_1_2);
             sslContext.init(null, new TrustManager[] { trustManager }, new SecureRandom());
-
-            OkHttpClient.Builder builder = client.sslSocketFactory(
-                new TLSSocketFactory(sslContext.getSocketFactory()), trustManager);
-
-            return builder.connectionSpecs(availableConnectionSpecs());
+            client.sslSocketFactory(new TLSSocketFactory(sslContext.getSocketFactory()), trustManager);
+            return client.connectionSpecs(availableConnectionSpecs());
         } catch (final Exception exception) {
             //Do Nothing
         }
@@ -145,25 +159,23 @@ public final class HttpClientUtil {
         return new ConnectivityStateInterceptor(context);
     }
 
-    /**
-     * Intended for testing proposes.
-     *
-     * @param builderClient custom client
-     */
-    @VisibleForTesting
-    public static void setClient(final OkHttpClient.Builder builderClient) {
-        client = internalEnableTLS12(builderClient).build();
-    }
-
-    private static boolean clientDontExist() {
-        return client == null;
-    }
-
-    private static File getCacheDir(final Context context) {
-        File cacheDir = context.getCacheDir();
-        if (cacheDir == null) {
-            cacheDir = context.getDir("cache", Context.MODE_PRIVATE);
+    private static File getCacheDir(@Nullable final Context context) {
+        File cacheDir;
+        if (context != null) {
+            cacheDir = context.getCacheDir();
+            if (cacheDir == null) {
+                cacheDir = context.getDir("cache", Context.MODE_PRIVATE);
+            }
+        } else {
+            cacheDir = new File(android.os.Environment.getExternalStorageDirectory(), "MyCache");
         }
         return new File(cacheDir, CACHE_DIR_NAME);
+    }
+
+    /**
+     * True if enabling TLS is needed on current device (SDK version  < 22)
+     */
+    private static boolean isTLSEnableNeeded() {
+        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP;
     }
 }
