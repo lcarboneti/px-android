@@ -4,10 +4,6 @@ _29_08_2019_
 * FEATURE - Added card drawer on express payment.
 * FIX - CPF validation.
 
-## VERSION 4.19.1
-28_08_2019
-* Fix TLS 1.1 replacing with 1.2
-
 ## VERSION 4.19.0
 _22_08_2019_
 * FEATURE - Added tracking of payment method selected index and available methods quantity.
