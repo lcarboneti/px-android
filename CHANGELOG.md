@@ -1,6 +1,4 @@
 ## VERSION 4.21.0
-05_09_2019
-* FIX - TLS 1.1 replacing with 1.2
 
 ## VERSION 4.20.0
 _29_08_2019_
